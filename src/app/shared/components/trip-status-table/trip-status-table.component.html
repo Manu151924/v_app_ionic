@@ -1,0 +1,26 @@
+<div class="trip-status-card">
+  <div class="section-title">
+    <img src="assets/icon/trip.png" alt="trip" class="trip-icon">
+    <span style="font-weight: 700; font-size: 12px;">Trip Status</span>
+    <span class="big-count green">{{ total }}</span>
+  </div>
+
+  <div class="table">
+    <div class="table-header">
+      <span class="col vehT">VEH No.</span>
+      <span class="col ofdT">OFD Status</span>
+      <span class="col tmeT">Last Updated</span>
+    </div>
+
+    <div class="table-body">
+      @for (t of vehicles; track t.vehNo) {
+        <div class="table-row">
+          <span class="col veh">{{ t.vehNo }}</span>
+          <span class="col ofd" [ngClass]="t.statusColor">{{ t.ofdStatus }}</span>
+          <span class="col time">{{ t.lastUpdated }}</span>
+          <span class="col loc"><ion-icon name="location"></ion-icon></span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

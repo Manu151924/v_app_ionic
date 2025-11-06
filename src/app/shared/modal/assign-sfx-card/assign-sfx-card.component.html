@@ -1,0 +1,35 @@
+<!-- assign-sfx-card.component.html -->
+<ion-card class="assign-sfx-card">
+  <div class="header-row">
+    <ion-select class="location-select" interface="popover" [(ngModel)]="selectedLocation">
+      @for (location of locations; track location){
+        <ion-select-option>{{ location }}</ion-select-option>
+      }
+      
+    </ion-select>
+    <div class="assigned-sfx">
+      Assigned SFX <span class="assigned-sfx-value">{{ assignedSFX }}</span>
+    </div>
+  </div>
+  <div class="bar-row" (click)="openZeroPickupPopup()">
+    <span class="bar-label zero">ZERO PICKUP SFX</span>
+    <div class="bar-bg">
+      <div class="bar-fill bar-red" [style.width.%]="zeroPickupPercent"></div>
+    </div>
+    <span class="bar-count bar-red">{{ zeroPickupCount }}</span>
+  </div>
+  <div class="bar-row" (click)="openNotManifestedPopup()">
+    <span class="bar-label not-manifested">NOT-MANIFESTED</span>
+    <div class="bar-bg">
+      <div class="bar-fill bar-maroon" [style.width.%]="notManifestedPercent"></div>
+    </div>
+    <span class="bar-count bar-maroon">{{ notManifestedCount }}</span>
+  </div>
+  <div class="bar-row" (click)="openDraftWaybillsPopup()">
+    <span class="bar-label draft">DRAFT WAYBILLS</span>
+    <div class="bar-bg">
+      <div class="bar-fill bar-amber" [style.width.%]="draftWaybillsPercent"></div>
+    </div>
+    <span class="bar-count bar-amber">{{ draftWaybillsCount }}</span>
+  </div>
+</ion-card>

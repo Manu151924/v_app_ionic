@@ -1,0 +1,30 @@
+    <ion-header>
+      <ion-toolbar>
+        <ion-title class="title">Assigned SFX</ion-title>
+        <ion-buttons slot="end">
+      <ion-button fill="clear" class="close-btn" (click)="close()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div class="sfx-list-container">
+        @for(item of assignedSfxData; track item){
+          <div class="sfx-card">
+            <div class="sfx-row">
+              <div class="sfx-label">SFX Code</div>
+              <div class="pickup-label">LAST PICKUP DATE</div>
+ </div>
+              <div class="sfx-row"> 
+              <div class="sfx-value">{{ item.code }}</div>
+                <div class="pickup-value">{{ item.lastPickupDate }}</div></div>
+            <div class="sfx-row consignor-row">
+              <div class="sfx-label">Consignor</div>
+            </div>
+                      <div class="sfx-value consignor">{{ item.consignor }}</div>
+</div>
+        }
+      </div>
+    </ion-content>

@@ -1,0 +1,193 @@
+.login-content {
+  --background: #1A1B1B;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.login-header {
+  background: #1A1B1B;
+  text-align: center;
+  padding-top: 5vh;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  margin: 0 auto;
+  display: block;
+  position: absolute;
+  height: 80px;
+  width: 138px;
+  top: 287px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Floating white card */
+.login-card {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  padding: 42px 30px 70px 30px;
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  position: absolute;
+  top: 42vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 55px;
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 20px solid #1A1B1B;
+}
+
+/* Title */
+.login-card h2 {
+  font-size: 17px;
+  font-weight: 500;
+  color: #2e7d32;
+  margin-bottom: 14px;
+  margin-top: 12px;
+  text-align: left;
+}
+
+/* Input styling */
+.custom-item {
+  margin-bottom: 0;
+  --background: #fff;
+}
+
+ion-label {
+  color: #1A1B1B;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+ion-input {
+  color: #1A1B1B;
+  font-size: 14px;
+  background: transparent;
+  border: none;
+  letter-spacing: 0.5px;
+  padding-left: 0;
+}
+
+/* ✅ Button styles (Send OTP / Resend OTP / Submit) */
+.actions, .otp-actions {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.send-otp-btn,
+.submit-btn {
+  background-color: #11C15B;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 38px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(17, 193, 91, 0.3);
+  min-width: 140px;
+}
+
+.send-otp-btn:hover,
+.submit-btn:hover {
+  background-color: #0ea44a;
+  box-shadow: 0 3px 12px rgba(17, 193, 91, 0.4);
+}
+
+.send-otp-btn:active,
+.submit-btn:active {
+  transform: scale(0.97);
+}
+
+/* Resend OTP link */
+.resend-otp {
+  color: #11C15B;
+  font-size: 13px;
+  margin-left: -19rem;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.resend-otp.disabled {
+  color: #bbb;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.resend-otp:hover {
+  color: #0ea44a;
+}
+
+/* Footer */
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px 16px 32px;
+  box-sizing: border-box;
+  font-size: 14px;
+  background: transparent;
+  z-index: 10;
+}
+
+.version {
+  margin-bottom: 2px;
+}
+
+.tnc {
+  margin-bottom: 2px;
+  color: #000000;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .login-card {
+    padding: 64px 20px 60px;
+    top: 40vh;
+    height: 59vh;
+  }
+
+  .footer {
+    padding: 0 16px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-height: 720px) {
+  .login-card {
+    top: 38vh;
+    padding: 32px 24px 60px;
+  }
+
+  .footer {
+    padding-bottom: 6px;
+    font-size: 11px;
+  }
+}

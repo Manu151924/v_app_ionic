@@ -1,0 +1,41 @@
+<div class="inventory-card">
+  <!-- Header -->
+  <div class="header-row">
+    <ion-item lines="none" class="branch-select">
+      <ion-icon name="location" slot="start" color="success"></ion-icon>
+      <ion-select [(ngModel)]="selectedBranch"    interface="popover"    (ionChange)="onBranchChange()">
+        <ion-select-option *ngFor="let b of branches" [value]="b">
+          {{ b }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <div class="stats-box">
+      <span>WAYBILLS: {{ total.waybills }}</span>
+      <span>PKGS: {{ total.packages }}</span>
+      <span>WT (T): {{ total.weight | number: '1.1-1' }}</span>
+    </div>
+  </div>
+
+  <!-- Title -->
+  <div class="title-row">
+    <span class="title">AVL. INVENTORY</span>
+  </div>
+
+  <!-- Horizontal Bar Chart -->
+  <div class="bar-list">
+    <div class="bar-row" *ngFor="let r of routesData">
+      <span class="route-name">{{ r.route }}</span>
+      <div class="bar-container">
+        <div
+          class="bar"
+          [style.width.%]="(r.waybills / total.waybills) * 100"
+          [style.background]="r.color"
+        ></div>
+      </div>
+      <span class="count">{{ r.waybills }}</span>
+    </div>
+  </div>
+
+  <div class="footer-label">{{ selectedBranch }}</div>
+</div>

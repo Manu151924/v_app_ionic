@@ -1,0 +1,75 @@
+<div class="trip-report-card">
+  <div class="header-row">
+    <div class="header-left">
+      <img src="assets/icon/trip.png" alt="trip" class="trip-icon" />
+      <span class="title">Trip Status</span>
+      <span class="big-count green">{{ tripStatusRows.length }}</span>
+    </div>
+
+    <div class="header-right">
+      <img src="assets/icon/absent.png" alt="absent" class="absent-icon" />
+      <span class="title">Absent</span>
+      <span class="big-count red">{{ absentRows.length }}</span>
+    </div>
+  </div>
+
+  <div class="tables-row">
+    <!-- Trip Status Table -->
+    <div class="table-left">
+      <table class="trip-table">
+        <thead>
+          <tr>
+            <th>VEH No.</th>
+            <th>OFD Status</th>
+            <th>Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ts of visibleTripStatusRows; track ts.vehicle) {
+            <tr>
+              <td class="veh-no">{{ ts.vehicle }}</td>
+              <td>
+                <span [ngClass]="getTextColorClass(ts.ofdStatus, ts.total)">
+                  {{ ts.ofdStatus }}/{{ ts.total }}
+                </span>
+              </td>
+              <td class="time">{{ ts.lastUpdated }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Absent Table -->
+    <div class="table-right">
+      <table class="absent-table">
+        <thead>
+          <tr>
+            <th>VEH No.</th>
+            <th>Last Trip Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ab of absentRows; track ab.vehicleNo) {
+            <tr>
+              <td class="veh-no">{{ ab.vehicleNo }}</td>
+              <td class="date">{{ ab.lastTripDate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="toggle-arrow-row">
+    @if (!showAll) {
+      <span class="arrow-btn" (click)="toggleShowAll()">
+        <img src="assets/icon/arrow-back.png" alt="arrow-back" class="arrow-icon">
+      </span>
+    } @else {
+      <span class="arrow-btn" (click)="toggleShowAll()">
+       <img src="assets/icon/uparrow.png" alt="arrow-up" class="arrow-up-icon">
+      </span>
+    }
+  </div>
+</div>

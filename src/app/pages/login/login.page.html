@@ -1,0 +1,33 @@
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login-header">
+    <img src="assets/icon/logo.png" alt="Safexpress Logo" class="logo" (click)="onLogoClick()" />
+  </div>
+
+  <div class="login-card">
+    <h2>Sign in to your account</h2>
+    <ion-item lines="full" class="custom-item">
+      <ion-input type="text" maxlength="10" inputmode="numeric" placeholder="Mobile" [(ngModel)]="mobileNumber">        
+      </ion-input>
+    </ion-item>
+    @if(showOtpField){
+      <ion-item lines="full" class="custom-item">
+        <ion-input type="text" maxlength="6" inputmode="numeric" placeholder="Enter OTP" [(ngModel)]="otp"></ion-input>
+      </ion-item>
+    }
+    @if(!showOtpField){
+          <div class="actions" >
+             <button class="send-otp-btn" (click)="sendOtp()">Send OTP</button>
+          </div>
+    } @else(){
+      <div class="otp-actions">
+          <a class="resend-otp" (click)="resendOtp()" [class.disabled]="resendDisabled">Resend OTP</a>
+          <button class="submit-btn" (click)="login()">Submit</button>
+      </div>
+   }
+  </div>
+  <div class="footer">
+  <span class="version">Version {{ version }}</span>
+  <a class="tnc" href="#">T&amp;C</a>
+</div>
+</ion-content>
+

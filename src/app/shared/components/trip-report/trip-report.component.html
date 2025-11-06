@@ -1,0 +1,107 @@
+
+
+<div class="today-btn-container">
+  <ion-button fill="clear" slot="end" class="today-btn" (click)="toggleCalendar($event)">
+    {{ selectedDateLabel }}
+    <img src="assets/icon/fit.png" alt="arrow-down" style="position: relative; left: 3px;" />
+  </ion-button>
+</div>
+@if(showCalendar){
+  <div class="calendar-popup"  (click)="$event.stopPropagation()">
+  <ion-datetime
+    presentation="date"
+     [min]="minDate"
+    [max]="maxDate"
+    [value]="selectedDate"
+    (ionChange)="onDateChange($event)"
+  ></ion-datetime>
+</div>
+}
+
+
+
+<div class="trip-report-card">
+  <div class="header-row">
+    <div class="header-left">
+      <img src="assets/icon/trip.png" alt="trip" class="trip-icon">
+      <span class="title">Trip Status</span>
+      <span class="big-count green">{{ tripStatusRows.length }}</span>
+    </div>
+    <div class="header-right">
+      <img src="assets/icon/absent.png" alt="trip" class="absent-icon">
+      <span class="title">Absent</span>
+      <span class="count red">{{ absentRows.length }}</span>
+    </div>
+  </div>
+  <div class="tables-row">
+    <div class="table-left">
+      <table class="trip-table">
+        <thead>
+          <tr>
+            <th>VEH NO.</th>
+            <th>MF VS ULD (WB)</th>
+            <th>MF VS ULD (PKGS)</th>
+            <th>SH/EX</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(ts of visibleTripStatusRows; track ts.vehicle){
+            <tr>
+              <td class="veh-no">{{ ts.vehicle }}</td>
+              <td class="wb-data">
+                <span [ngClass]="getTextColorClass(ts.mfVsUldWB, ts.mfManifestWB)">
+                  {{ ts.mfVsUldWB }}/{{ ts.mfManifestWB }}
+                </span>
+              </td>
+              <td class="pkgs-data">
+                <span [ngClass]="getTextColorClass(ts.mfVsUldPkgs, ts.mfManifestPkgs)">
+                  {{ ts.mfVsUldPkgs }}
+                </span>/{{ ts.mfManifestPkgs }}
+              </td>
+              <td class="sh-ex">
+                <span [class.red]="ts.shEx > 0" (click)="openShExModal(ts.vehicle)">
+                  {{ ts.shEx > 0 ? ts.shEx : '-' }}
+                </span>
+              </td>
+            </tr>
+          }
+
+
+        </tbody>
+      </table>
+
+    </div>
+    <!-- Right: Absent Table (card) -->
+    <div class="table-right">
+      <table class="absent-table">
+        <thead>
+          <tr>
+            <th>VEH NO.</th>
+            <th>LAST PICKUP</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(ab of absentRows; track ab.vehicleNo){
+          <tr >
+            <td class="veh-no">{{ ab.vehicleNo }}</td>
+            <td class="date">{{ ab.lastPickup }}</td>
+          </tr>
+          }
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+        <div class="toggle-arrow-row">
+          @if(!showAll){
+           <span  class="arrow-btn" (click)="toggleShowAll()">
+             <img src="assets/icon/arrow-back.png" alt="arrow-back" class="arrow-icon">
+           </span>
+          } @else {
+              <span  class="arrow-btn" (click)="toggleShowAll()">
+               <img src="assets/icon/uparrow.png" alt="arrow-up" class="arrow-up-icon">
+              </span>
+          }
+      </div>
+</div>
+

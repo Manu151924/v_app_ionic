@@ -1,0 +1,79 @@
+.sfx-list-container {
+      max-height: 85vh;
+      overflow-y: auto;
+     background: #fff;
+ }
+
+    .sfx-card {
+      background: #F5F5F5;
+      border-left: 6px solid #1cb14f;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 14px 20px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .sfx-row {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #444;
+    }
+
+    .sfx-label {
+      min-width: 100px;
+      color: #2C393B;
+      font-weight: 500;
+      margin-right: 73px;
+    }
+
+    .sfx-value,
+    .pickup-value {
+      font-weight: 500;
+      color: #2C393B;
+      margin-right: 68px;
+    }
+
+    .pickup-label {
+      min-width: 130px;
+      color: #2C393B;
+      font-weight: 500;
+    }
+
+    .consignor-row {
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .consignor {
+      font-weight: 500;
+      color: #2C393B;
+    }
+    .pickup-info {
+  text-align: right;
+
+  .pickup-label {
+    font-weight: 500;
+    font-size: 11px;
+    color:#2C393B;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .pickup-value {
+    font-weight: 500;
+    font-size: 14px;
+    color: #2C393B;
+  }
+}
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2C393B;
+  border-color: red;
+  border-width: 0.5px;
+  left: -126px;
+}

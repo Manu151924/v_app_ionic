@@ -1,0 +1,35 @@
+<ion-card class="status-card">
+  <ion-card-content>
+    <div class="card-header">
+      <div class="location-badge">
+        <ion-icon name="chevronDown" class="location-icon"></ion-icon>
+        <span class="location-text">{{ location }}</span>
+      </div>
+      <div class="assigned-section">
+        <span class="assigned-label">Assigned SFX</span>
+        <span class="assigned-value">{{ assignedSfx }}</span>
+      </div>
+    </div>
+
+    <div class="status-items">
+      @for(  item of statusItems; track item.label){
+        <div let class="status-item">
+        <div class="status-header">
+          <ion-badge [style.background-color]="item.color" class="status-badge">
+            {{ item.label }}
+          </ion-badge>
+          <span class="status-value">{{ item.value }}</span>
+        </div>
+        <div class="progress-bar">
+          <div 
+            class="progress-fill" 
+            [style.width]="getProgressWidth(item.percentage)"
+            [style.background-color]="item.color">
+          </div>
+        </div>
+      </div>
+      }
+
+    </div>
+  </ion-card-content>
+</ion-card>

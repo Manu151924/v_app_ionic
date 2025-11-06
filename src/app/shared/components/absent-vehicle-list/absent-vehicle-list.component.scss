@@ -1,0 +1,92 @@
+.absent-table {
+  flex: 1;
+  width: 100%;
+  max-width: 360px;          /* good for iPhone 14 Pro Max and desktop */
+  background: #fff;
+  //border-radius: 12px;
+  padding: 12px;
+  margin: 12px;
+  //box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #2C3A3B;
+  margin-bottom: 8px;
+}
+
+.section-title ion-icon {
+  font-size: 17px;
+  color: #2C3A3B;
+}
+
+.big-count {
+  font-size: 22px;  
+  margin-left: 60px;
+  align-items: right;
+}
+
+.red {
+  color: #B00020;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  color: #444;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 4px;
+  margin-bottom: 3px;
+  font-size: 13px;
+}
+
+.table-list {
+  margin-top: 2px;
+}
+
+.table-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  font-size: 14px;
+  color: #222;
+}
+
+.table-row .veh {
+  font-weight: 700;
+}
+
+.table-row .date {
+  text-align: right;
+  font-weight: 400;
+  color: #333;
+}
+
+/* ===== Responsive (iPhone 14 Pro and below) ===== */
+@media (max-width: 430px) {
+  .absent-table {
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  .section-title {
+    font-size: 14px;
+  }
+
+  .table-header {
+    font-size: 12.5px;
+  }
+
+  .table-row {
+    font-size: 13px;
+  }
+}

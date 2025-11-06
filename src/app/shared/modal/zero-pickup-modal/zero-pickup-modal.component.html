@@ -1,0 +1,32 @@
+<ion-header class="modal-header">
+  <div class="drag-handle"></div>
+  <ion-toolbar>
+    <ion-title class="vehicle-title">ZERO PICKUP SFX</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" class="close-btn" (click)="close()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="zero-pickup-list-container">
+  @for(item of zeroPickupData; track item.code) {
+    <div class="pickup-card">
+      <div class="pickup-top-row">
+        <div class="pickup-code">
+          <div class="pickup-label">SFX CODE</div>
+          <div class="pickup-value">{{ item.code }}</div>
+        </div>
+        <div class="pickup-date">
+          <div class="pickup-date-label">LAST PICKUP DATE</div>
+          <div class="pickup-date-value">{{ item.lastPickupDate }}</div>
+        </div>
+      </div>
+      <div class="pickup-consignor-row">
+        <div class="pickup-consignor-label">Consignor</div>
+      </div>
+        <div class="pickup-consignor-value">{{ item.consignor }}</div>
+    </div>
+  }
+</ion-content>

@@ -1,0 +1,21 @@
+<div class="absent-table">
+  <div class="section-title">
+  <img src="assets/icon/absent.png" alt="trip" class="absent-icon">
+    <span>Absent</span>
+    <span class="big-count red">{{ total }}</span>
+  </div>
+
+  <div class="table-header">
+    <span class="veh">VEH No.</span>
+    <span class="date">Last Trip Date</span>
+  </div>
+
+  <div class="table-list">
+    @for(a of vehicles; track a.vehNo){
+      <div class="table-row">
+        <span class="veh">{{ a.vehNo }}</span>
+        <span class="date">{{ a.lastTripDate }}</span>
+      </div>
+    }
+  </div>
+</div>

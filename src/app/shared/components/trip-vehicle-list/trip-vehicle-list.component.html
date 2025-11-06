@@ -1,0 +1,10 @@
+<ion-list>
+  @for(vehicle of vehicles; track vehicle){
+    <ion-item>
+      <ion-label>
+        {{vehicle.vehNo}} - {{vehicle.ofdStatus}}
+      </ion-label>
+      <ion-note [color]="vehicle.statusColor">{{vehicle.statusColor}}</ion-note>
+    </ion-item>
+  }
+</ion-list>

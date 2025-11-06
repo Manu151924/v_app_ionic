@@ -1,0 +1,12 @@
+{
+  "name": "vendor",
+  "integrations": {
+    "capacitor": {}
+  },
+  "/vappcore/core/api/v1": {
+    "target": "https://dgapi-uat-nonprod.safexpress.com",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "type": "angular-standalone"
+}

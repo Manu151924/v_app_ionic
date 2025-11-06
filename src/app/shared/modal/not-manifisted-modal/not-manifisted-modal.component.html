@@ -1,0 +1,35 @@
+<ion-header>
+       <ion-toolbar>
+         <ion-title class="title">NOT MANIFESTED</ion-title>
+         <ion-buttons slot="end">
+      <ion-button fill="clear" class="close-btn" (click)="close()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+         </ion-buttons>
+       </ion-toolbar>
+     </ion-header>
+
+ <ion-content class="ion-padding notman-list">
+   @for (item of notManifestedData; track item.waybill ){
+   <div class="notman-card">
+     <div class="notman-row">
+
+         <span class="wb-label">WB#</span>
+             <div class="pkg-label">Booked/MF/Remaining Pkgs.</div>
+       <div class="pkg-label">Pickup Date</div>
+     </div>
+      <div class="pkg-numbers notman-row">
+         <span class="wb-value">{{ item.waybill }}</span>
+         <span class="green">{{ item.booked }}</span>/
+         <span class="green">{{ item.manifested }}</span>/
+         <span class="red">{{ item.remaining }}</span>
+         <span class="date">{{ item.pickupDate }}</span>
+ </div>
+     <div class="notman-row consignor-row">
+       <span class="consignor-label">Consignor</span>
+     </div>
+          <span class="consignor-value">{{ item.consignor || 'Unknown' }}</span>
+</div>
+   }
+
+ </ion-content>

@@ -1,0 +1,69 @@
+<ion-header>
+  <ion-toolbar>
+    <div class="segment-wrapper">
+      <ion-segment [(ngModel)]="segment" class="custom-segment" mode="md">
+        <ion-segment-button
+          value="booking"
+          [disabled]="disableBooking"
+          [class.active]="segment === 'booking'"
+        >
+          <ion-label>BOOKING</ion-label>
+        </ion-segment-button>
+
+        <ion-segment-button
+          value="delivery"
+          [disabled]="disableDelivery"
+          [class.active]="segment === 'delivery'"
+        >
+          <ion-label>DELIVERY</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <ion-button fill="clear" slot="end" class="bell-container">
+      <img
+        src="assets/icon/notifications-outline.png"
+        alt="notifications"
+        class="notifications-outline-icon"
+      />
+      @if (notificationsCount > 0) {
+        <ion-badge color="danger" class="bell-badge">
+          {{ notificationsCount }}
+        </ion-badge>
+      }
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (segment === 'booking') {
+    <app-booking></app-booking>
+  } @else if (segment === 'delivery') {
+    <app-delivery></app-delivery>
+  }
+</ion-content>
+
+<ion-footer class="footer-container">
+  <div class="tab-bar">
+    <ion-button fill="clear" routerLink="/task" routerDirection="root" class="tab-item">
+      <img src="assets/icon/task-icon.png" alt="task" class="task-icon" />
+    </ion-button>
+
+    <div class="center-button">
+      <ion-button
+        fill="solid"
+        color="success"
+        routerLink="/home"
+        routerDirection="root"
+        class="home-btn"
+      >
+        <img src="assets/icon/home.png" alt="home" class="home-outline-icon" />
+      </ion-button>
+      <span class="home-label">Home</span>
+    </div>
+
+    <ion-button fill="clear" routerLink="/account" routerDirection="root" class="tab-item">
+      <img src="assets/icon/account.png" alt="account" class="account-icon" />
+    </ion-button>
+  </div>
+</ion-footer>

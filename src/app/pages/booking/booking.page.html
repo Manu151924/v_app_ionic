@@ -1,93 +1,97 @@
 <ion-content>
-  <ngx-spinner bdColor="rgba(0,0,0,0.3)" size="medium" color="#27AE60" type="dots"></ngx-spinner>
-    <ion-card class="delhi-card">
-      <ion-card-content class="delhi-card-content">
-        <div class="header-row">
-          <div class="location-dropdown">
-            <img src="assets/icon/location.png" alt="location" class="location-icon" />
-            <ion-select
-              interface="popover"
-              [formControl]="selectedCityControl"
-              (ionChange)="onCityChange($event)"
-              class="city-select"
-            >
-              @for(city of cities; track city) {
-                <ion-select-option [value]="city">{{ city }}</ion-select-option>
-              }
-            </ion-select>
-          </div>
+  <ngx-spinner
+    bdColor="rgba(255,255,255,0.1)"
+    color="#2ca85e"
+    size="large"
+    type="ball-clip-rotate"
+    [fullScreen]="true"
+  >
+    <p class="loader-text">Loading..</p>
+  </ngx-spinner>
 
-          <div class="assigned-sfx">
-            <span class="label">Assigned SFX</span>
-            <span class="value" (click)="openSfxModal()">{{ assignedSfx }}</span>
-          </div>
+  <!-- DELHI CARD -->
+  <ion-card class="delhi-card">
+    <ion-card-content class="delhi-card-content">
+      <div class="header-row">
+        <div class="location-dropdown">
+          <img src="assets/icon/location.png" class="location-icon" />
+
+          <ion-select
+            interface="popover"
+            [formControl]="selectedCityControl"
+            (ionChange)="onCityChange($event)"
+            class="city-select"
+          >
+            @for(city of cities; track city) {
+            <ion-select-option [value]="city">{{ city }}</ion-select-option>
+            }
+          </ion-select>
         </div>
 
-        <ion-col size="12" style="padding: 0px">
-          <div class="tab-content-container">
-            <div class="card-content">
-<div class="status-list">
-  <div
-    class="status-row zero"
-    (click)="openModal('ZERO PICKUP SFX')"
-  >
-    <div class="bar-section">
-      <div class="bar-rail">
-        <div class="bar-fill">
-          <span class="status-label">ZERO PICKUP SFX</span>
+        <div class="assigned-sfx">
+          <span class="label">Assigned SFX</span>
+          <span class="value" (click)="openSfxModal()">{{ assignedSfx }}</span>
         </div>
       </div>
-    </div>
-    <span class="status-value">4</span>
-  </div>
 
-  <div
-    class="status-row not"
-    (click)="openModal('NOT-MANIFESTED')"
-  >
-    <div class="bar-section">
-      <div class="bar-rail">
-        <div class="bar-fill">
-          <span class="status-label">NOT-MANIFESTED</span>
-        </div>
-      </div>
-    </div>
-    <span class="status-value">120</span>
-  </div>
+      <ion-col size="12" style="padding: 0">
+        <div class="tab-content-container">
+          <div class="card-content">
+            <div class="status-list">
+              <!-- ZERO -->
+              <div class="status-row zero" (click)="openModal('ZERO PICKUP SFX')">
+                <div class="bar-section">
+                  <div class="bar-rail">
+                    <div class="bar-fill" >
+                      <span class="status-label">ZERO PICKUP SFX</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="status-value">{{ statusList[0]?.value }}</span>
+              </div>
 
-  <div
-    class="status-row draft"
-    (click)="openModal('DRAFT WAYBILLS')"
-  >
-    <div class="bar-section">
-      <div class="bar-rail">
-        <div class="bar-fill">
-          <span class="status-label">DRAFT WAYBILLS</span>
-        </div>
-      </div>
-    </div>
-    <span class="status-value">79</span>
-  </div>
-</div>
+              <!-- NOT MANIFESTED -->
+              <div class="status-row not" (click)="openModal('NOT-MANIFESTED')">
+                <div class="bar-section">
+                  <div class="bar-rail">
+                    <div class="bar-fill">
+                      <span class="status-label">NOT-MANIFESTED</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="status-value">{{ statusList[1]?.value }}</span>
+              </div>
 
+              <!-- DRAFT -->
+              <div class="status-row draft" (click)="openModal('DRAFT WAYBILLS')">
+                <div class="bar-section">
+                  <div class="bar-rail">
+                    <div class="bar-fill">
+                      <span class="status-label">DRAFT WAYBILLS</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="status-value">{{ statusList[2]?.value }}</span>
+              </div>
             </div>
           </div>
-        </ion-col>
-       </ion-card-content>
-    </ion-card>
+        </div>
+      </ion-col>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Trip report -->
   <app-trip-report></app-trip-report>
 
+  <!-- SUMMARY GRID -->
   <ion-grid class="summary-grid">
+    <!-- ROW 1 -->
     <ion-row>
-      <ion-col size="6">
+      <ion-col class="summary-col">
         <ion-card class="summary-card">
           <div class="card-row">
             <div class="card-icon-wrap">
-              <img
-                src="assets/icon/waybill.png"
-                alt="waybill"
-                class="waybill-icon"
-              />
+              <img src="assets/icon/waybill.png" class="waybill-icon" />
             </div>
             <div class="card-info">
               <div class="card-main red">{{ interchangeWaybill }}</div>
@@ -96,14 +100,15 @@
           </div>
         </ion-card>
       </ion-col>
-      <ion-col size="6">
+
+      <ion-col class="summary-col">
         <ion-card class="summary-card">
           <div class="card-row">
             <div class="card-icon-wrap">
-              <img src="assets/icon/usage.png" alt="usage" class="usage-icon" />
+              <img src="assets/icon/usage.png" class="usage-icon" />
             </div>
             <div class="card-info">
-              <div class="card-main green">{{ marketVehicleReq }}</div>
+              <div class="card-main green">{{ marketVehReq }}</div>
               <div class="card-label">Market Veh. Req.</div>
             </div>
           </div>
@@ -111,16 +116,17 @@
       </ion-col>
     </ion-row>
 
+    <!-- ROW 2 -->
     <ion-row>
-      <ion-col size="6">
+      <ion-col class="summary-col">
         <ion-card class="summary-card">
           <div class="card-row">
-            <img src="assets/icon/rupee.png" alt="rupee" class="rupee-icon" />
+            <div class="card-icon-wrap">
+              <img src="assets/icon/rupee.png" class="rupee-icon" />
+            </div>
             <div class="card-info">
               <div class="card-main red">
-                {{ paidOutstanding | number: '1.0-0' }}.<span class="decimal"
-                  >00</span
-                >
+                {{ paidOutstanding | number: '1.0-0' }}.<span class="decimal">00</span>
               </div>
               <div class="card-label">Paid Outstanding</div>
             </div>
@@ -128,15 +134,11 @@
         </ion-card>
       </ion-col>
 
-      <ion-col size="6">
+      <ion-col class="summary-col">
         <ion-card class="summary-card">
           <div class="card-row">
             <div class="card-icon-wrap green">
-              <img
-                src="assets/icon/weight.png"
-                alt="weight"
-                class="weight-icon"
-              />
+              <img src="assets/icon/weight.png" class="weight-icon" />
             </div>
             <div class="card-info">
               <div class="card-main green">
@@ -149,15 +151,18 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <!-- SNAPSHOT HEADER -->
   <div class="snapshot-header">
     <span class="snapshot-title">Month Wise Snapshot</span>
 
     <div class="snapshot-dropdown" (click)="toggleMonthPopover($event)">
       {{ selectedMonth }}
-      <img src="assets/icon/fit.png" alt="arrow-down" class="arrow-icon" />
+      <img src="assets/icon/fit.png" class="arrow-icon" />
     </div>
   </div>
-  <!-- Month Wise Snapshot -->
+
+  <!-- SNAPSHOT CARD -->
   <ion-card class="snapshot-card">
     <div class="snapshot-header">
       <span class="snapshot-title">Waybill Edited</span>
@@ -166,10 +171,19 @@
     <div class="snapshot-content">
       <div class="donut-section">
         <div class="donut-chart-wrapper">
-          <app-pie-chart [data]="(pieChartData$ | async) ?? []" [view]="[150,150]"></app-pie-chart>
+          <div class="edited-percent-label">
+            <span class="percent-bar">{{ wbEditedPercent }}%</span>
+          </div>
+
+          <app-pie-chart
+            [data]="(pieChartData$ | async) ?? []"
+            [view]="[380, 380]"
+            [labels]="true"
+          ></app-pie-chart>
+
           <div class="donut-center-text">
-            <div class="donut-value">{{ totalWaybill }}</div>
             <div class="donut-label">BOOKED</div>
+            <div class="donut-value">{{ totalWaybill }}</div>
           </div>
         </div>
 
@@ -182,10 +196,7 @@
       <div class="divider-line"></div>
 
       <div class="snapshot-bars2">
-               <app-progress-slider
-    [booking]="bars" 
-     ></app-progress-slider>
-
+        <app-progress-slider [booking]="bars"></app-progress-slider>
       </div>
     </div>
 
@@ -196,11 +207,8 @@
     >
       <ng-template>
         <ion-list>
-          @for(m of validMonths; track m ){
-          <ion-item
-            button
-            (click)="selectMonth(m)"
-          >
+          @for(m of validMonths; track m) {
+          <ion-item button (click)="selectMonth(m)">
             {{ m }}
           </ion-item>
           }

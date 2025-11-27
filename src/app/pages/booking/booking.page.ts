@@ -1,23 +1,41 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { NgxSpinnerService, NgxSpinnerComponent } from 'ngx-spinner';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgxSpinnerService, NgxSpinnerComponent, NgxSpinnerModule } from 'ngx-spinner';
+import {
+  IonCard,
+  IonSelect,
+  IonSelectOption,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonContent,
+  IonPopover,
+  IonItem,
+  IonList,
+  IonCardContent
+} from '@ionic/angular/standalone';
+import { ToastController, ModalController } from '@ionic/angular';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
-
-import { IonCard, IonSelect, IonSelectOption, IonGrid, IonRow, IonCol, IonItem, IonContent, IonPopover, IonList, IonCardContent, IonIcon, IonBadge } from '@ionic/angular/standalone';
-import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
-import { ToastController, ModalController, IonicModule } from '@ionic/angular';
 import { TripReportComponent } from 'src/app/shared/components/trip-report/trip-report.component';
 import { DraftWaybillsModalComponent } from 'src/app/shared/modal/draft-waybill-modal/draft-waybill-modal.component';
 import { SfxModalComponent } from 'src/app/shared/modal/sfx-modal/sfx-modal.component';
 import { ZeroPickupModalComponent } from 'src/app/shared/modal/zero-pickup-modal/zero-pickup-modal.component';
-import { PieChartComponent } from "src/app/shared/components/pie-chart/pie-chart.component";
-import { Delivery } from 'src/app/shared/services/delivery';
 import { NotManifestedModalComponent } from 'src/app/shared/modal/not-manifisted-modal/not-manifisted-modal.component';
-import { StatusCardComponent } from 'src/app/shared/components/status-card/status-card.component';
+import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart.component';
 import { ProgressSliderComponent } from 'src/app/shared/components/progress-slider/progress-slider.component';
 
+import { Delivery } from 'src/app/shared/services/delivery';
+import { Api } from 'src/app/shared/services/api';
+
+import { Observable, of } from 'rxjs';
+
+// ---------------------------------- Interfaces ----------------------------------
+interface PieData {
+  name: string;
+  value: number;
+}
 
 interface SfxData {
   code: string;
@@ -46,196 +64,311 @@ interface DraftWaybillsData {
   pickupDate: string;
 }
 
-interface ShExDetails {
-  waybill: string;
-  booked: number;
-  manifested: number;
-  received: number;
-  consignor: string;
-  pickupDate: string;
-  status: 'Short' | 'Excess' | string;
-}
-
+// -----------------------------------------------------------------------------------
 
 @Component({
   selector: 'app-booking',
   templateUrl: './booking.page.html',
   styleUrls: ['./booking.page.scss'],
   standalone: true,
-  imports: [ IonList, IonPopover, IonItem, ReactiveFormsModule, IonCol, IonRow, IonGrid, IonCard, CommonModule, FormsModule, NgxChartsModule, TripReportComponent, PieChartComponent, IonContent, NgxSpinnerComponent, IonCardContent, IonSelectOption,IonSelect, ProgressSliderComponent]
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    NgxChartsModule,
+    IonCard,
+    IonSelect,
+    IonSelectOption,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonContent,
+    IonPopover,
+    IonItem,
+    IonList,
+    IonCardContent,
+    NgxSpinnerComponent,
+    TripReportComponent,
+    PieChartComponent,
+    NgxSpinnerModule,
+    ProgressSliderComponent
+  ]
 })
 export class BookingPage implements OnInit {
- constructor(
-    private service: Delivery,
-    private spinner: NgxSpinnerService,
-    private toastController: ToastController
-  ) {}
+
+  @Input() vendorId!: string;
+
+  pieChartData$: Observable<PieData[]> = of([]);
+
+  selectedCityControl = new FormControl('');
+  cities: string[] = [];
+  branchList: any[] = [];
+  selectedBranchId: number = 0;
+
+  selectedMonth: string = '';
+  validMonths: string[] = [];
+  popoverOpen = false;
+  popoverEvent: any;
+
+  assignedSfx = 0;
+
+  statusList = [
+    { label: 'ZERO PICKUP SFX', value: 0, color: '#a30101', percent: 0 },
+    { label: 'NOT-MANIFESTED', value: 0, color: '#e53935', percent: 0 },
+    { label: 'DRAFT WAYBILLS', value: 0, color: '#ffc107', percent: 0 }
+  ];
+
+  interchangeWaybill = 0;
+  // marketVehicleReq = 3;
+  paidOutstanding = 0;
+  marketVehReq = 0;
+  weightVolumePercent = 0;
+
+  // Panel-4
+  totalWaybill = 0;
+  waybill = 0;
+  wbEditedPercent = 0;
+  weightVolume = 0;
+  interchangePackages= 0;
+  marketVehicleUsage = 0;
+
+  bars: any[] = [];
+
+  COMMON_GRADIENT = 'linear-gradient(90deg, #DA2723 0%, #D2E241 40%, #41D844 100%)';
+  GRADIENT = 'linear-gradient(90deg,#42D844 0%, #D2E241 48.2%, #DA2D24 100%)';
 
   private modalController = inject(ModalController);
 
-  cities: string[] = ['DELHI-11', 'MUMBAI-22', 'CHENNAI-33', 'HYDERABAD-44'];
-  selectedCityControl = new FormControl(this.cities[0]);
+  monthMap: any = {
+    'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+    'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+  };
 
-    progressValue = 0;
-
-  assignedSfx = 20;
-
-  statusList = [
-    { label: 'ZERO PICKUP SFX', value: 4, color: '#a30101', percent: 20 },
-    { label: 'NOT-MANIFESTED', value: 120, color: '#e53935', percent: 80 },
-    { label: 'DRAFT WAYBILLS', value: 79, color: '#ffc107', percent: 50 },
-  ];
-
-  interchangeWaybill = 3;
-  marketVehicleReq = 3;
-  paidOutstanding = 2350000; // integer value for easier formatting
-  weightVolumePercent = 62;
-
-  // Month Wise Snapshot properties
-  selectedMonth: string = '';
-  validMonths: string[] = [];
-  pieChartData$ = this.service.getPieChart();
-
-  totalWaybill = 500;
-  waybill = 150;
-  public assignedSfxData: SfxData[] = [];
-  public zeroPickupData: ZeroPickupData[] = [];
-  public notManifestedData: NotManifestedData[] = [];
-  public draftWaybillsData: DraftWaybillsData[] = [];
-
-  bars = [
-    {
-      label: 'Weight Volume',
-      percent: 75,
-      gradient: 'linear-gradient(90deg, #DA2723 0%, #D2E241 19.1%, #41D844 100%);',
-    },
-    {
-      label: 'Interchange Package\'s',
-      percent: 40,
-      gradient: 'linear-gradient(90deg, #DA2723 0%, #D2E241 17.7%, #41D844 100%)',
-    },
-    {
-      label: 'Market Vehicle Usage',
-      percent: 20,
-      color: '#ff4545',
-      gradient: ' linear-gradient(90deg, #42D844 0%, #D2E241 48.2%, #DA2D24 100%)',
-    },
-  ];
-  
-
-  popoverOpen = false;
-  popoverEvent: any;
+  constructor(
+    private spinner: NgxSpinnerService,
+    private toastController: ToastController,
+    private api: Api
+  ) {}
 
   ngOnInit() {
     this.generateValidMonths();
     this.selectedMonth = this.formatMonthYear(new Date());
     this.loadDataForMonth(this.selectedMonth);
+    this.loadBranchDetails();
   }
 
-  async showToast(message: string) {
+  // -------------------------------- Utility -------------------------------------
+
+  private getToken(): string {
+    return localStorage.getItem('accessToken') || '';
+  }
+
+  private showToast = async (message: string) => {
     const toast = await this.toastController.create({
       message,
       duration: 2000,
       color: 'warning',
-      position: 'top',
+      position: 'top'
     });
     toast.present();
+  };
+
+  // -------------------------------- Branch Load -------------------------------------
+
+  loadBranchDetails() {
+    const token = this.getToken();
+
+    this.api.getBranchDetails(token).subscribe({
+      next: (res) => {
+        if (res?.responseStatus && res.responseObject.length > 0) {
+          this.branchList = res.responseObject;
+
+          this.cities = this.branchList.map(x => x.branchName);
+
+          this.selectedCityControl.setValue(this.cities[0]);
+
+          this.selectedBranchId = this.branchList[0].branchId;
+          localStorage.setItem("branchId", this.selectedBranchId.toString());
+
+          // this.assignedSfx = this.branchList[0].assignedSfxCount;
+
+          this.fetchPanelOneCount(this.selectedBranchId);
+          this.fetchPanelThreeData(this.selectedBranchId);
+          this.fetchPanelFourData(this.selectedBranchId);
+        }
+      }
+    });
   }
 
-  onCityChange(event: any) {
-    const newCity = event.detail.value;
+  // -------------------- Panel 1: Zero Pickup, Not Manifested, Draft --------------------
 
+  fetchPanelOneCount(branchId: number) {
     this.spinner.show();
 
-    setTimeout(() => {
-      this.selectedCityControl.setValue(newCity);
-      this.updateDataForCity(newCity);
-      this.spinner.hide();
+    const token = this.getToken();
+    this.api.getPanelOneCount(branchId, token).subscribe({
+      next: (res) => {
+        this.spinner.hide();
 
-      this.showToast(`Data updated for ${newCity}`);
-    }, 1500);
+        if (res?.responseStatus && res.responseObject) {
+          const d = res.responseObject;
+          this.assignedSfx = d.assignedSfxCount ?? 0;
+
+
+          this.statusList = [
+            {
+              label: 'ZERO PICKUP SFX',
+              value: d.zeroPickupCount,
+              color: '#a30101',
+              percent: this.calcPercent(d.zeroPickupCount)
+            },
+            {
+              label: 'NOT-MANIFESTED',
+              value: d.notManifestedCount,
+              color: '#e53935',
+              percent: this.calcPercent(d.notManifestedCount)
+            },
+            {
+              label: 'DRAFT WAYBILLS',
+              value: d.draftWaybillCount,
+              color: '#ffc107',
+              percent: this.calcPercent(d.draftWaybillCount)
+            }
+          ];
+        }
+      },
+      error: () => {
+        this.spinner.hide();
+        this.showToast('Error fetching Panel-1 data');
+      }
+    });
   }
 
-  updateDataForCity(city: string) {
-    if (city === 'HYDERABAD-44') {
-      this.assignedSfx = 35;
+  private calcPercent(value: number): number {
+    const max = 500;
+    return Math.min((value / max) * 100, 100);
+  }
 
-      this.statusList = [
-        { label: 'ZERO PICKUP SFX', value: 7, color: '#a30101', percent: 30 },
-        { label: 'NOT-MANIFESTED', value: 100, color: '#e53935', percent: 60 },
-        { label: 'DRAFT WAYBILLS', value: 65, color: '#ffc107', percent: 40 },
-      ];
+  // ---------------------------- Panel 3: Interchange / Outstanding --------------------
 
-      this.interchangeWaybill = 8;
-      this.marketVehicleReq = 7;
-      this.paidOutstanding = 3200000;
-      this.weightVolumePercent = 70;
+  fetchPanelThreeData(branchId: number) {
+    this.spinner.show();
+    const token = this.getToken();
 
-      this.totalWaybill = 520;
-      this.waybill = 160;
-      this.bars = [
-        {
-          label: 'Weight Volume',
-          percent: 80,
-          color: '#52d066',
-          gradient: 'linear-gradient(90deg, #ff4545 0%, #52d066 100%)',
-        },
-        {
-          label: 'Interchange Package\'s',
-          percent: 50,
-          color: '#52d066',
-          gradient: 'linear-gradient(90deg, #ffb401 0%, #52d066 100%)',
-        },
-        {
-          label: 'Market Vehicle Usage',
-          percent: 40,
-          color: '#ff4545',
-          gradient: 'linear-gradient(90deg, #ff4545 0%, #ffb401 100%)',
-        },
-      ];
-    } else if (city === 'DELHI-11') {
-      this.assignedSfx = 20;
+    this.api.getPanelThreeData(branchId, token).subscribe({
+      next: (res) => {
+        this.spinner.hide();
 
-      this.statusList = [
-        { label: 'ZERO PICKUP SFX', value: 4, color: '#a30101', percent: 20 },
-        { label: 'NOT-MANIFESTED', value: 120, color: '#e53935', percent: 80 },
-        { label: 'DRAFT WAYBILLS', value: 79, color: '#ffc107', percent: 50 },
-      ];
+        if (res?.responseStatus && res.responseObject) {
+          const data = res.responseObject;
 
-      this.interchangeWaybill = 3;
-      this.marketVehicleReq = 3;
-      this.paidOutstanding = 2350000;
-      this.weightVolumePercent = 62;
+          this.interchangeWaybill = data.interchangeWaybill ?? 0;
+          this.paidOutstanding = data.paidOutstanding ?? 0;
+          this.weightVolumePercent = data.weightVolumePercentage ?? 0;
+          this.marketVehReq = data.marketVehReq ?? 0;
+        }
+      },
+      error: () => {
+        this.spinner.hide();
+        this.showToast('Error fetching Panel-3 data');
+      }
+    });
+  }
 
-      this.totalWaybill = 500;
-      this.waybill = 150;
-      this.bars = [
-        {
-          label: 'Weight Volume',
-          percent: 75,
-          color: '#52d066',
-          gradient: 'linear-gradient(90deg, #ff4545 0%, #52d066 100%)',
-        },
-        {
-          label: 'Interchange Package\'s',
-          percent: 40,
-          color: '#52d066',
-          gradient: 'linear-gradient(90deg, #ffb401 0%, #52d066 100%)',
-        },
-        {
-          label: 'Market Vehicle Usage',
-          percent: 20,
-          color: '#ff4545',
-          gradient: 'linear-gradient(90deg, #ff4545 0%, #ffb401 100%)',
-        },
-      ];
+  // -------------------------------- Panel 4: Pie Chart ---------------------------------
+
+  fetchPanelFourData(branchId: number) {
+    this.spinner.show();
+
+    const token = this.getToken();
+
+    let formattedMonth = this.selectedMonth;
+
+    if (formattedMonth.includes(' ')) {
+      const [m, y] = formattedMonth.split(' ');
+      formattedMonth = `${m}-${y}`;
     }
+
+    const [mon, yr] = formattedMonth.split('-');
+
+    const fullYear = 2000 + Number(yr);
+    const monthNumber = this.monthMap[mon];
+
+    if (!fullYear || !monthNumber) {
+      this.spinner.hide();
+      this.showToast('Invalid month format');
+      return;
+    }
+
+    this.api.getPanelFourData(fullYear, monthNumber, branchId, token).subscribe({
+      next: (res) => {
+        this.spinner.hide();
+
+        if (res?.responseStatus && res.responseObject) {
+          const d = res.responseObject;
+
+          this.totalWaybill = d.booked ?? 0;
+          this.waybill = d.wb ?? 0;
+          this.wbEditedPercent = d.wbEdited ?? 0;
+
+          // -------------------- Correct Calculation (Edited is % NOT count) --------------------
+          const editedCount = Math.round((this.wbEditedPercent / 100) * this.waybill);
+          const notEditedCount = this.waybill - editedCount;
+
+            this.pieChartData$ = of([
+              { name: 'Edited', value: this.wbEditedPercent },           // e.g. 30%
+              { name: 'Not Edited', value: 100 - this.wbEditedPercent }  // e.g. 70%
+            ]);
+
+          this.weightVolume = d.weightVolume ?? 0;
+          this.marketVehicleUsage = d.marketVehicleUsage ?? 0;
+          this.interchangePackages = d.interchangePackages ?? 0;
+
+          this.bars = [
+            {
+              label: 'Weight Volume',
+              percent: this.weightVolume,
+              gradient: this.COMMON_GRADIENT
+            },
+            {
+              label: 'Interchange Package`s',
+              percent: this.interchangePackages,
+              gradient: this.COMMON_GRADIENT
+            },
+            {
+              label: 'Market Vehicle Usage',
+              percent: this.marketVehicleUsage,
+              gradient: this.GRADIENT
+            }
+          ];
+        }
+      },
+      error: () => {
+        this.spinner.hide();
+        this.showToast('Error fetching Panel-4 snapshot');
+      }
+    });
+  }
+
+  // -------------------------------- Month Selection -------------------------------------
+
+  selectMonth(month: string) {
+    this.selectedMonth = month;
+    this.popoverOpen = false;
+
+    this.fetchPanelFourData(this.selectedBranchId);
+  }
+
+  toggleMonthPopover(ev: any) {
+    this.popoverEvent = ev;
+    this.popoverOpen = true;
   }
 
   generateValidMonths() {
     const months = [];
     const today = new Date();
-    for (let i = 11; i >= 0; i--) {
+
+    for (let i = 3; i >= 0; i--) {
       const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
       months.push(this.formatMonthYear(d));
     }
@@ -247,205 +380,184 @@ export class BookingPage implements OnInit {
     return date.toLocaleDateString('en-US', options).replace(',', '');
   }
 
-  toggleMonthPopover(ev: any) {
-    this.popoverEvent = ev;
-    this.popoverOpen = true;
-  }
-
-  selectMonth(month: string) {
-    this.selectedMonth = month;
-    this.popoverOpen = false;
-    this.loadDataForMonth(month);
-  }
-
   loadDataForMonth(month: string) {
     if (this.isFutureMonth(month)) {
       this.selectedMonth = this.formatMonthYear(new Date());
       this.showToast('Future months cannot be selected');
       return;
     }
-    // For demonstration: update pieChartData$ and related data here if applicable
-    // e.g., this.pieChartData$ = this.service.getPieChartForMonth(month);
   }
 
   isFutureMonth(monthStr: string): boolean {
     const [mon, yr] = monthStr.split('-');
     const yearFull = 2000 + parseInt(yr, 10);
-    const monthNumber = new Date(Date.parse(mon + " 1, " + yearFull)).getMonth();
+    const monthNumber = new Date(Date.parse(mon + ' 1, ' + yearFull)).getMonth();
     const monthDate = new Date(yearFull, monthNumber, 1);
     return monthDate > new Date();
   }
+
+  // ------------------------- Branch Change Handler ----------------------------
+
+  onCityChange(event: any) {
+    const city = event.detail.value;
+    const br = this.branchList.find(b => b.branchName === city);
+    if (!br) return;
+
+    this.selectedBranchId = br.branchId;
+    localStorage.setItem('branchId', this.selectedBranchId.toString());
+
+    this.fetchPanelOneCount(br.branchId);
+    this.fetchPanelThreeData(br.branchId);
+    this.fetchPanelFourData(br.branchId);
+
+    this.showToast(`Branch updated: ${city}`);
+  }
+
+  // ------------------------------ Modal Logic ------------------------------
+
+  assignedSfxData: SfxData[] = [];
+  zeroPickupData: ZeroPickupData[] = [];
+  notManifestedData: NotManifestedData[] = [];
+  draftWaybillsData: DraftWaybillsData[] = [];
+
   async openModal(name: string, event?: Event) {
     event?.stopPropagation();
     let modalComponent: any;
+    let modalProps: any = {};
+
     switch (name) {
       case 'ZERO PICKUP SFX':
         modalComponent = ZeroPickupModalComponent;
-        this.zeroPickupData = this.getZeroPickupData();
+        await this.loadZeroPickupData();
+        modalProps = { zeroPickupData: this.zeroPickupData };
         break;
 
       case 'NOT-MANIFESTED':
         modalComponent = NotManifestedModalComponent;
-        this.notManifestedData = this.getNotManifestedData();
+        await this.loadNotManifestedData();
+        modalProps = { notManifestedData: this.notManifestedData };
         break;
 
       case 'DRAFT WAYBILLS':
         modalComponent = DraftWaybillsModalComponent;
-        this.draftWaybillsData = this.getDraftWaybillsData();
+        await this.loadDraftWaybillsData();
+        modalProps = { draftWaybillsData: this.draftWaybillsData };
         break;
     }
 
     if (modalComponent) {
-      let dataProp: any[] = [];
-      if (name === 'ZERO PICKUP SFX') {
-        dataProp = this.zeroPickupData;
-      } else if (name === 'NOT-MANIFESTED') {
-        dataProp = this.notManifestedData;
-      } else if (name === 'DRAFT WAYBILLS') {
-        dataProp = this.draftWaybillsData;
-      }
-
       const modal = await this.modalController.create({
         component: modalComponent,
-        componentProps:
-          name === 'ZERO PICKUP SFX'
-            ? { zeroPickupData: dataProp }
-            : name === 'NOT-MANIFESTED'
-            ? { notManifestedData: dataProp }
-            : { draftWaybillsData: dataProp },
+        componentProps: modalProps,
+        cssClass: 'bottom-sheet-modal',
+        backdropDismiss: true,
+        breakpoints: [0, 0.65, 0.95],
+        initialBreakpoint: 0.65
       });
-
       await modal.present();
     }
   }
+  getBarWidth(value: number): string {
+  if (!value || value === 0) return '5%';   // minimum width so label is visible
 
-    async openSfxModal() {
-        console.log('Opening SFX Modal');
-        this.assignedSfxData = this.getAssignedSfxData();
-        const modal = await this.modalController.create({
-          component: SfxModalComponent,
-          componentProps: { assignedSfxData: this.assignedSfxData },
-          cssClass: 'sfx-modal'
-        });
-        await modal.present();
-        await   modal.onDidDismiss();
-    }
+  const max = 10; // you can change logic
+  const percentage = (value / max) * 100;
 
-  async openZeroPickupModal() {
-  console.log('Opening ZERO PICKUP Modal');
-  this.zeroPickupData = this.getZeroPickupData();
-  console.log('Zero Pickup Data:', this.zeroPickupData);
-  const modal = await this.modalController.create({
-    component: ZeroPickupModalComponent,
-    componentProps: { zeroPickupData: this.zeroPickupData },
-    showBackdrop: false,
-    backdropDismiss: false,
-    canDismiss: true,
-    breakpoints: [0, 0.6, 0.95],
-    initialBreakpoint: 0.6,
-    handle: true, // 👈 adds the draggable handle bar at the top
-    //cssClass: 'zero-pickup-sheet'
-  presentingElement: await this.modalController.getTop(),
-});
-  await modal.present();
-  await modal.onDidDismiss();
+  return Math.min(percentage, 100) + '%';
 }
 
 
-  async openNotManifestedModal() {
-  console.log('Opening NOT MANIFESTED Modal');
-    this.notManifestedData = this.getNotManifestedData();
+  async openSfxModal() {
+    const assignedSfxData = await this.getAssignedSfxData();
+
     const modal = await this.modalController.create({
-      component: NotManifestedModalComponent,
-      componentProps: { notManifestedData: this.notManifestedData },
-      cssClass: 'not-manifested-modal'
+      component: SfxModalComponent,
+      componentProps: { assignedSfxData },
+      cssClass: 'sfx-modal',
+      backdropDismiss: true,
+      breakpoints: [0, 0.7],
+      initialBreakpoint: 0.7
     });
+
     await modal.present();
-    await modal.onDidDismiss();
   }
 
-  async openDraftWaybillsModal() {
-  console.log('Opening DRAFT WAYBILLS Modal');
-    this.draftWaybillsData = this.getDraftWaybillsData();
-    const modal = await this.modalController.create({
-      component: DraftWaybillsModalComponent,
-      componentProps: { draftWaybillsData: this.draftWaybillsData },
-      cssClass: 'draft-waybills-modal'
+  getAssignedSfxData(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      const branchId = Number(localStorage.getItem('branchId') ?? '0');
+      const token = localStorage.getItem('accessToken') ?? '';
+
+      this.api.getAssignedSfxDetails(branchId, token).subscribe({
+        next: (res) => resolve(res.responseObject || []),
+        error: (err) => reject(err)
+      });
     });
-    await modal.present();
-    await modal.onDidDismiss();
   }
 
-  closeSfxModal() { this.modalController.dismiss(); }
-  closeZeroPickupModal() { this.modalController.dismiss(); }
-  closeNotManifestedModal() { this.modalController.dismiss(); }
-  closeDraftWaybillsModal() { this.modalController.dismiss(); }
+  async loadZeroPickupData() {
+    const token = localStorage.getItem('accessToken') ?? '';
+    const assignedBranchId = Number(localStorage.getItem('branchId') ?? '0');
 
-    onProgressChange(newVal: number) {
-    this.progressValue = newVal;
-  }
-  getAssignedSfxData(): any[] {
-    return [
-      { code: 'SFX0001234333', consignor: 'S.K. Electrical Pvt. Ltd.', lastPickupDate: '07-JUL-2025' },
-      { code: 'SFX0004567437', consignor: 'Gama Solutions Pvt. Ltd.', lastPickupDate: '07-JUL-2025' },
-      { code: 'SFX00027254783', consignor: 'Samsung India Pvt. Ltd.', lastPickupDate: '07-JUL-2025' },
-      { code: 'SFX000263409877', consignor: 'Khurana Garments', lastPickupDate: '07-JUL-2025' },
-      { code: 'SFX0001234222', consignor: 'Unknown', lastPickupDate: '07-JUL-2025' }
-    ];
-  }
-
-  getZeroPickupData(): any[] {
-    return [
-      { code: 'SFX00027254783', consignor: 'Samsung India Pvt. Ltd.', lastPickupDate: '07-JUL-2025' },
-      { code: 'SFX000263409877', consignor: 'Khurana Garments', lastPickupDate: '07-JUL-2025' },
-      { code: 'SFX0001234333', consignor: 'S.K. Electrical Pvt. Ltd.', lastPickupDate: '07-JUL-2025' },
-      { code: 'SFX0004567437', consignor: 'Gama Solutions Pvt. Ltd.', lastPickupDate: '07-JUL-2025' }
-    ];
+    return new Promise((resolve, reject) => {
+      this.api.getZeroPickupDetails(assignedBranchId, token).subscribe({
+        next: (res) => {
+          this.zeroPickupData = res.responseObject || [];
+          resolve(true);
+        },
+        error: (err) => {
+          this.showToast('Unable to fetch ZERO PICKUP data');
+          reject(err);
+        }
+      });
+    });
   }
 
-  getNotManifestedData(): any[] {
-    return [
-      { waybill: '4083 3650 7803', booked: 100, manifested: 80, remaining: 20, consignor: 'S.K. Electrical Pvt. Ltd.', pickupDate: '07-JUL-2025' },
-      { waybill: '2279 7354 3382', booked: 100, manifested: 75, remaining: 25, consignor: 'Gama Solutions Pvt. Ltd.', pickupDate: '07-JUL-2025' },
-      { waybill: '1300 6454 7775', booked: 100, manifested: 75, remaining: 25, consignor: 'Samsung India Pvt. Ltd.', pickupDate: '07-JUL-2025' },
-      { waybill: '2000 9390 2222', booked: 100, manifested: 75, remaining: 25, consignor: 'Khurana Garments', pickupDate: '07-JUL-2025' },
-      { waybill: '2100 AAAA 4565', booked: 100, manifested: 75, remaining: 25, consignor: 'Unknown', pickupDate: '07-JUL-2025' }
-    ];
+  async loadNotManifestedData() {
+    const token = localStorage.getItem('accessToken') ?? '';
+    const branchId = Number(localStorage.getItem('branchId') ?? '0');
+
+    return new Promise((resolve, reject) => {
+      this.api.getNotManifestedDetails(branchId, token).subscribe({
+        next: (res) => {
+          this.notManifestedData =
+            res.responseObject?.map((item: any) => ({
+              waybill: item.wayblNum,
+              consignor: item.cnorName,
+              pickupDate: item.pickupDate,
+              booked: item.booked,
+              manifested: item.manifested,
+              remaining: item.notManifested
+            })) || [];
+          resolve(true);
+        },
+        error: (err) => {
+          this.showToast('Unable to fetch NOT-MANIFESTED data');
+          reject(err);
+        }
+      });
+    });
   }
 
-  getDraftWaybillsData(): any[] {
-    return [
-      { waybill: '4083 3650 7803', consignor: 'S.K. Electrical Pvt. Ltd.', pickupDate: '07-JUL-2025' },
-      { waybill: '2279 7354 3382', consignor: 'Gama Solutions Pvt. Ltd.', pickupDate: '07-JUL-2025' },
-      { waybill: '1300 6454 7775', consignor: 'Samsung India Pvt. Ltd.', pickupDate: '07-JUL-2025' },
-      { waybill: '2000 9390 2222', consignor: 'Khurana Garments', pickupDate: '07-JUL-2025' },
-      { waybill: '2100 AAAA 4565', consignor: 'Unknown', pickupDate: '07-JUL-2025' }
-    ];
-  }
+  async loadDraftWaybillsData() {
+    const token = localStorage.getItem('accessToken') ?? '';
+    const branchId = Number(localStorage.getItem('branchId') ?? '0');
 
-  getShExDetails(vehicleNo: string): any[] {
-    if (vehicleNo === '5555') {
-      return [
-        { waybill: '1000 7474 8855', booked: 100, manifested: 100, received: 99, consignor: 'S.K. Electrical Pvt. Ltd.', pickupDate: '08-JUL-2025', status: 'Short' },
-        { waybill: '1000 2020 2353', booked: 100, manifested: 100, received: 101, consignor: 'Sadashiv Electronics', pickupDate: '08-JUL-2025', status: 'Excess' },
-        { waybill: '2000 9292 6754', booked: 100, manifested: 0, received: 2, consignor: 'J.S. Camicals', pickupDate: '08-JUL-2025', status: 'Excess' },
-        { waybill: '2000 9633 9825', booked: 100, manifested: 100, received: 0, consignor: 'Samsung India Pvt. Ltd.', pickupDate: '08-JUL-2025', status: 'Short' }
-      ];
-    }
-    return [];
+    return new Promise((resolve, reject) => {
+      this.api.getDraftWaybillDetails(branchId, token).subscribe({
+        next: (res) => {
+          this.draftWaybillsData =
+            res.responseObject?.map((item: any) => ({
+              waybill: item.wayblNum,
+              consignor: item.consignorName,
+              pickupDate: item.pickupDate
+            })) || [];
+          resolve(true);
+        },
+        error: (err) => {
+          this.showToast('Unable to fetch DRAFT WAYBILLS data');
+          reject(err);
+        }
+      });
+    });
   }
-
-  getGradient(value: number): string {
-  if (value >= 0 && value <= 33) {
-    // Dominantly red
-    return 'linear-gradient(90deg, #DA2D24 0%, #D2E241 60%, #42D844 100%)';
-  } else if (value >= 34 && value <= 66) {
-    // Mid range: yellow center dominant
-    return 'linear-gradient(90deg, #D2E241 0%, #42D844 80%, #DA2D24 100%)';
-  } else {
-    // High: mostly green
-    return 'linear-gradient(90deg, #42D844 0%, #D2E241 60%, #DA2D24 100%)';
-  }
-}
-
 }

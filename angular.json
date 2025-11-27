@@ -35,11 +35,14 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/global.scss", "src/theme/variables.scss",   "node_modules/ngx-spinner/animations/ball-clip-rotate.css"],
             "scripts": [],
             "browser": "src/main.ts",
             "allowedCommonJsDependencies": [
-              "@stencil/core"
+              "@stencil/core",
+                "localforage",
+                "@ionic/storage",
+                "@ionic/storage-angular"
             ]
           },
           "configurations": {
@@ -120,7 +123,7 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/global.scss", "src/theme/variables.scss",  "node_modules/ngx-spinner/animations/ball-clip-rotate.css"],
             "scripts": []
           },
           "configurations": {

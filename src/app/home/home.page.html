@@ -1,7 +1,8 @@
 <ion-header>
   <ion-toolbar>
     <div class="segment-wrapper">
-      <ion-segment [(ngModel)]="segment" class="custom-segment" mode="md">
+      <ion-segment [(ngModel)]="segment" (ionChange)="onSegmentChange($event)" class="custom-segment" mode="md">
+        
         <ion-segment-button
           value="booking"
           [disabled]="disableBooking"
@@ -17,6 +18,7 @@
         >
           <ion-label>DELIVERY</ion-label>
         </ion-segment-button>
+
       </ion-segment>
     </div>
 
@@ -32,20 +34,25 @@
         </ion-badge>
       }
     </ion-button>
+
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+
   @if (segment === 'booking') {
-    <app-booking></app-booking>
-  } @else if (segment === 'delivery') {
-    <app-delivery></app-delivery>
+    <app-booking [vendorId]="bookingVendorID"></app-booking>
   }
+
+  @else if (segment === 'delivery') {
+    <app-delivery [vendorId]="deliveryVendorID"></app-delivery>
+  }
+
 </ion-content>
 
 <ion-footer class="footer-container">
   <div class="tab-bar">
-    <ion-button fill="clear" routerLink="/task" routerDirection="root" class="tab-item">
+    <ion-button fill="clear" routerLink="/task" class="tab-item">
       <img src="assets/icon/task-icon.png" alt="task" class="task-icon" />
     </ion-button>
 
@@ -54,16 +61,16 @@
         fill="solid"
         color="success"
         routerLink="/home"
-        routerDirection="root"
         class="home-btn"
       >
-        <img src="assets/icon/home.png" alt="home" class="home-outline-icon" />
+        <img src="assets/icon/home.png" class="home-outline-icon" />
       </ion-button>
       <span class="home-label">Home</span>
     </div>
 
-    <ion-button fill="clear" routerLink="/account" routerDirection="root" class="tab-item">
+    <ion-button fill="clear" routerLink="/account" class="tab-item">
       <img src="assets/icon/account.png" alt="account" class="account-icon" />
     </ion-button>
+
   </div>
 </ion-footer>

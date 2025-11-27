@@ -1,13 +1,62 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>account</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>My Account</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">account</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div class="account-container">
+    <!-- Profile Section -->
+    <ion-card class="profile-card"  (click)="openProfileDetails()">
+      <div class="profile-header">
+        <ion-icon name="person-circle-outline" class="profile-icon"></ion-icon>
+        <div class="profile-info">
+          <!-- <p class="label">Name</p> -->
+          <p class="name">{{vendorName}}</p>
+        </div>
+      </div>
+    </ion-card>
+
+    <!-- My Vehicles Section -->
+    <!-- <ion-card class="section-card">
+      <h2>My Vehicles</h2>
+      <div class="btn-row">
+        <ion-button fill="solid" color="light" class="btn" (click)="navigate('nrm','vehicles')">NRM</ion-button>
+        <ion-button fill="solid" color="light" class="btn" (click)="navigate('delivery','vehicles')">DELIVERY</ion-button>
+      </div>
+    </ion-card> -->
+
+    <!-- Your Payment Section -->
+    <!-- <ion-card class="section-card">
+      <h2>Your Payment</h2>
+      <div class="btn-row">
+        <ion-button fill="solid" color="light" class="btn" (click)="navigate('nrm','payment')">NRM</ion-button>
+        <ion-button fill="solid" color="light" class="btn" (click)="navigate('delivery','payment')">DELIVERY</ion-button>
+      </div>
+    </ion-card> -->
+
+    <!-- Market Vehicle Request Section -->
+    <!-- <ion-card class="section-card">
+      <div class="market-header">
+        <ion-icon name="bus-outline" class="market-icon"></ion-icon>
+        <h2>Market Vehicle Request</h2>
+      </div>
+      <div class="btn-row">
+        <ion-button fill="solid" color="light" class="btn" (click)="navigate('nrm','market')">NRM</ion-button>
+        <ion-button fill="solid" color="light" class="btn" (click)="navigate('delivery','market')">DELIVERY</ion-button>
+      </div>
+    </ion-card> -->
+
+    <!-- Version -->
+    <div class="version">Version: 2.0</div>
+
+    <!-- Logout -->
+    <ion-button class="logout-btn" (click)="logout()">
+      <ion-icon name="power-outline" slot="start"></ion-icon>
+      Logout
+    </ion-button>
+  </div>
 </ion-content>

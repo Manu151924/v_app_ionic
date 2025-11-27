@@ -14,20 +14,20 @@ import { CommonModule } from '@angular/common';
 export class PieChartComponent {
   @Input() data: { name: string; value: number }[] = [];
   @Input() arcWidth = 0.5;
-  @Input() view: [number, number] = [180, 180];
+  @Input() view: [number, number] = [380, 380];
   @Input() labels = false;
 
   colorScheme: Color = {
     name: 'pieScheme',
     selectable: true,
     group: ScaleType.Ordinal,
-    domain: ['#06B4A2', '#FF8A0D'],
+    domain: ['#FF8A0D', '#06B4A2'],  
   };
-  labelFormatting = (label: string, value: number): string => {
-  if (this.data && this.data.length > 0 && label === this.data[0].name) {
-    return '30'; 
-  }
-  return ''; 
-};
 
+  labelFormatting = (label: string, value: number): string => {
+    if (this.data && label === this.data[0].name) {
+      return '';
+    }
+    return ''; 
+  }
 }

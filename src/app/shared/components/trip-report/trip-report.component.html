@@ -1,107 +1,133 @@
-
-
 <div class="today-btn-container">
-  <ion-button fill="clear" slot="end" class="today-btn" (click)="toggleCalendar($event)">
+  <ion-button fill="clear" class="today-btn" (click)="toggleCalendar($event)">
     {{ selectedDateLabel }}
-    <img src="assets/icon/fit.png" alt="arrow-down" style="position: relative; left: 3px;" />
+    <img src="assets/icon/fit.png" alt="arrow-down" />
   </ion-button>
 </div>
-@if(showCalendar){
-  <div class="calendar-popup"  (click)="$event.stopPropagation()">
-  <ion-datetime
-    presentation="date"
-     [min]="minDate"
-    [max]="maxDate"
-    [value]="selectedDate"
-    (ionChange)="onDateChange($event)"
-  ></ion-datetime>
-</div>
+
+@if (showCalendar) {
+  <div class="calendar-popup" (click)="$event.stopPropagation()">
+    @if(calendarKey){
+    <mat-calendar
+      [selected]="selectedDate"
+      [minDate]="minDate"
+      [maxDate]="maxDate"
+      (selectedChange)="onDateChange($event)"
+    ></mat-calendar>
+
+    }
+   
+  </div>
 }
-
-
 
 <div class="trip-report-card">
   <div class="header-row">
     <div class="header-left">
-      <img src="assets/icon/trip.png" alt="trip" class="trip-icon">
+      <img src="assets/icon/trip.png" alt="trip" />
       <span class="title">Trip Status</span>
       <span class="big-count green">{{ tripStatusRows.length }}</span>
     </div>
+
     <div class="header-right">
-      <img src="assets/icon/absent.png" alt="trip" class="absent-icon">
+      <img src="assets/icon/absent.png" alt="absent" />
       <span class="title">Absent</span>
       <span class="count red">{{ absentRows.length }}</span>
     </div>
   </div>
+
   <div class="tables-row">
+    <!-- LEFT TABLE -->
     <div class="table-left">
       <table class="trip-table">
         <thead>
           <tr>
-            <th>VEH NO.</th>
-            <th>MF VS ULD (WB)</th>
-            <th>MF VS ULD (PKGS)</th>
+            <th>VEH No.</th>
+            <th class="mf-uld-header">
+              <span class="mf">MF </span>
+              <span class="vs">vs </span>
+              <span class="uld">ULD (WB)</span>
+            </th>
+             <th>
+              <span class="mf">MF</span>
+              <span class="vs"> vs </span>
+              <span class="mf">ULD</span>
+              <span class="wb">(Pkgs.)</span>
+            </th>
             <th>SH/EX</th>
           </tr>
         </thead>
+
         <tbody>
-          @for(ts of visibleTripStatusRows; track ts.vehicle){
-            <tr>
-              <td class="veh-no">{{ ts.vehicle }}</td>
-              <td class="wb-data">
-                <span [ngClass]="getTextColorClass(ts.mfVsUldWB, ts.mfManifestWB)">
-                  {{ ts.mfVsUldWB }}/{{ ts.mfManifestWB }}
-                </span>
-              </td>
-              <td class="pkgs-data">
-                <span [ngClass]="getTextColorClass(ts.mfVsUldPkgs, ts.mfManifestPkgs)">
-                  {{ ts.mfVsUldPkgs }}
-                </span>/{{ ts.mfManifestPkgs }}
-              </td>
-              <td class="sh-ex">
-                <span [class.red]="ts.shEx > 0" (click)="openShExModal(ts.vehicle)">
-                  {{ ts.shEx > 0 ? ts.shEx : '-' }}
-                </span>
-              </td>
-            </tr>
+          @if (visibleTripStatusRows.length > 0) {
+            @for (ts of visibleTripStatusRows; track $index) {
+              <tr>
+                <td class="veh-no">{{ ts.vehicle ?? ts.vehcleNo }}</td>
+
+                <td>
+                  <span [ngClass]="getTextColorClass(ts.manifestedWB, ts.unloadedWB)">
+                    {{ ts.manifestedWB ?? '-' }}/{{ ts.unloadedWB ?? '-' }}
+                  </span>
+                </td>
+
+                <td>
+                  <span [ngClass]="getTextColorClass(ts.manifestedPkg, ts.unloadedPkg)">
+                    {{ ts.manifestedPkg ?? '-' }}
+                  </span>
+                  /
+                  {{ ts.unloadedPkg ?? '-' }}
+                </td>
+
+                <td class="sh-ex">
+                  <span
+                    [class.red]="ts.shortExcessCount > 0"
+                    (click)="openShExModal(ts.manifestNo)"
+                  >
+                    {{ ts.shortExcessCount > 0 ? ts.shortExcessCount : '-' }}
+                  </span>
+                </td>
+              </tr>
+            }
+          } @else {
+            <tr><td colspan="4" class="no-data">No Trip Data Found</td></tr>
           }
-
-
         </tbody>
       </table>
-
     </div>
-    <!-- Right: Absent Table (card) -->
+
+    <!-- RIGHT TABLE -->
     <div class="table-right">
       <table class="absent-table">
         <thead>
           <tr>
-            <th>VEH NO.</th>
-            <th>LAST PICKUP</th>
+            <th>VEH No.</th>
+            <th>Last Pickup Date</th>
           </tr>
         </thead>
-        <tbody>
-          @for(ab of absentRows; track ab.vehicleNo){
-          <tr >
-            <td class="veh-no">{{ ab.vehicleNo }}</td>
-            <td class="date">{{ ab.lastPickup }}</td>
-          </tr>
-          }
 
+        <tbody>
+          @if (visibleAbsentRows.length > 0) {
+            @for (ab of visibleAbsentRows; track $index) {
+              <tr>
+                <td class="veh-no">{{ ab.vehicleNo }}</td>
+                <td class="date">{{ ab.lastPickup }}</td>
+              </tr>
+            }
+          } @else {
+            <tr><td colspan="2" class="no-data">No Absent Vehicles Found</td></tr>
+          }
         </tbody>
       </table>
     </div>
   </div>
-        <div class="toggle-arrow-row">
-          @if(!showAll){
-           <span  class="arrow-btn" (click)="toggleShowAll()">
-             <img src="assets/icon/arrow-back.png" alt="arrow-back" class="arrow-icon">
-           </span>
-          } @else {
-              <span  class="arrow-btn" (click)="toggleShowAll()">
-               <img src="assets/icon/uparrow.png" alt="arrow-up" class="arrow-up-icon">
-              </span>
-          }
-      </div>
-</div>
 
+  <!-- TOGGLE ROW -->
+  <div class="toggle-arrow-row">
+    <span class="arrow-btn" (click)="toggleShowAll()">
+      @if (!showAll) {
+        <img src="assets/icon/arrow-back.png" alt="arrow-back" class="arrow-icon" />
+      } @else {
+        <img src="assets/icon/uparrow.png" alt="arrow-up" class="arrow-up-icon" />
+      }
+    </span>
+  </div>
+</div>

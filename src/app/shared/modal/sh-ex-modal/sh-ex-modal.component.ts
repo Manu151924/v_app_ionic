@@ -15,7 +15,7 @@ export class ShExModalComponent {
   private modalCtrl = inject(ModalController);
 
   @Input() shExDetails: any[] = [];
-  @Input() selectedVehicle: string = '';
+  @Input() vehicleNo: string = '';
 
   /** Inserted by Angular inject() migration for backwards compatibility */
 

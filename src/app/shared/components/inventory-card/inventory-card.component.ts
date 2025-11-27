@@ -1,20 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+
 import { FormsModule } from '@angular/forms';
+import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+
+interface RouteData {
+  route: string;
+  waybills: number;
+  packages: number;
+  weight: number;
+  lyingHours: number;
+}
 
 @Component({
   selector: 'app-inventory-card',
   standalone: true,
   imports: [CommonModule, IonicModule, FormsModule],
-  templateUrl: './inventory-card.component.html',
-  styleUrls: ['./inventory-card.component.scss'],
+  templateUrl: 'inventory-card.component.html', 
+  styleUrls: [ 'inventory-card.component.scss'],
 })
 export class InventoryCardComponent implements OnInit {
   selectedBranch = 'DELHI-11';
   branches = ['DELHI-11', 'DELHI-12', 'DELHI-13'];
+  
+  routesData: (RouteData & { color: string })[] = [];
+  totals = { waybills: 0, packages: 0, weight: 0 };
+  maxWaybills = 0;
 
-  mockData: Record<string, any[]> = {
+  private mockData: Record<string, RouteData[]> = {
     'DELHI-11': [
       { route: 'DWARKA', waybills: 120, packages: 240, weight: 2.4, lyingHours: 12 },
       { route: 'KAROLBAGH', waybills: 79, packages: 190, weight: 1.9, lyingHours: 30 },
@@ -34,28 +47,33 @@ export class InventoryCardComponent implements OnInit {
     ],
   };
 
-  routesData: any[] = [];
-  total = { waybills: 0, packages: 0, weight: 0 };
-
   ngOnInit() {
     this.loadBranchData();
   }
 
-  loadBranchData() {
+  loadBranchData(): void {
     const data = this.mockData[this.selectedBranch] || [];
+    
+    this.maxWaybills = Math.max(...data.map(r => r.waybills), 0);
+    
     this.routesData = data.map((r) => ({
       ...r,
-      color: r.lyingHours <= 24 ? '#36b37e' : '#f9b233',
-    }));
+      color: r.lyingHours > 24 ? '#ffb700' : '#22c55e', // yellow-500 : green-500
+    })).sort((a,b) => b.waybills - a.waybills);
 
-    this.total = {
-      waybills: data.reduce((a, b) => a + b.waybills, 0),
-      packages: data.reduce((a, b) => a + b.packages, 0),
-      weight: data.reduce((a, b) => a + b.weight, 0),
+    this.totals = {
+      waybills: data.reduce((sum, item) => sum + item.waybills, 0),
+      packages: data.reduce((sum, item) => sum + item.packages, 0),
+      weight: data.reduce((sum, item) => sum + item.weight, 0),
     };
   }
 
-  onBranchChange() {
+  onBranchChange(): void {
     this.loadBranchData();
+  }
+
+  handleRouteClick(routeData: RouteData): void {
+    console.log('Clicked Route:', routeData);
+    // In a real app, you might open a modal or navigate to a details page here.
   }
 }

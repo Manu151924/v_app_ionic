@@ -1,30 +1,46 @@
-    <ion-header>
-      <ion-toolbar>
-        <ion-title class="title">Assigned SFX</ion-title>
-        <ion-buttons slot="end">
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="title">Assigned SFX</ion-title>
+    <ion-buttons slot="end">
       <ion-button fill="clear" class="close-btn" (click)="close()">
         <ion-icon name="close"></ion-icon>
       </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-    <ion-content class="ion-padding">
-      <div class="sfx-list-container">
-        @for(item of assignedSfxData; track item){
-          <div class="sfx-card">
-            <div class="sfx-row">
-              <div class="sfx-label">SFX Code</div>
-              <div class="pickup-label">LAST PICKUP DATE</div>
- </div>
-              <div class="sfx-row"> 
-              <div class="sfx-value">{{ item.code }}</div>
-                <div class="pickup-value">{{ item.lastPickupDate }}</div></div>
-            <div class="sfx-row consignor-row">
-              <div class="sfx-label">Consignor</div>
-            </div>
-                      <div class="sfx-value consignor">{{ item.consignor }}</div>
-</div>
-        }
+<ion-content class="ion-padding scroll-area">
+
+  <div class="sfx-list-container">
+
+    @for (item of assignedSfxData; track item) {
+
+      <div class="sfx-card">
+
+        <!-- FIRST ROW -->
+        <div class="sfx-row">
+          <div class="sfx-label">SFX Code</div>
+          <div class="pickup-label">Last Pickup Date</div>
+        </div>
+
+        <!-- VALUES -->
+        <div class="sfx-row">
+          <div class="sfx-value">{{ item.sfxCode }}</div>
+          <div class="pickup-value">{{ item.lastPickupDate | date:'dd-MMM-yyyy' }}</div>
+        </div>
+
+        <!-- CONSIGNOR LABEL -->
+        <div class="sfx-row consignor-row">
+          <div class="sfx-label">Consignor</div>
+        </div>
+
+        <!-- CONSIGNOR VALUE -->
+        <div class="sfx-value consignor">{{ item.consignorName }}</div>
+
       </div>
-    </ion-content>
+
+    }
+
+  </div>
+
+</ion-content>

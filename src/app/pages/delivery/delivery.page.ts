@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { IonContent, IonCard, IonItem, IonIcon , IonSelect,IonSelectOption, IonNote, IonButton, IonToolbar, IonFooter, IonButtons, IonText, IonModal, IonRow, IonCol, IonGrid } from "@ionic/angular/standalone";
 import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
 import { MatNativeDateModule } from '@angular/material/core'; 
@@ -48,6 +48,8 @@ import { InventoryCardComponent } from "src/app/shared/components/inventory-card
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeliveryPage implements OnInit {
+      @Input() vendorId!: string;
+
 
   form: FormGroup;
   cities = ['Delhi', 'Mumbai', 'Hyderabad', 'Chennai'];

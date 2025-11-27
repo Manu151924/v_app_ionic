@@ -1,19 +1,16 @@
 <div class="inventory-card">
-  <!-- Header -->
   <div class="header-row">
     <ion-item lines="none" class="branch-select">
       <ion-icon name="location" slot="start" color="success"></ion-icon>
-      <ion-select [(ngModel)]="selectedBranch"    interface="popover"    (ionChange)="onBranchChange()">
-        <ion-select-option *ngFor="let b of branches" [value]="b">
-          {{ b }}
-        </ion-select-option>
+      <ion-select [(ngModel)]="selectedBranch" interface="popover" (ionChange)="onBranchChange()">
+        <ion-select-option *ngFor="let b of branches" [value]="b">{{ b }}</ion-select-option>
       </ion-select>
     </ion-item>
 
     <div class="stats-box">
-      <span>WAYBILLS: {{ total.waybills }}</span>
-      <span>PKGS: {{ total.packages }}</span>
-      <span>WT (T): {{ total.weight | number: '1.1-1' }}</span>
+      <span>WAYBILLS: {{ totals.waybills }}</span>
+      <span>PKGS: {{ totals.packages }}</span>
+      <span>WT (T): {{ totals.weight.toFixed(1) }}</span>
     </div>
   </div>
 
@@ -22,20 +19,21 @@
     <span class="title">AVL. INVENTORY</span>
   </div>
 
-  <!-- Horizontal Bar Chart -->
-  <div class="bar-list">
-    <div class="bar-row" *ngFor="let r of routesData">
-      <span class="route-name">{{ r.route }}</span>
-      <div class="bar-container">
-        <div
-          class="bar"
-          [style.width.%]="(r.waybills / total.waybills) * 100"
-          [style.background]="r.color"
-        ></div>
+  <!-- Bar Chart List -->
+  <div class="bar-list" role="list" aria-label="Inventory by route">
+    <div class="bar-row" *ngFor="let r of routesData" (click)="handleRouteClick(r)" role="listitem" tabindex="0" [attr.aria-label]="'Route ' + r.route + ' with ' + r.waybills + ' waybills'">
+      <div class="y-axis-label">DLV. ROUTE WISE WB COUNT</div>
+      <div class="bar-container" aria-hidden="true">
+        <div class="bar" 
+             [style.width.%]="(r.waybills / maxWaybills) * 100" 
+             [style.background]="r.color">
+          <span class="route-name">{{ r.route }}</span>
+        </div>
       </div>
-      <span class="count">{{ r.waybills }}</span>
+      <span class="count" [style.color]="r.color">{{ r.waybills }}</span>
     </div>
   </div>
 
+  <!-- Footer -->
   <div class="footer-label">{{ selectedBranch }}</div>
 </div>

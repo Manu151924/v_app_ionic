@@ -1,101 +1,135 @@
-.inventory-card {
+   .inventory-card {
   background: #fff;
-  border: 2px solid #24a148;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  padding: 10px 14px;
+  border: 2px solid #108942;
+  border-radius: 14px;
+  padding: 6px 10px;
   width: 100%;
-  max-width: 380px;
+  max-width: 360px;
   margin: auto;
-  font-family: "Inter", sans-serif;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  color: #333;
+}
 
-  .header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
 
     .branch-select {
       --background: transparent;
-      --inner-padding-end: 0;
       --padding-start: 0;
-      width: 120px;
+      --inner-padding-end: 0;
+    }
 
-      ion-icon {
-        font-size: 16px;
-      }
-
-      ion-select {
-        font-weight: 600;
-        color: #24a148;
-        font-size: 13px;
-      }
+    ion-icon[name="location"] {
+        margin-right: 4px;
+    }
+    
+    ion-select {
+      font-weight: 600;
+      color: #108942;
+      font-size: 16px;
+      --padding-start: 8px;
     }
 
     .stats-box {
-      background: #4a4a4a;
+      background: #525252;
       color: #fff;
       font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 6px;
+      padding: 6px 10px;
+      border-radius: 8px;
       display: flex;
-      gap: 8px;
+      gap: 12px;
       font-weight: 500;
+      white-space: nowrap;
     }
-  }
 
-  .title-row {
-    margin-top: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #444;
-    letter-spacing: 0.4px;
-  }
+    .title-row .title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #2d2d2d;
+      letter-spacing: 0.5px;
+    }
 
-  .bar-list {
-    margin-top: 4px;
+.bar-list {
+  margin-top: 6px;
+  padding-left: 0;
+  position: relative;
+}
+    
+.y-axis-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  position: absolute;
+  left: -10px;
+  top: 0;
+  font-size: 8px;
+  color: #888;
+  font-weight: 600;
+}
 
-    .bar-row {
+.bar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  padding: 0;
+}
+
+    .bar-row:hover {
+        background-color: #f7f7f7;
+    }
+
+.bar-container {
+  height: 20px;
+  flex: 1;
+  background: #ececec;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 0 10px;
+}
+
+    .bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease-out;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 4px;
-      font-size: 12px;
-
-      .route-name {
-        width: 90px;
-        font-weight: 600;
-        color: #444;
-      }
-
-      .bar-container {
-        flex: 1;
-        background: #e5e5e5;
-        border-radius: 6px;
-        height: 8px;
-        margin: 0 6px;
-        overflow: hidden;
-
-        .bar {
-          height: 100%;
-          border-radius: 6px;
-          transition: width 0.3s ease;
-        }
-      }
-
-      .count {
-        width: 25px;
-        text-align: right;
-        font-weight: 600;
-        color: #f9b233;
-      }
+      padding-left: 10px;
+      position: relative;
+      color: #fff;
     }
-  }
 
-  .footer-label {
-    text-align: center;
-    margin-top: 8px;
-    font-size: 11px;
-    font-weight: 600;
-    color: #444;
-  }
+.route-name {
+  width: 90px;
+  color: #fff;
+  font-family: Roboto;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 10px;
+  line-height: 100%;
+  letter-spacing: 0%;
+
 }
+
+    .count {
+      width: 30px;
+      text-align: right;
+      font-family: Roboto;
+      font-weight: 500;
+      font-style: Medium;
+      font-size: 12px;
+      line-height: 100%;
+      letter-spacing: 0%;
+    }
+
+    .footer-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #555;
+      margin-top: 4px;
+      padding-top: 8px;
+      border-top: 1px solid #eee;
+    }

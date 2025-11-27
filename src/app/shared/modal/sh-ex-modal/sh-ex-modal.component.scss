@@ -21,6 +21,11 @@
   gap: 13px;
   .sh-label { font-weight: 500; width: 55px;}
   .sh-value { font-weight: 400; min-width: 20px; white-space: nowrap }
+  .sh-value-date {     font-weight: 400;
+    min-width: 20px;
+    white-space: nowrap;
+    left: 27px;
+    position: relative;}
   .sh-booking-group { font-weight: 500; }
   .green { color: #22b543;}
   .amber { color: #f0ad4e;}
@@ -52,13 +57,33 @@
 
 /* Modal Title Pill */
 .modal-title-pill {
-  border: 2px solid #78909c;
-  border-radius: 8px;
-  background: #fff;
-  color: #444;
-  padding: 2px 18px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-margin-left: 10px;
+border: 2px solid #78909c;
+    border-radius: 8px;
+    background: #fff;
+    color: #444;
+    padding: 2px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-left: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+    /* border-color: red; */
+    border-width: 0.5px;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+    /* border-color: red; */
+    border-width: 0.5px;
+    position: absolute;
+    left: -126px;
+    left: -17px;
 }

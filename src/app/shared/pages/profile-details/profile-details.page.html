@@ -1,0 +1,54 @@
+<ion-header class="header-shadow">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/account"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>
+      <b>My Profile :</b> {{ vendorName }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Profile Details Card -->
+  <ion-card class="details-card">
+    <div class="detail-row">
+      <p><strong>Name:</strong> {{ vendorName }}</p>
+    </div>
+
+    <div class="detail-row">
+      <p><strong>Email:</strong> {{ vendorEmail }}</p>
+    </div>
+
+    <div class="detail-row">
+      <p><strong>GSTIN:</strong> {{ vendorGstin }}</p>
+            <ion-icon name="copy-outline" class="icon-copy"></ion-icon>
+
+    </div>
+
+    <div class="detail-row contact-row">
+      <p><strong>Contact:</strong></p>
+      <ion-chip color="success" class="contact-chip">
+        <ion-label>{{ vendorPhone }}</ion-label>
+      </ion-chip>
+    </div>
+  </ion-card>
+
+  <!-- Contact List -->
+  <ion-card *ngFor="let c of contactList" class="user-card">
+    <div class="user-info">
+      <p class="name">{{ c.empName }}</p>
+      <p class="mobile">{{ c.mobile }}</p>
+    </div>
+
+    <div class="status-info">
+      <p>Status</p>
+      <strong>{{ c.status }}</strong>
+    </div>
+
+    <ion-icon name="trash-outline" class="delete-icon"></ion-icon>
+  </ion-card>
+
+</ion-content>

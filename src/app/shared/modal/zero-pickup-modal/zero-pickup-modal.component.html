@@ -11,22 +11,22 @@
 </ion-header>
 
 <ion-content class="zero-pickup-list-container">
-  @for(item of zeroPickupData; track item.code) {
+  @for(item of zeroPickupData; track $index) {
     <div class="pickup-card">
       <div class="pickup-top-row">
         <div class="pickup-code">
           <div class="pickup-label">SFX CODE</div>
-          <div class="pickup-value">{{ item.code }}</div>
+          <div class="pickup-value">{{ item.sfxCode }}</div>
         </div>
         <div class="pickup-date">
           <div class="pickup-date-label">LAST PICKUP DATE</div>
-          <div class="pickup-date-value">{{ item.lastPickupDate }}</div>
+          <div class="pickup-date-value">{{ item.lastPickupDate | date:'dd-MMM-yyyy' }}</div>
         </div>
       </div>
       <div class="pickup-consignor-row">
         <div class="pickup-consignor-label">Consignor</div>
       </div>
-        <div class="pickup-consignor-value">{{ item.consignor }}</div>
+        <div class="pickup-consignor-value">{{ item.consignorName }}</div>
     </div>
   }
 </ion-content>

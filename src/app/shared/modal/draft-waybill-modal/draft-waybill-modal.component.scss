@@ -77,9 +77,12 @@
 }
 
 .title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #222;
-  text-align: center;
-  margin-bottom: 10px;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+    /* border-color: red; */
+    border-width: 0.5px;
+    left: -126px;
 }

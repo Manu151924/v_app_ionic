@@ -1,0 +1,10 @@
+::ng-deep path.pie-label-line[stroke="#06B4A2"] {
+  display: none !important;
+}
+
+::ng-deep g[ngx-charts-pie-label]:nth-of-type(2) text {
+  display: none !important;
+}
+::ng-deep path.pie-label-line {
+  transform: scale(0.6);  /* 60% length */
+}

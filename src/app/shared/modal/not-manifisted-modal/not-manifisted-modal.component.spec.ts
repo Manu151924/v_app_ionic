@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { NotManifistedModalComponent } from './not-manifisted-modal.component';
+import { NotManifestedModalComponent } from './not-manifisted-modal.component';
 
-describe('NotManifistedModalComponent', () => {
-  let component: NotManifistedModalComponent;
-  let fixture: ComponentFixture<NotManifistedModalComponent>;
+describe('NotManifestedModalComponent', () => {
+  let component: NotManifestedModalComponent;
+  let fixture: ComponentFixture<NotManifestedModalComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ NotManifistedModalComponent ],
+      declarations: [ NotManifestedModalComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(NotManifistedModalComponent);
+    fixture = TestBed.createComponent(NotManifestedModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

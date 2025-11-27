@@ -23,8 +23,8 @@ export class ProgressSliderComponent  implements OnInit {
   private dragging = false;
 
   get face(): string {
-    if (this.value >=0 && this.value <= 33) return '😞';
-    if (this.value >= 34 && this.value <= 64) return '🙂';
+    if (this.value >=0 && this.value <= 33) return '😠';
+    if (this.value >= 34 && this.value <= 64) return '☺️';
     return '😄';
   }
 

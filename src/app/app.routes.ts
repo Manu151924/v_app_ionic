@@ -25,5 +25,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard], 
     loadComponent: () => import('./pages/account/account.page').then(m => m.AccountPage) 
   },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  {
+    path: 'splash',
+    loadComponent: () => import('./shared/pages/splash/splash.page').then( m => m.SplashPage)
+  },
+  {
+    path:'profile-details',
+    loadComponent:() => import('./shared/pages/profile-details/profile-details.page').then( m => m.ProfileDetailsPage)
+  }
+
 ];

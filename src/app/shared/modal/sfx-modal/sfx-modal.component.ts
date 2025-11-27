@@ -17,11 +17,12 @@ export class SfxModalComponent {
     addIcons({close})
   }
 
-  @Input() assignedSfxData: {
-    code: string;
-    consignor: string;
-    lastPickupDate: string;
-  }[] = [];
+ @Input() assignedSfxData: {
+  sfxCode: string;
+  consignorName: string;
+  lastPickupDate: string;
+}[] = [];
+
   close() {
     this.modalCtrl.dismiss();
   }

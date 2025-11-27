@@ -37,6 +37,15 @@ export class LoginPage implements OnInit {
   ngOnInit() {
     this.restoreResendState();
   }
+   ionViewWillEnter() {
+    this.mobileNumber = '';
+    this.otp = '';
+    this.showOtpField = false;
+    this.resendCount = 0;
+    this.resendDisabled = false;
+    this.resendButtonText = 'Resend OTP';
+    localStorage.removeItem('otpResendState'); // optional: clear cooldown
+  }
 
   async showToast(message: string, color: string = 'danger') {
     const toast = await this.toastCtrl.create({
@@ -52,6 +61,7 @@ export class LoginPage implements OnInit {
     this.mobileNumber = '';
     this.showOtpField = false;
   }
+isSendingOtp = false;   
 
 sendOtp() {
   if (!/^\d{10}$/.test(this.mobileNumber)) {
@@ -60,9 +70,15 @@ sendOtp() {
     return;
   }
 
+  if (this.isSendingOtp) return;    // prevent second click
+
+  this.isSendingOtp = true;         // disable button
+
   this.apiService.sendOtp(this.mobileNumber).subscribe({
     next: (res) => {
       console.log('Send OTP Response:', res);
+
+      this.isSendingOtp = false;   // enable again
 
       if (res?.success === true || res?.data?.success === true) {
         this.successMessage = res.message || 'OTP sent successfully.';
@@ -78,6 +94,9 @@ sendOtp() {
     },
     error: (err) => {
       console.error('Send OTP Error:', err);
+
+      this.isSendingOtp = false;   // enable again
+
       if (err?.error?.message) {
         this.errorMessage = err.error.message;
       } else {
@@ -88,51 +107,47 @@ sendOtp() {
   });
 }
 
+resendTimer: number = 0;
+resendInterval: any;
 
-  resendOtp() {
-    if (this.resendDisabled) {
-      this.showToast('Please wait before trying again after 10 minutes.');
-      return;
-    }
 
-    if (!/^\d{10}$/.test(this.mobileNumber)) {
-      this.errorMessage = 'Mobile number should be 10 digits to resend OTP.';
-      this.showToast(this.errorMessage);
-      return;
-    }
+cooldownEndTime: number = 0;
 
-    if (this.resendCount < 3) {
-      this.resendCount++;
+    resendOtp() {
+      if (this.resendDisabled) {
+        this.showToast('You have exceeded the maximum attempts. Try again after 10 minutes.');
+        return;
+      }
+      if (!/^\d{10}$/.test(this.mobileNumber)) {
+        this.showToast('Mobile number should be 10 digits to resend OTP.');
+        return;
+      }
 
-      this.apiService.sendOtp(this.mobileNumber).subscribe({
-        next: (res) => {
-          if (res && res.data?.success === true) {
-            this.successMessage = `OTP re-sent successfully via ${
-              res.data.channel || 'configured method'
-            } (${this.resendCount}/3).`;
-            this.showToast(this.successMessage, 'success');
-          } else {
-            this.errorMessage = res.message || 'Failed to resend OTP.';
-            this.showToast(this.errorMessage);
+      if (this.resendCount < 3) {
+        this.resendCount++;
+
+        this.apiService.sendOtp(this.mobileNumber).subscribe({
+          next: (res) => {
+            if (res && res.data?.success === true) {
+              this.showToast(`OTP sent successfully (${this.resendCount}/3).`, 'success');
+            } else {
+              this.showToast(res.message || 'Failed to resend OTP.');
+            }
+          },
+          error: () => {
+            this.showToast('Something went wrong while resending OTP.');
           }
-        },
-        error: (err) => {
-          console.error('Resend OTP Error:', err);
-          this.errorMessage = 'Something went wrong while resending OTP.';
-          this.showToast(this.errorMessage);
-        },
-      });
+        });
+        if (this.resendCount === 3) {
+          this.triggerCooldown();
+        }
 
-      this.saveResendState();
-      if (this.resendCount >= 3) {
+      } else {
         this.triggerCooldown();
       }
-    } else {
-      this.triggerCooldown();
     }
-  }
 
-  private triggerCooldown() {
+ private triggerCooldown() {
     this.resendDisabled = true;
     this.resendButtonText = 'Wait 10 minutes...';
     this.errorMessage =
@@ -185,41 +200,48 @@ sendOtp() {
 
 async login() {
   if (!/^\d{6}$/.test(this.otp)) {
-    this.showToast('OTP must be numeric and 6 digits.');
-    return;
+    return this.showToast('OTP must be 6 digits.');
   }
 
   this.apiService.verifyOtp(this.otp, this.mobileNumber).subscribe({
     next: async (res) => {
-      console.log('Verify OTP Response:', res);
 
       if (res?.success === true && res?.data?.accessToken) {
+
         await this.authService.setUserData(res.data);
 
-        localStorage.setItem('vendorType', JSON.stringify(res.data.vendorType || []));
+        const vendors = res.data?.vendors || [];
+        const bookingVendor = vendors.find((v: any) => v.vendorType === 'BOOKING');
+        const deliveryVendor = vendors.find((v: any) => v.vendorType === 'DELIVERY');
+        localStorage.setItem('bookingVendorId', bookingVendor?.vendorId?.toString() || '');
+        localStorage.setItem('deliveryVendorId', deliveryVendor?.vendorId?.toString() || '');
+        localStorage.setItem('vendorType', JSON.stringify(vendors.map((v: any) => v.vendorType)));
         localStorage.setItem('accessToken', res.data.accessToken);
         localStorage.setItem('refreshToken', res.data.refreshToken);
-        localStorage.setItem('vendorId', res.data.vendorId?.toString() || '');
 
-        this.showToast(res.message || 'Login successful!', 'success');
+        this.showToast('Login successful!', 'success');
         await this.router.navigate(['/home']);
       } 
       else {
-        const apiMessage =
-          res?.message ||
-          res?.data?.message ||
-          'Invalid OTP. Please try again.';
-        this.showToast(apiMessage);
+        this.showToast(res?.message || 'Invalid OTP.');
       }
     },
-    error: (err) => {
-      console.error('Verify OTP Error:', err);
-      const errorMsg =
-        err?.error?.message ||
-        'Login failed. Please check your network or try again.';
-      this.showToast(errorMsg);
-    },
+    error: () => this.showToast('Login failed. Try again.')
   });
 }
+filterNumberInput(event: any, type: 'mobile' | 'otp') {
+  let value = event.target.value || '';
+
+  value = value.replace(/\D/g, '');
+  if (type === 'mobile') {
+    value = value.substring(0, 10);
+    this.mobileNumber = value;
+  } else {
+    value = value.substring(0, 6);
+    this.otp = value;
+  }
+  event.target.value = value;
+}
+
 
 }

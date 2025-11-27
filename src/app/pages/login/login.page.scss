@@ -1,33 +1,62 @@
 .login-content {
   --background: #1A1B1B;
-  min-height: 100vh;
+  height: 100%;        // or 100vh
   display: flex;
   flex-direction: column;
-  align-items: center;
-  position: relative;
 }
 
-.login-header {
+/* 50-50 split */
+.top-section,
+.bottom-section {
+  width: 100%;
+}
+
+/* Center logo area vertically */
+.top-section {
+  flex: 0 0 auto;
+  padding-top: 32px;
+  padding-bottom: 16px;
   background: #1A1B1B;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Header + logo */
+.login-header {
   text-align: center;
-  padding-top: 5vh;
   color: #fff;
-  position: relative;
-  z-index: 1;
 }
 
 .logo {
-  margin: 0 auto;
+  margin: 0 auto 20px;
   display: block;
-  position: absolute;
   height: 80px;
   width: 138px;
-  top: 287px;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
-/* Floating white card */
+.product-text {
+  font-family: Roboto;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 100%;
+  white-space: nowrap;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+/* Bottom half: card + footer */
+.bottom-section {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 20px 8px;
+  box-sizing: border-box;
+  overflow-y: auto; 
+}
+
+/* White card with form */
 .login-card {
   background: #fff;
   border-radius: 22px;
@@ -35,14 +64,13 @@
   padding: 42px 30px 70px 30px;
   width: 100%;
   max-width: 430px;
-  margin: 0 auto;
-  position: absolute;
-  top: 42vh;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   z-index: 2;
+  flex-shrink: 0;
+  margin: 0 auto;
 }
 
+/* Arrow pointing to header */
 .login-card::before {
   content: '';
   position: absolute;
@@ -86,8 +114,9 @@ ion-input {
   padding-left: 0;
 }
 
-/* ✅ Button styles (Send OTP / Resend OTP / Submit) */
-.actions, .otp-actions {
+/* Buttons */
+.actions,
+.otp-actions {
   margin-top: 22px;
   display: flex;
   flex-direction: column;
@@ -125,8 +154,8 @@ ion-input {
 .resend-otp {
   color: #11C15B;
   font-size: 13px;
-  margin-left: -19rem;
-  margin-bottom: 16px;
+  margin-top: 12px;
+  align-self: flex-start;
   cursor: pointer;
   transition: color 0.3s ease;
 }
@@ -141,20 +170,18 @@ ion-input {
   color: #0ea44a;
 }
 
-/* Footer */
+/* Footer at bottom of bottom-section */
 .footer {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100vw;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 32px 16px 32px;
+  padding: 0 16px 8px;
   box-sizing: border-box;
   font-size: 14px;
+  margin-top: auto;
   background: transparent;
-  z-index: 10;
+  z-index: 1;
 }
 
 .version {
@@ -166,28 +193,27 @@ ion-input {
   color: #000000;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
+/* Mobile adjustments */
+@media (min-width: 320px) and (max-width: 600px) {
+  .bottom-section {
+    padding: 12px 16px 6px;
+  }
+
   .login-card {
-    padding: 64px 20px 60px;
-    top: 40vh;
-    height: 59vh;
+    padding: 36px 20px 52px;
   }
 
   .footer {
-    padding: 0 16px 10px;
     font-size: 12px;
   }
 }
 
-@media (max-height: 720px) {
-  .login-card {
-    top: 38vh;
-    padding: 32px 24px 60px;
+@media (min-width: 320px) and (max-width: 390px) {
+  .product-text {
+    text-align: center;
   }
 
-  .footer {
-    padding-bottom: 6px;
-    font-size: 11px;
+  .resend-otp {
+    font-size: 12px;
   }
 }

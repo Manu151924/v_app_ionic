@@ -93,6 +93,10 @@ background-color: #EFEFEF; }
 
 :root {
   /* Ionic Colors */
+    --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
   --ion-color-primary: #27AE60;
   --ion-color-primary-rgb: 0, 84, 233;
   --ion-color-primary-contrast: #ffffff;
@@ -102,8 +106,19 @@ background-color: #EFEFEF; }
   --ion-color-danger: #B00021;
   --ion-color-medium: #636469;
   --ion-color-light: #EFEFEF;
-}
+  --app-safe-top: max(env(safe-area-inset-top), 20px); 
 
+}
+.app-safe-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--app-safe-top);
+  background: #000;              
+  z-index: 9999;                 
+  pointer-events: none;           
+}
 
 @media (max-width: 375px) {
   .card-welcome {
@@ -136,20 +151,7 @@ background-color: #EFEFEF; }
     padding: 6px 8px;
   }
 
-  .status-list {
-    gap: 6px;
-    .status-row {
-      .bar-fill {
-        font-size: 10px;
-        padding-left: 6px;
-      }
-      .status-value-pickup,
-      .status-value-not,
-      .status-value-draft {
-        font-size: 10px;
-      }
-    }
-  }
+
 
   .custom-dropdown {
     width: 100px;
@@ -191,19 +193,7 @@ background-color: #EFEFEF; }
     padding-left: 8px;
   }
 
-  .status-list {
-    margin: 0 6px;
-    .status-row {
-      .bar-fill {
-        font-size: 11px;
-      }
-      .status-value-pickup,
-      .status-value-not,
-      .status-value-draft {
-        font-size: 11px;
-      }
-    }
-  }
+
 
   .custom-dropdown {
     width: 110px;
@@ -241,21 +231,7 @@ background-color: #EFEFEF; }
     padding: 10px;
   }
 
-  .status-list {
-    gap: 8px;
-    margin: 4px 8px;
-    .status-row {
-      .bar-fill {
-        height: 14px;
-        font-size: 12px;
-      }
-      .status-value-pickup,
-      .status-value-not,
-      .status-value-draft {
-        font-size: 12px;
-      }
-    }
-  }
+
 
   .custom-dropdown {
     width: 115px;
@@ -481,12 +457,12 @@ background-color: #EFEFEF; }
           .donut-value {
             font-size: 20px;
             font-weight: 700;
-            color: #212121;
+            color: #02834A;
           }
           .donut-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #f39c12;
+            font-size: 9px;
+            font-weight: 500;
+            color: #000000;
           }
         }
       }
@@ -497,13 +473,32 @@ background-color: #EFEFEF; }
         display: flex;
         justify-content: center;
         gap: 4px;
+        margin-left:7rem;
 
         .donut-stat-label {
-          font-weight: 500;
-          color: #232323;
+    font-weight: 500;
+    color: #232323;
+    width: 41;
+    height: 13.28729248046875;
+    opacity: 1;
+    font-family: Roboto;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 11px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    top: 790.08px;
+    left: 166px;
+
         }
         .donut-stat-value {
-          color: #32917a;
+              color: #32917a;
+    font-family: Roboto;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 11px;
+    line-height: 100%;
+    letter-spacing: 0%;
         }
       }
     }
@@ -556,3 +551,94 @@ background-color: #EFEFEF; }
       }
     }
   }
+  .calendar-popup {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  z-index: 2000;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 8px 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+.calendar-popup .mat-calendar {
+  background: #ffffff !important;
+  border-radius: 14px;
+  width: 300px; 
+}
+
+.mat-calendar-period-button {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #000 !important;
+}
+
+/* Navigation Arrows */
+.mat-calendar-previous-button,
+.mat-calendar-next-button {
+  color: #000 !important;
+}
+
+/* Weekday Labels (MON,TUE...) */
+.mat-calendar-table-header th {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #8b8b8b !important;
+}
+
+/* Date Cells */
+.mat-calendar-body-cell {
+  font-size: 14px !important;
+  color: #000 !important;
+}
+
+/* Selected Date */
+.mat-calendar-body-selected {
+  background-color: #0ea44b !important; /* Green circle like screenshot */
+  color: #fff !important;
+  border-radius: 50% !important;
+}
+
+/* Today Style */
+.mat-calendar-body-today:not(.mat-calendar-body-selected) {
+  border-color: #0ea44b !important; /* Green border */
+}
+
+/* Hover Effect */
+.mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover {
+  background: rgba(14, 164, 75, 0.1) !important;
+  border-radius: 50%;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+/* Bottom sheet modal shape */
+.sfx-modal .modal-wrapper {
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+}
+
+/* Dim background */
+ion-modal.sfx-modal::part(backdrop) {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* Prevent full expansion on scroll */
+.sfx-modal ion-content {
+  --padding-top: 8px;
+}
+.bottom-sheet-modal::part(content) {
+  border-radius: 18px 18px 0 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.bottom-sheet-modal::part(backdrop) {
+  background: rgba(0, 0, 0, 0.35);
+}

@@ -4,6 +4,7 @@ import { IonApp, IonRouterOutlet, ToastController } from '@ionic/angular/standal
 import { NgxSpinnerModule } from "ngx-spinner";
 import { Keyboard } from '@capacitor/keyboard';
 import { Capacitor } from '@capacitor/core';
+import { AppStorageService } from 'src/app/shared/services/app-storage';
 
 @Component({
   selector: 'app-root',
@@ -11,16 +12,43 @@ import { Capacitor } from '@capacitor/core';
   imports: [IonApp, IonRouterOutlet, NgxSpinnerModule],
 })
 export class AppComponent {
+
   private router = inject(Router);
   private toastCtrl = inject(ToastController);
+  private storage = inject(AppStorageService);
 
   constructor() {
+    this.bootstrapApp(); // must call first!
     this.enableKeyboardAdjustment();
     this.handleInputBlurOnNavigation();
     this.logViewportDetails();
-    this.showSplashEveryThreeSeconds();
   }
 
+  /** MASTER INIT */
+  private async bootstrapApp() {
+    /** 🔥 Ensure Storage is fully initialized */
+    await this.storage.waitUntilReady();
+
+    /** Now splash logic is safe */
+    this.handleSplashLoad();
+  }
+
+  /** Handle Splash Navigation AFTER storage ready */
+  private async handleSplashLoad() {
+    const gapMs = 5000;
+    const now = Date.now();
+
+    const lastSplashTime = await this.storage.get('lastSplashTime');
+
+    if (!lastSplashTime || now - Number(lastSplashTime) > gapMs) {
+      await this.storage.set('lastSplashTime', now.toString());
+      this.router.navigateByUrl('/splash', { replaceUrl: true });
+    } else {
+      this.router.navigateByUrl('/login', { replaceUrl: true });
+    }
+  }
+
+  /** Adjust for Native Keyboard Movement */
   private enableKeyboardAdjustment() {
     if (!Capacitor.isNativePlatform()) return;
 
@@ -33,28 +61,17 @@ export class AppComponent {
     });
   }
 
+  /** Debug Window Size */
   private logViewportDetails() {
     console.log("Viewport", window.innerWidth, window.innerHeight);
   }
 
+  /** Blur active input when navigating */
   private handleInputBlurOnNavigation() {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         (document.activeElement as HTMLElement)?.blur();
       }
     });
-  }
-
-  private showSplashEveryThreeSeconds() {
-    const lastShown = localStorage.getItem('lastSplashTime');
-    const now = Date.now();
-    const gap = 5000;
-
-    if (!lastShown || now - +lastShown > gap) {
-      localStorage.setItem('lastSplashTime', now.toString());
-      this.router.navigateByUrl('/splash', { replaceUrl: true });
-    } else {
-      this.router.navigateByUrl('/login', { replaceUrl: true });
-    }
   }
 }

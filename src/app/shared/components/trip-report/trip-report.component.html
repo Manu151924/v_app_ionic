@@ -4,6 +4,15 @@
     <img src="assets/icon/fit.png" alt="arrow-down" />
   </ion-button>
 </div>
+  <ngx-spinner
+    bdColor="rgba(255,255,255,0.1)"
+    color="#2ca85e"
+    size="large"
+    type="ball-clip-rotate"
+    [fullScreen]="true"
+  >
+    <p class="loader-text">Loading..</p>
+  </ngx-spinner>
 
 @if (showCalendar) {
   <div class="calendar-popup" (click)="$event.stopPropagation()">
@@ -61,7 +70,7 @@
           @if (visibleTripStatusRows.length > 0) {
             @for (ts of visibleTripStatusRows; track $index) {
               <tr>
-                <td class="veh-no">{{ ts.vehicle ?? ts.vehcleNo }}</td>
+                <td class="veh-no">{{ ts.vehicle ?? ts.vehcleNoShort  }}</td>
 
                 <td>
                   <span [ngClass]="getTextColorClass(ts.manifestedWB, ts.unloadedWB)">
@@ -80,7 +89,7 @@
                 <td class="sh-ex">
                   <span
                     [class.red]="ts.shortExcessCount > 0"
-                    (click)="openShExModal(ts.manifestNo)"
+                    (click)="openShExModal(ts.manifestNo, ts.vehcleNo)"
                   >
                     {{ ts.shortExcessCount > 0 ? ts.shortExcessCount : '-' }}
                   </span>

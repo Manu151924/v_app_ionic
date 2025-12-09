@@ -1,93 +1,124 @@
-.account-container {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.account-content {
+  --background: #f2f2f2;
+  padding: 10px;
 }
 
+/* ---------- PROFILE CARD ---------- */
 .profile-card {
-  width: 100%;
-  background: linear-gradient(to bottom, #2ecc71, #27ae60);
-  border-radius: 12px;
-  color: white;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border-radius: 16px;
+  background: linear-gradient(to right, #37d67a, #17a55b);
+  color: #fff;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
-.profile-header {
+.profile-row {
   display: flex;
   align-items: center;
-  padding: 16px;
 }
 
-.profile-icon {
-  font-size: 50px;
-  margin-right: 12px;
+.profile-card .icon {
+  font-size: 55px;
+  margin-right: 14px;
 }
 
-.profile-info .label {
-  font-size: 14px;
+.label {
   margin: 0;
-  opacity: 0.9;
-  left: -51px;
-  position: relative;
+  font-size: 13px;
+  opacity: 0.8;
 }
 
-.profile-info .name {
-  font-size: 16px;
-  font-weight: bold;
+.value {
   margin: 2px 0 0 0;
+  font-size: 17px;
+  font-weight: 600;
 }
 
+/* ---------- SECTION CARDS ---------- */
 .section-card {
-  width: 100%;
-  border-radius: 12px;
-  margin-top: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 18px;
+  padding: 16px;
+  margin-top: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
-.section-card h2 {
+.section-card h3 {
   font-size: 16px;
   font-weight: 600;
-  margin: 12px;
-  color: #000;
+  margin-bottom: 12px;
+}
+
+/* Header with bus icon */
+.header-with-icon {
+  display: flex;
+  align-items: center;
+}
+
+.bus-icon {
+  font-size: 20px;
+  margin-right: 6px;
 }
 
 .btn-row {
   display: flex;
-  justify-content: space-evenly;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  margin-top: 10px;
 }
 
-.btn {
-  --border-radius: 8px;
-  --background: #eaf8ef;
-  color: #333;
+.nrm-btn,
+.delivery-btn {
+  width: 45%;
+  height: 40px;
+  border-radius: 12px;
   font-weight: 600;
-  width: 40%;
+  --background: #e7f9ef;
+  color: #2ca85e;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.market-header {
+.footer {
+  margin-top: 31rem;
+  text-align: center;
+  position: relative;
+}
+
+.logout-card {
+  width: 95%;
+  margin: 0 auto;
+  padding: 12px 16px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
-  padding-left: 12px;
+  justify-content: center;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
 }
 
-.market-icon {
+.logout-icon {
   font-size: 22px;
+  color: #e74c3c;
   margin-right: 8px;
-  color: #000;
 }
 
 .version {
-    margin-top: 33rem;
-    color: #999;
-    font-size: 13px;
-    margin-left: 16rem;
+  margin-top: 10px;
+  margin-right: 12px;
+  font-size: 13px;
+  text-align: right;
+  color: gray;
 }
-
-.logout-btn {
-  margin-top: 20px;
-  width: 90%;
-  --border-radius: 8px;
+@media (min-width:360px) and (max-widtg:390px){
+  .footer{
+    margin-top: 28rem;
+    text-align: center;
+    position: relative;
+  }
+  .version{
+    margin-top: -75px;
+    margin-right: 12px;
+    font-size: 13px;
+    text-align: right;
+    color: gray;
+  }
 }

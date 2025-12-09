@@ -1,0 +1,77 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>AVL. INVENTORY</ion-title>
+
+<div slot="end" class="branch-label">
+      {{ branch }}
+    </div>
+
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content>
+
+  <!-- TOP FILTER BAR -->
+  <div class="top-bar">
+      <ion-segment-button class="seg">WB Count</ion-segment-button>
+
+    <div class="chip-group">
+      <div class="chip">WAYBILLS: {{ totals.waybills }}</div>
+      <div class="chip">PKGS: {{ totals.packages }}</div>
+      <div class="chip">WT (T): {{ totals.weight }}</div>
+    </div>
+
+    <span class="route-name">{{ routeName }}</span>
+  </div>
+
+
+  <!-- CARD #1 : < 24 -->
+  <ion-card class="detail-card">
+    <div class="badge green-bg">&lt; 24 Hours</div>
+
+    <div class="content-grid">
+      <div>
+        <label>Waybill Count</label>
+        <h1>{{ less24.waybills | number:'2.0' }}</h1>
+      </div>
+
+      <div>
+        <label>Packages</label>
+        <h3>{{ less24.packages }}</h3>
+      </div>
+
+      <div>
+        <label>Weight (T)</label>
+        <h3>{{ less24.weight }}</h3>
+      </div>
+    </div>
+  </ion-card>
+
+
+  <!-- CARD #2 : > 24 -->
+  <ion-card class="detail-card">
+    <div class="badge yellow-bg">&gt; 24 Hours</div>
+
+    <div class="content-grid">
+      <div>
+        <label>Waybill Count</label>
+        <h1>{{ above24.waybills | number:'2.0' }}</h1>
+      </div>
+
+      <div>
+        <label>Packages</label>
+        <h3>{{ above24.packages }}</h3>
+      </div>
+
+      <div>
+        <label>Weight (T)</label>
+        <h3>{{ above24.weight }}</h3>
+      </div>
+    </div>
+  </ion-card>
+
+</ion-content>

@@ -11,77 +11,73 @@
     </ion-button>
   </div>
   <app-trip-report-delivery></app-trip-report-delivery>
-<ion-grid class="summary-grid">
-  <ion-row>
-    <ion-col size="6">
-      <ion-card class="summary-card">
-        <div class="card-row">
-          <div class="card-icon-wrap">
-            <img src="assets/icon/rupee.png" alt="rupee" class="rupee-icon" />
-          </div>
-          <div class="card-info">
-            <div class="card-main red">
-              {{ amount | number: '1.0-0' }}
+  <ion-grid class="summary-grid">
+    <!-- ROW 1 -->
+    <ion-row>
+      <ion-col class="summary-col">
+        <ion-card class="summary-card">
+          <div class="card-row">
+            <div class="card-icon-wrap">
+              <img src="assets/icon/waybill.png" class="waybill-icon" />
             </div>
-            <div class="card-label">
-              To Be Collected <span class="mini">(As on)</span>
+            <div class="card-info">
+              <div class="card-main red">{{ amount | number: '1.0-0' }}</div>
+              <div class="card-label"> To Be Collected <span class="mini">(As on)</span></div>
             </div>
           </div>
-        </div>
-      </ion-card>
-    </ion-col>
+        </ion-card>
+      </ion-col>
 
-    <ion-col size="6">
-      <ion-card class="summary-card">
-        <div class="card-row">
-          <div class="card-icon-wrap">
-            <img src="assets/icon/pod.png" alt="pod" class="pod-icon" />
+      <ion-col class="summary-col">
+        <ion-card class="summary-card">
+          <div class="card-row">
+            <div class="card-icon-wrap">
+              <img src="assets/icon/usage.png" class="usage-icon" />
+            </div>
+            <div class="card-info">
+              <div class="card-main green">{{ pending }}</div>
+              <div class="card-label">Pending POD's <span class="mini">(As on)</span></div>
+            </div>
           </div>
-          <div class="card-info">
-            <div class="card-main">{{ pending }}</div>
-            <div class="card-label">Pending POD's <span class="mini">(As on)</span></div>
-          </div>
-        </div>
-      </ion-card>
-    </ion-col>
-  </ion-row>
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
-  <ion-row>
-    <ion-col size="6">
-      <ion-card class="summary-card">
-        <div class="card-row">
-          <div class="card-icon-wrap">
-            <img src="assets/icon/usage.png" alt="usage" class="usage-icon" />
-          </div>
-          <div class="card-info">
-            <div class="card-main">{{ usage }}</div>
-            <div class="card-label">
-              Market Vehicle Usage <span class="mini">(Today)</span>
+    <!-- ROW 2 -->
+    <ion-row>
+      <ion-col class="summary-col">
+        <ion-card class="summary-card">
+          <div class="card-row">
+            <div class="card-icon-wrap">
+              <img src="assets/icon/rupee.png" class="rupee-icon" />
+            </div>
+            <div class="card-info">
+              <div class="card-main red">
+                {{ usage | number: '1.0-0' }}.<span class="decimal">00</span>
+              </div>
+              <div class="card-label">Market Vehicle Usage <span class="mini">(Today)</span></div>
             </div>
           </div>
-        </div>
-      </ion-card>
-    </ion-col>
+        </ion-card>
+      </ion-col>
 
-    <ion-col size="6">
-      <ion-card class="summary-card">
-        <div class="card-row">
-          <div class="card-icon-wrap">
-            <img src="assets/icon/safe.png" alt="safe" class="safe-icon" />
-          </div>
-          <div class="card-info">
-            <div class="card-main green">
-              {{ safe }}<span class="percent">%</span>
+      <ion-col class="summary-col">
+        <ion-card class="summary-card">
+          <div class="card-row">
+            <div class="card-icon-wrap green">
+              <img src="assets/icon/weight.png" class="weight-icon" />
             </div>
-            <div class="card-label">
-              Safedrop Usage <span class="mini">(Today)</span>
+            <div class="card-info">
+              <div class="card-main green">
+                {{ safe }}<span class="percent">%</span>
+              </div>
+              <div class="card-label">Safedrop Usage <span class="mini">(Today)</span></div>
             </div>
           </div>
-        </div>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-</ion-grid>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
 
   <div class="snapshot-header">

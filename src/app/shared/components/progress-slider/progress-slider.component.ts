@@ -45,23 +45,12 @@ export class ProgressSliderComponent  implements OnInit {
   getGradient(value: number): string {
   if (value >= 0 && value <= 33) {
     // Dominantly red
-    return 'linear-gradient(90deg, #DA2D24 0%, #D2E241 60%, #42D844 100%)';
+    return 'linear-gradient(90deg, #DA2723 0%, #D2E241 19.1%, #41D844 100%)';
   } else if (value >= 34 && value <= 66) {
-    // Mid range: yellow center dominant
-    return 'linear-gradient(90deg, #D2E241 0%, #42D844 80%, #DA2D24 100%)';
+    return 'linear-gradient(90deg, #DA2723 0%, #D2E241 17.7%, #41D844 100%)';
   } else {
-    // High: mostly green
-    return 'linear-gradient(90deg, #42D844 0%, #D2E241 60%, #DA2D24 100%)';
+    return 'linear-gradient(90deg, #42D844 0%, #D2E241 48.2%, #DA2D24 100%)';
   }
 }
-  private updateValueFromEvent(event: MouseEvent) {
-    const el = (event.currentTarget as HTMLElement);
-    const rect = el.getBoundingClientRect();
-    const x = Math.min(Math.max(event.clientX - rect.left, 0), rect.width);
-    const newVal = +(x / rect.width).toFixed(3);
-    this.value = newVal;
-    this.valueChange.emit(this.value);
-  }
-
 
 }

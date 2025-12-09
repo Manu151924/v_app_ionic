@@ -23,7 +23,7 @@
          <span class="green">{{ item.booked }}</span>/
          <span class="green">{{ item.manifested }}</span>/
          <span class="red">{{ item.remaining }}</span>
-         <span class="date">{{ item.pickupDate }}</span>
+         <span class="date">{{ item.pickupDate | date:'dd-MMM-yyyy' }}</span>
  </div>
      <div class="notman-row consignor-row">
        <span class="consignor-label">Consignor</span>

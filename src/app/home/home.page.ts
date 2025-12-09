@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import {
   IonToolbar,
   IonFooter,
@@ -17,11 +18,13 @@ import {
 import { BookingPage } from '../pages/booking/booking.page';
 import { DeliveryPage } from '../pages/delivery/delivery.page';
 import { Router, RouterModule } from '@angular/router';
+import { AppStorageService } from '../shared/services/app-storage';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
+  standalone: true,
   imports: [
     IonHeader,
     IonSegmentButton,
@@ -52,30 +55,38 @@ export class HomePage implements OnInit {
 
   activeTab: 'home' | 'task' | 'account' = 'home';
 
-  constructor(private router: Router) {}
+  private router = inject(Router);
+  private storage = inject(AppStorageService);
 
-  ngOnInit() {
-    this.bookingVendorID = localStorage.getItem('bookingVendorId') || '';
-    this.deliveryVendorID = localStorage.getItem('deliveryVendorId') || '';
-    let stored = localStorage.getItem('vendorType');
+  async ngOnInit() {
+    const user = await this.storage.getUserDetails();
+
+    if (!user) {
+      console.warn('No userDetails found → redirecting to login');
+      this.router.navigateByUrl('/login', { replaceUrl: true });
+      return;
+    }
+
+    /** Extract IDs */
+    this.bookingVendorID = user.bookingVendorId?.toString() || '';
+    this.deliveryVendorID = user.deliveryVendorId?.toString() || '';
+
     let vendorTypes: string[] = [];
-
-    try {
-      vendorTypes = JSON.parse(stored || '[]');
-    } catch {
-      if (stored) vendorTypes = [stored];
+    if (Array.isArray(user.vendorType)) {
+      vendorTypes = user.vendorType;
+    } else if (typeof user.vendorType === 'string') {
+      vendorTypes = [user.vendorType];
     }
 
     console.log("Parsed Vendor Types:", vendorTypes);
     console.log("Booking Vendor ID:", this.bookingVendorID);
     console.log("Delivery Vendor ID:", this.deliveryVendorID);
 
-    // Default
-    this.segment = 'booking';
-
+    /** Decide active segment */
     if (vendorTypes.includes('DELIVERY') && vendorTypes.includes('BOOKING')) {
       this.disableBooking = false;
       this.disableDelivery = false;
+      this.segment = user.activeSegment || 'booking';
     }
     else if (vendorTypes.includes('DELIVERY')) {
       this.segment = 'delivery';
@@ -91,21 +102,30 @@ export class HomePage implements OnInit {
       this.disableBooking = true;
       this.disableDelivery = true;
     }
-      localStorage.setItem("activeSegment", this.segment);
 
+    /** Persist the chosen active segment */
+    await this.storage.updateUserDetails({ activeSegment: this.segment });
   }
 
   switchTab(tab: 'home' | 'task' | 'account') {
     this.activeTab = tab;
     this.router.navigate([`/${tab}`]);
   }
-onSegmentChange(event: any) {
-  this.segment = event?.detail?.value || this.segment;
-  localStorage.setItem('activeSegment', this.segment);
-  console.log('Segment changed to:', this.segment)
 
-  this.bookingVendorID = localStorage.getItem('bookingVendorId') || '';
-  this.deliveryVendorID = localStorage.getItem('deliveryVendorId') || '';
-}
+  async onSegmentChange(event: any) {
+    this.segment = event?.detail?.value || this.segment;
+
+    console.log('Segment changed to:', this.segment);
+
+    /** Persist user's active segment */
+    await this.storage.updateUserDetails({
+      activeSegment: this.segment
+    });
+
+    /** Reload IDs if needed */
+    const user = await this.storage.getUserDetails();
+    this.bookingVendorID = user?.bookingVendorId?.toString() || '';
+    this.deliveryVendorID = user?.deliveryVendorId?.toString() || '';
+  }
 
 }

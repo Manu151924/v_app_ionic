@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { Router } from '@angular/router';
+
 
 interface RouteData {
   route: string;
@@ -20,6 +22,7 @@ interface RouteData {
   styleUrls: [ 'inventory-card.component.scss'],
 })
 export class InventoryCardComponent implements OnInit {
+  constructor(private router: Router){}
   selectedBranch = 'DELHI-11';
   branches = ['DELHI-11', 'DELHI-12', 'DELHI-13'];
   
@@ -72,8 +75,17 @@ export class InventoryCardComponent implements OnInit {
     this.loadBranchData();
   }
 
-  handleRouteClick(routeData: RouteData): void {
-    console.log('Clicked Route:', routeData);
-    // In a real app, you might open a modal or navigate to a details page here.
-  }
+handleRouteClick(routeData: RouteData): void {
+  this.router.navigate(['/inventory-route-modal'], {
+    queryParams: {
+      branch: this.selectedBranch,
+      route: routeData.route,
+      waybills: routeData.waybills,
+      packages: routeData.packages,
+      weight: routeData.weight,
+      lyingHours: routeData.lyingHours
+    }
+  });
+}
+
 }

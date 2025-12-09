@@ -16,7 +16,7 @@
       <div class="dwb-label">WB#</div>
       <div class="dwb-date-label">Pickup Date</div>
       <div class="dwb-value">{{ item.waybill }}</div>
-      <div class="dwb-date-value">{{ item.pickupDate }}</div>
+      <div class="dwb-date-value">{{ item.pickupDate | date:'dd-MMM-yyyy' }}</div>
       </div>
       <div class="dwb-consignor-row">
       <span class="dwb-consignor-label">Consignor<br></span>&nbsp;

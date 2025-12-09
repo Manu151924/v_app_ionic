@@ -33,6 +33,10 @@ export const routes: Routes = [
   {
     path:'profile-details',
     loadComponent:() => import('./shared/pages/profile-details/profile-details.page').then( m => m.ProfileDetailsPage)
+  },
+  {
+    path: 'inventory-route-modal',
+    loadComponent: () => import('./shared/pages/inventory-route-modal/inventory-route-modal.page').then( m => m.InventoryRouteModalPage)
   }
 
 ];

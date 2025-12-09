@@ -1,62 +1,51 @@
 .login-content {
   --background: #1A1B1B;
-  height: 100%;        // or 100vh
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-/* 50-50 split */
-.top-section,
-.bottom-section {
-  width: 100%;
-}
-
-/* Center logo area vertically */
-.top-section {
-  flex: 0 0 auto;
-  padding-top: 32px;
-  padding-bottom: 16px;
-  background: #1A1B1B;
-  display: flex;
-  justify-content: center;
   align-items: center;
+  position: relative;
+}
+.product-text{
+width: 68px;
+    height: 14px;
+    opacity: 1;
+    position: relative;
+    top: 207.69px;
+    left: 180.05px;
+    font-family: Roboto;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: 12px;
+    white-space: nowrap;
+    line-height: 100%;
+    letter-spacing: 0%;
+    width: 68;
+    height: 14;
+    opacity: 1;
+    top: 145px;
+    /* left: 180.05px; */
 }
 
-/* Header + logo */
 .login-header {
+  background: #1A1B1B;
   text-align: center;
+  padding-top: 5vh;
   color: #fff;
+  position: relative;
+  z-index: 1;
 }
 
 .logo {
-  margin: 0 auto 20px;
+  height: 90px;
+  max-height: 14vh;
+  margin: 0 auto;
   display: block;
-  height: 80px;
-  width: 138px;
+  position: relative;
+  z-index: 2;
 }
 
-.product-text {
-  font-family: Roboto;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 100%;
-  white-space: nowrap;
-  color: #ffffff;
-  margin-bottom: 12px;
-}
-
-/* Bottom half: card + footer */
-.bottom-section {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px 20px 8px;
-  box-sizing: border-box;
-  overflow-y: auto; 
-}
-
-/* White card with form */
+/* ✅ Floating white card section */
 .login-card {
   background: #fff;
   border-radius: 22px;
@@ -64,13 +53,14 @@
   padding: 42px 30px 70px 30px;
   width: 100%;
   max-width: 430px;
-  position: relative;
-  z-index: 2;
-  flex-shrink: 0;
   margin: 0 auto;
+  position: absolute;
+  top: 42vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
 }
 
-/* Arrow pointing to header */
 .login-card::before {
   content: '';
   position: absolute;
@@ -82,8 +72,7 @@
   border-right: 15px solid transparent;
   border-top: 20px solid #1A1B1B;
 }
-
-/* Title */
+/* Title inside the card */
 .login-card h2 {
   font-size: 17px;
   font-weight: 500;
@@ -110,20 +99,16 @@ ion-input {
   font-size: 14px;
   background: transparent;
   border: none;
-  letter-spacing: 0.5px;
-  padding-left: 0;
 }
 
-/* Buttons */
-.actions,
-.otp-actions {
+/* Send OTP button area */
+.actions, .otp-actions {
   margin-top: 22px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
-
 .send-otp-btn,
 .submit-btn {
   background-color: #11C15B;
@@ -149,13 +134,11 @@ ion-input {
 .submit-btn:active {
   transform: scale(0.97);
 }
-
-/* Resend OTP link */
 .resend-otp {
   color: #11C15B;
   font-size: 13px;
-  margin-top: 12px;
-  align-self: flex-start;
+  margin-left: -19rem;
+  margin-bottom: 16px;
   cursor: pointer;
   transition: color 0.3s ease;
 }
@@ -170,50 +153,98 @@ ion-input {
   color: #0ea44a;
 }
 
-/* Footer at bottom of bottom-section */
+ion-button {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Footer area */
 .footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 16px 8px;
+  padding: 0 32px 16px 32px;
   box-sizing: border-box;
   font-size: 14px;
-  margin-top: auto;
+  z-index: 10;
   background: transparent;
-  z-index: 1;
 }
 
 .version {
-  margin-bottom: 2px;
+  color: #000;
+  font-family: 'Roboto';
+  font-size: 13px;
+  font-weight: 400;
 }
 
 .tnc {
-  margin-bottom: 2px;
-  color: #000000;
+  font-family: 'Roboto';
+  font-size: 13px;
+  font-weight: 400;
+  color: #000;
+  text-decoration: underline;
 }
 
-/* Mobile adjustments */
-@media (min-width: 320px) and (max-width: 600px) {
-  .bottom-section {
-    padding: 12px 16px 6px;
-  }
-
+@media (max-height: 720px) {
   .login-card {
-    padding: 36px 20px 52px;
-  }
-
-  .footer {
-    font-size: 12px;
+    top: 38vh;
+    padding: 32px 24px 60px;
   }
 }
 
-@media (min-width: 320px) and (max-width: 390px) {
-  .product-text {
-    text-align: center;
+@media (max-width: 600px) {
+  .login-card {
+      padding: 64px 20px 60px;
+      top: 40vh;
+      height: 59vh;
+      overflow-y: scroll;
   }
-
-  .resend-otp {
+  .footer {
+    padding: 0 16px 10px;
     font-size: 12px;
   }
+  .logo {
+    height: 80px;
+    top: 17vh;
+  }
+}
+@media (min-width:360px) and (max-width:390px){
+  .resend-otp{
+        margin-left: -15rem;
+  }
+  .product-text{
+    white-space: nowrap;
+    width: 68px;
+    height: 14px;
+    opacity: 1;
+    position: relative;
+    left: 152.05px;
+    font-family: Roboto;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: 12px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    top: 115px;
+  }
+}
+
+.logo {
+  opacity: 0.45;
+  pointer-events: none;
+  transition: 0.25s ease;
+}
+
+.logo.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.logo.active:active {
+  transform: scale(0.93);
 }

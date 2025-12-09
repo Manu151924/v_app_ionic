@@ -1,7 +1,12 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxSpinnerService, NgxSpinnerComponent, NgxSpinnerModule } from 'ngx-spinner';
+import {
+  NgxSpinnerService,
+  NgxSpinnerComponent,
+  NgxSpinnerModule
+} from 'ngx-spinner';
+
 import {
   IonCard,
   IonSelect,
@@ -13,10 +18,15 @@ import {
   IonPopover,
   IonItem,
   IonList,
-  IonCardContent
+  IonCardContent,
+  IonRefresher,
+  IonRefresherContent
 } from '@ionic/angular/standalone';
+
 import { ToastController, ModalController } from '@ionic/angular';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { addIcons } from 'ionicons';
+import { arrowDownOutline } from 'ionicons/icons';
 
 import { TripReportComponent } from 'src/app/shared/components/trip-report/trip-report.component';
 import { DraftWaybillsModalComponent } from 'src/app/shared/modal/draft-waybill-modal/draft-waybill-modal.component';
@@ -26,45 +36,10 @@ import { NotManifestedModalComponent } from 'src/app/shared/modal/not-manifisted
 import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart.component';
 import { ProgressSliderComponent } from 'src/app/shared/components/progress-slider/progress-slider.component';
 
-import { Delivery } from 'src/app/shared/services/delivery';
 import { Api } from 'src/app/shared/services/api';
-
+import { Auth } from 'src/app/shared/services/auth';
+import { AppStorageService } from 'src/app/shared/services/app-storage';
 import { Observable, of } from 'rxjs';
-
-// ---------------------------------- Interfaces ----------------------------------
-interface PieData {
-  name: string;
-  value: number;
-}
-
-interface SfxData {
-  code: string;
-  consignor: string;
-  lastPickupDate: string;
-}
-
-interface ZeroPickupData {
-  code: string;
-  consignor: string;
-  lastPickupDate: string;
-}
-
-interface NotManifestedData {
-  waybill: string;
-  booked: number;
-  manifested: number;
-  remaining: number;
-  consignor: string;
-  pickupDate: string;
-}
-
-interface DraftWaybillsData {
-  waybill: string;
-  consignor: string;
-  pickupDate: string;
-}
-
-// -----------------------------------------------------------------------------------
 
 @Component({
   selector: 'app-booking',
@@ -72,6 +47,8 @@ interface DraftWaybillsData {
   styleUrls: ['./booking.page.scss'],
   standalone: true,
   imports: [
+    IonRefresherContent,
+    IonRefresher,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
@@ -98,14 +75,19 @@ export class BookingPage implements OnInit {
 
   @Input() vendorId!: string;
 
-  pieChartData$: Observable<PieData[]> = of([]);
+  private spinner = inject(NgxSpinnerService);
+  private toastController = inject(ToastController);
+  private api = inject(Api);
+  private storage = inject(AppStorageService);
+  private modalController = inject(ModalController);
 
-  selectedCityControl = new FormControl('');
+  pieChartData$: Observable<any[]> = of([]);
   cities: string[] = [];
+  selectedCityControl = new FormControl('');
   branchList: any[] = [];
-  selectedBranchId: number = 0;
+  selectedBranchId = 0;
 
-  selectedMonth: string = '';
+  selectedMonth = '';
   validMonths: string[] = [];
   popoverOpen = false;
   popoverEvent: any;
@@ -119,123 +101,117 @@ export class BookingPage implements OnInit {
   ];
 
   interchangeWaybill = 0;
-  // marketVehicleReq = 3;
   paidOutstanding = 0;
   marketVehReq = 0;
   weightVolumePercent = 0;
 
-  // Panel-4
   totalWaybill = 0;
   waybill = 0;
   wbEditedPercent = 0;
   weightVolume = 0;
-  interchangePackages= 0;
+  interchangePackages = 0;
   marketVehicleUsage = 0;
 
   bars: any[] = [];
+  zeroPickupData: any[] = [];
+  notManifestedData: any[] = [];
+  draftWaybillsData: any[] = [];
 
   COMMON_GRADIENT = 'linear-gradient(90deg, #DA2723 0%, #D2E241 40%, #41D844 100%)';
   GRADIENT = 'linear-gradient(90deg,#42D844 0%, #D2E241 48.2%, #DA2D24 100%)';
-
-  private modalController = inject(ModalController);
 
   monthMap: any = {
     'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
     'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
   };
 
-  constructor(
-    private spinner: NgxSpinnerService,
-    private toastController: ToastController,
-    private api: Api
-  ) {}
+  constructor() { addIcons({ arrowDownOutline }); }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.generateValidMonths();
     this.selectedMonth = this.formatMonthYear(new Date());
-    this.loadDataForMonth(this.selectedMonth);
-    this.loadBranchDetails();
+
+    const user = await this.storage.getUserDetails();
+
+    if (!user?.branchId) {
+      this.showToast('No branch info found. Please re-login.');
+      return;
+    }
+
+    this.selectedBranchId = user.branchId;
+
+    await this.loadBranchDetails();
   }
 
-  // -------------------------------- Utility -------------------------------------
-
-  private getToken(): string {
-    return localStorage.getItem('accessToken') || '';
-  }
-
-  private showToast = async (message: string) => {
+  /** Utility Toast */
+  private async showToast(message: string) {
     const toast = await this.toastController.create({
       message,
       duration: 2000,
       color: 'warning',
-      position: 'top'
+      position: 'bottom',
     });
     toast.present();
-  };
+  }
 
-  // -------------------------------- Branch Load -------------------------------------
+  /** Refresh Handler */
+  async doRefresh(event: any) {
+    await Promise.all([
+      this.fetchPanelOneCount(),
+      this.fetchPanelThreeData(),
+      this.fetchPanelFourData(),
+    ]);
+    event.target.complete();
+  }
 
-  loadBranchDetails() {
-    const token = this.getToken();
+  /** Month Helpers */
+  generateValidMonths() {
+    const today = new Date();
+    for (let i = 3; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      this.validMonths.push(this.formatMonthYear(d));
+    }
+  }
 
-    this.api.getBranchDetails(token).subscribe({
-      next: (res) => {
-        if (res?.responseStatus && res.responseObject.length > 0) {
-          this.branchList = res.responseObject;
+  formatMonthYear(date: Date): string {
+    return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }).replace(',', '');
+  }
 
-          this.cities = this.branchList.map(x => x.branchName);
+  /** Branch Load */
+  async loadBranchDetails() {
+    this.api.getBranchDetails().subscribe({
+      next: async (res) => {
+        if (!res?.responseStatus || !res.responseObject.length) return;
 
-          this.selectedCityControl.setValue(this.cities[0]);
+        this.branchList = res.responseObject;
+        this.selectedCityControl.setValue(this.branchList[0].branchName);
+        this.selectedBranchId = this.branchList[0].branchId;
 
-          this.selectedBranchId = this.branchList[0].branchId;
-          localStorage.setItem("branchId", this.selectedBranchId.toString());
+        await this.storage.updateUserDetails({ branchId: this.selectedBranchId });
 
-          // this.assignedSfx = this.branchList[0].assignedSfxCount;
-
-          this.fetchPanelOneCount(this.selectedBranchId);
-          this.fetchPanelThreeData(this.selectedBranchId);
-          this.fetchPanelFourData(this.selectedBranchId);
-        }
+        await this.fetchPanelOneCount();
+        await this.fetchPanelThreeData();
+        await this.fetchPanelFourData();
       }
     });
   }
 
-  // -------------------- Panel 1: Zero Pickup, Not Manifested, Draft --------------------
-
-  fetchPanelOneCount(branchId: number) {
+  /** Panel 1 */
+  async fetchPanelOneCount() {
     this.spinner.show();
-
-    const token = this.getToken();
-    this.api.getPanelOneCount(branchId, token).subscribe({
+    this.api.getPanelOneCount().subscribe({
       next: (res) => {
         this.spinner.hide();
+        if (!res?.responseStatus) return;
 
-        if (res?.responseStatus && res.responseObject) {
-          const d = res.responseObject;
-          this.assignedSfx = d.assignedSfxCount ?? 0;
+        const d = res.responseObject;
+        this.assignedSfx = d.assignedSfxCount ?? 0;
 
-
-          this.statusList = [
-            {
-              label: 'ZERO PICKUP SFX',
-              value: d.zeroPickupCount,
-              color: '#a30101',
-              percent: this.calcPercent(d.zeroPickupCount)
-            },
-            {
-              label: 'NOT-MANIFESTED',
-              value: d.notManifestedCount,
-              color: '#e53935',
-              percent: this.calcPercent(d.notManifestedCount)
-            },
-            {
-              label: 'DRAFT WAYBILLS',
-              value: d.draftWaybillCount,
-              color: '#ffc107',
-              percent: this.calcPercent(d.draftWaybillCount)
-            }
-          ];
-        }
+        this.statusList = [
+          { label: 'ZERO PICKUP SFX', value: d.zeroPickupCount, color: '#a30101', percent: this.calcPercent(d.zeroPickupCount) },
+          { label: 'NOT-MANIFESTED', value: d.notManifestedCount, color: '#e53935', percent: this.calcPercent(d.notManifestedCount) },
+          { label: 'DRAFT WAYBILLS', value: d.draftWaybillCount, color: '#ffc107', percent: this.calcPercent(d.draftWaybillCount) }
+        ];
       },
       error: () => {
         this.spinner.hide();
@@ -244,182 +220,98 @@ export class BookingPage implements OnInit {
     });
   }
 
-  private calcPercent(value: number): number {
-    const max = 500;
-    return Math.min((value / max) * 100, 100);
+  calcPercent(value: number): number {
+    return Math.min((value / 500) * 100, 100);
   }
 
-  // ---------------------------- Panel 3: Interchange / Outstanding --------------------
-
-  fetchPanelThreeData(branchId: number) {
+  /** Panel 3 */
+  async fetchPanelThreeData() {
     this.spinner.show();
-    const token = this.getToken();
 
-    this.api.getPanelThreeData(branchId, token).subscribe({
+    this.api.getPanelThreeData().subscribe({
       next: (res) => {
         this.spinner.hide();
+        if (!res?.responseStatus) return;
 
-        if (res?.responseStatus && res.responseObject) {
-          const data = res.responseObject;
-
-          this.interchangeWaybill = data.interchangeWaybill ?? 0;
-          this.paidOutstanding = data.paidOutstanding ?? 0;
-          this.weightVolumePercent = data.weightVolumePercentage ?? 0;
-          this.marketVehReq = data.marketVehReq ?? 0;
-        }
+        const d = res.responseObject;
+        this.interchangeWaybill = d.interchangeWaybill ?? 0;
+        this.paidOutstanding = d.paidOutstanding ?? 0;
+        this.weightVolumePercent = d.weightVolumePercentage ?? 0;
+        this.marketVehReq = d.marketVehReq ?? 0;
       },
       error: () => {
         this.spinner.hide();
-        this.showToast('Error fetching Panel-3 data');
+        this.showToast('Error fetching Panel-3');
       }
     });
   }
 
-  // -------------------------------- Panel 4: Pie Chart ---------------------------------
-
-  fetchPanelFourData(branchId: number) {
+  /** Panel 4 */
+  async fetchPanelFourData() {
     this.spinner.show();
 
-    const token = this.getToken();
-
-    let formattedMonth = this.selectedMonth;
-
-    if (formattedMonth.includes(' ')) {
-      const [m, y] = formattedMonth.split(' ');
-      formattedMonth = `${m}-${y}`;
-    }
-
-    const [mon, yr] = formattedMonth.split('-');
-
+    const [mon, yr] = this.selectedMonth.split('-');
     const fullYear = 2000 + Number(yr);
     const monthNumber = this.monthMap[mon];
 
-    if (!fullYear || !monthNumber) {
-      this.spinner.hide();
-      this.showToast('Invalid month format');
-      return;
-    }
-
-    this.api.getPanelFourData(fullYear, monthNumber, branchId, token).subscribe({
+    this.api.getPanelFourData(fullYear, monthNumber).subscribe({
       next: (res) => {
         this.spinner.hide();
+        if (!res?.responseStatus) return;
 
-        if (res?.responseStatus && res.responseObject) {
-          const d = res.responseObject;
+        const d = res.responseObject;
 
-          this.totalWaybill = d.booked ?? 0;
-          this.waybill = d.wb ?? 0;
-          this.wbEditedPercent = d.wbEdited ?? 0;
+        this.totalWaybill = d.booked ?? 0;
+        this.waybill = d.wb ?? 0;
+        this.wbEditedPercent = d.wbEdited ?? 0;
 
-          // -------------------- Correct Calculation (Edited is % NOT count) --------------------
-          const editedCount = Math.round((this.wbEditedPercent / 100) * this.waybill);
-          const notEditedCount = this.waybill - editedCount;
+        this.pieChartData$ = of([
+          { name: 'Edited', value: this.wbEditedPercent },
+          { name: 'Not Edited', value: 100 - this.wbEditedPercent }
+        ]);
 
-            this.pieChartData$ = of([
-              { name: 'Edited', value: this.wbEditedPercent },           // e.g. 30%
-              { name: 'Not Edited', value: 100 - this.wbEditedPercent }  // e.g. 70%
-            ]);
+        this.weightVolume = d.weightVolume ?? 0;
+        this.marketVehicleUsage = d.marketVehicleUsage ?? 0;
+        this.interchangePackages = d.interchangePackages ?? 0;
 
-          this.weightVolume = d.weightVolume ?? 0;
-          this.marketVehicleUsage = d.marketVehicleUsage ?? 0;
-          this.interchangePackages = d.interchangePackages ?? 0;
-
-          this.bars = [
-            {
-              label: 'Weight Volume',
-              percent: this.weightVolume,
-              gradient: this.COMMON_GRADIENT
-            },
-            {
-              label: 'Interchange Package`s',
-              percent: this.interchangePackages,
-              gradient: this.COMMON_GRADIENT
-            },
-            {
-              label: 'Market Vehicle Usage',
-              percent: this.marketVehicleUsage,
-              gradient: this.GRADIENT
-            }
-          ];
-        }
+        this.bars = [
+          { label: 'Weight Volume', percent: this.weightVolume, gradient: this.COMMON_GRADIENT },
+          { label: 'Interchange Package`s', percent: this.interchangePackages, gradient: this.COMMON_GRADIENT },
+          { label: 'Market Vehicle Usage', percent: this.marketVehicleUsage, gradient: this.GRADIENT }
+        ];
       },
       error: () => {
         this.spinner.hide();
-        this.showToast('Error fetching Panel-4 snapshot');
+        this.showToast('Panel-4 snapshot error');
       }
     });
   }
 
-  // -------------------------------- Month Selection -------------------------------------
-
+  /** Branch Change */
   selectMonth(month: string) {
     this.selectedMonth = month;
     this.popoverOpen = false;
 
-    this.fetchPanelFourData(this.selectedBranchId);
+    this.fetchPanelFourData();
   }
 
   toggleMonthPopover(ev: any) {
     this.popoverEvent = ev;
     this.popoverOpen = true;
-  }
-
-  generateValidMonths() {
-    const months = [];
-    const today = new Date();
-
-    for (let i = 3; i >= 0; i--) {
-      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-      months.push(this.formatMonthYear(d));
-    }
-    this.validMonths = months;
-  }
-
-  formatMonthYear(date: Date): string {
-    const options = { year: '2-digit', month: 'short' } as const;
-    return date.toLocaleDateString('en-US', options).replace(',', '');
-  }
-
-  loadDataForMonth(month: string) {
-    if (this.isFutureMonth(month)) {
-      this.selectedMonth = this.formatMonthYear(new Date());
-      this.showToast('Future months cannot be selected');
-      return;
-    }
-  }
-
-  isFutureMonth(monthStr: string): boolean {
-    const [mon, yr] = monthStr.split('-');
-    const yearFull = 2000 + parseInt(yr, 10);
-    const monthNumber = new Date(Date.parse(mon + ' 1, ' + yearFull)).getMonth();
-    const monthDate = new Date(yearFull, monthNumber, 1);
-    return monthDate > new Date();
-  }
-
-  // ------------------------- Branch Change Handler ----------------------------
-
-  onCityChange(event: any) {
+  }  async onCityChange(event: any) {
     const city = event.detail.value;
     const br = this.branchList.find(b => b.branchName === city);
     if (!br) return;
 
     this.selectedBranchId = br.branchId;
-    localStorage.setItem('branchId', this.selectedBranchId.toString());
+    await this.storage.updateUserDetails({ branchId: br.branchId });
 
-    this.fetchPanelOneCount(br.branchId);
-    this.fetchPanelThreeData(br.branchId);
-    this.fetchPanelFourData(br.branchId);
+    await this.fetchPanelOneCount();
+    await this.fetchPanelThreeData();
+    await this.fetchPanelFourData();
 
     this.showToast(`Branch updated: ${city}`);
   }
-
-  // ------------------------------ Modal Logic ------------------------------
-
-  assignedSfxData: SfxData[] = [];
-  zeroPickupData: ZeroPickupData[] = [];
-  notManifestedData: NotManifestedData[] = [];
-  draftWaybillsData: DraftWaybillsData[] = [];
-
   async openModal(name: string, event?: Event) {
     event?.stopPropagation();
     let modalComponent: any;
@@ -457,17 +349,7 @@ export class BookingPage implements OnInit {
       await modal.present();
     }
   }
-  getBarWidth(value: number): string {
-  if (!value || value === 0) return '5%';   // minimum width so label is visible
-
-  const max = 10; // you can change logic
-  const percentage = (value / max) * 100;
-
-  return Math.min(percentage, 100) + '%';
-}
-
-
-  async openSfxModal() {
+    async openSfxModal() {
     const assignedSfxData = await this.getAssignedSfxData();
 
     const modal = await this.modalController.create({
@@ -482,12 +364,11 @@ export class BookingPage implements OnInit {
     await modal.present();
   }
 
-  getAssignedSfxData(): Promise<any[]> {
+  /** Modal Logic */
+  async getAssignedSfxData(): Promise<any[]> {
+    const user = await this.storage.getUserDetails();
     return new Promise((resolve, reject) => {
-      const branchId = Number(localStorage.getItem('branchId') ?? '0');
-      const token = localStorage.getItem('accessToken') ?? '';
-
-      this.api.getAssignedSfxDetails(branchId, token).subscribe({
+      this.api.getAssignedSfxDetails(user?.branchId ?? 0).subscribe({
         next: (res) => resolve(res.responseObject || []),
         error: (err) => reject(err)
       });
@@ -495,67 +376,56 @@ export class BookingPage implements OnInit {
   }
 
   async loadZeroPickupData() {
-    const token = localStorage.getItem('accessToken') ?? '';
-    const assignedBranchId = Number(localStorage.getItem('branchId') ?? '0');
-
     return new Promise((resolve, reject) => {
-      this.api.getZeroPickupDetails(assignedBranchId, token).subscribe({
+      this.api.getZeroPickupDetails(this.selectedBranchId).subscribe({
         next: (res) => {
           this.zeroPickupData = res.responseObject || [];
           resolve(true);
         },
-        error: (err) => {
-          this.showToast('Unable to fetch ZERO PICKUP data');
-          reject(err);
+        error: () => {
+          this.showToast('ZERO PICKUP fetch failed');
+          reject();
         }
       });
     });
   }
 
   async loadNotManifestedData() {
-    const token = localStorage.getItem('accessToken') ?? '';
-    const branchId = Number(localStorage.getItem('branchId') ?? '0');
-
     return new Promise((resolve, reject) => {
-      this.api.getNotManifestedDetails(branchId, token).subscribe({
+      this.api.getNotManifestedDetails().subscribe({
         next: (res) => {
-          this.notManifestedData =
-            res.responseObject?.map((item: any) => ({
-              waybill: item.wayblNum,
-              consignor: item.cnorName,
-              pickupDate: item.pickupDate,
-              booked: item.booked,
-              manifested: item.manifested,
-              remaining: item.notManifested
-            })) || [];
+          this.notManifestedData = res.responseObject?.map((item: any) => ({
+            waybill: item.wayblNum,
+            consignor: item.cnorName,
+            pickupDate: item.pickupDate,
+            booked: item.booked,
+            manifested: item.manifested,
+            remaining: item.notManifested
+          })) || [];
           resolve(true);
         },
-        error: (err) => {
-          this.showToast('Unable to fetch NOT-MANIFESTED data');
-          reject(err);
+        error: () => {
+          this.showToast('NOT-MANIFESTED fetch failed');
+          reject();
         }
       });
     });
   }
 
   async loadDraftWaybillsData() {
-    const token = localStorage.getItem('accessToken') ?? '';
-    const branchId = Number(localStorage.getItem('branchId') ?? '0');
-
     return new Promise((resolve, reject) => {
-      this.api.getDraftWaybillDetails(branchId, token).subscribe({
+      this.api.getDraftWaybillDetails().subscribe({
         next: (res) => {
-          this.draftWaybillsData =
-            res.responseObject?.map((item: any) => ({
-              waybill: item.wayblNum,
-              consignor: item.consignorName,
-              pickupDate: item.pickupDate
-            })) || [];
+          this.draftWaybillsData = res.responseObject?.map((item: any) => ({
+            waybill: item.wayblNum,
+            consignor: item.consignorName,
+            pickupDate: item.pickupDate
+          })) || [];
           resolve(true);
         },
-        error: (err) => {
-          this.showToast('Unable to fetch DRAFT WAYBILLS data');
-          reject(err);
+        error: () => {
+          this.showToast('DRAFT WAYBILLS fetch failed');
+          reject();
         }
       });
     });

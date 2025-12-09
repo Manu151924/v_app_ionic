@@ -3,14 +3,13 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ModalController } from '@ionic/angular';
 import { IonicModule } from '@ionic/angular';
-import { IonCard, IonSelect,IonSelectOption } from "@ionic/angular/standalone";
 import { WaybillListPopupComponent } from '../waybill-list-popup/waybill-list-popup.component';
 
 @Component({
   selector: 'app-assign-sfx-card',
   templateUrl: './assign-sfx-card.component.html',
   styleUrls: ['./assign-sfx-card.component.scss'],
-  imports:[IonCard,IonSelect,IonSelectOption,FormsModule,CommonModule,IonicModule]
+  imports:[FormsModule,CommonModule,IonicModule]
 })
 export class AssignSfxCardComponent {
   private modalCtrl = inject(ModalController);

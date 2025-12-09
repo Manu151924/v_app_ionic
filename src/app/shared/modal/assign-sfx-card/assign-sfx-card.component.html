@@ -1,35 +1,49 @@
-<!-- assign-sfx-card.component.html -->
-<ion-card class="assign-sfx-card">
-  <div class="header-row">
-    <ion-select class="location-select" interface="popover" [(ngModel)]="selectedLocation">
-      @for (location of locations; track location){
-        <ion-select-option>{{ location }}</ion-select-option>
-      }
-      
-    </ion-select>
-    <div class="assigned-sfx">
-      Assigned SFX <span class="assigned-sfx-value">{{ assignedSFX }}</span>
+<div class="card-border">
+  <ion-card class="figma-card">
+
+    <div class="header-strip">
+      <!-- Location pill -->
+      <div class="location-pill">
+        <ion-icon name="location-outline"></ion-icon>
+        <ion-select interface="popover" [(ngModel)]="selectedLocation">
+          @for(location of locations; track location){
+            <ion-select-option>{{ location }}</ion-select-option>
+          }
+        </ion-select>
+      </div>
+
+      <!-- Assigned SFX count -->
+      <div class="assigned-text">
+        Assigned SFX <span>{{ assignedSFX }}</span>
+      </div>
     </div>
-  </div>
-  <div class="bar-row" (click)="openZeroPickupPopup()">
-    <span class="bar-label zero">ZERO PICKUP SFX</span>
-    <div class="bar-bg">
-      <div class="bar-fill bar-red" [style.width.%]="zeroPickupPercent"></div>
+
+    <!-- ZERO PICKUP -->
+    <div class="bar-row">
+      <span class="chip zero-label">ZERO PICKUP SFX</span>
+      <div class="progress">
+        <div class="fill zero-fill" [style.width.%]="zeroPickupPercent"></div>
+      </div>
+      <span class="count zero-label">{{ zeroPickupCount }}</span>
     </div>
-    <span class="bar-count bar-red">{{ zeroPickupCount }}</span>
-  </div>
-  <div class="bar-row" (click)="openNotManifestedPopup()">
-    <span class="bar-label not-manifested">NOT-MANIFESTED</span>
-    <div class="bar-bg">
-      <div class="bar-fill bar-maroon" [style.width.%]="notManifestedPercent"></div>
+
+    <!-- NOT-MANIFESTED -->
+    <div class="bar-row">
+      <span class="chip maroon-label">NOT-MANIFESTED</span>
+      <div class="progress">
+        <div class="fill maroon-fill" [style.width.%]="notManifestedPercent"></div>
+      </div>
+      <span class="count maroon-label">{{ notManifestedCount }}</span>
     </div>
-    <span class="bar-count bar-maroon">{{ notManifestedCount }}</span>
-  </div>
-  <div class="bar-row" (click)="openDraftWaybillsPopup()">
-    <span class="bar-label draft">DRAFT WAYBILLS</span>
-    <div class="bar-bg">
-      <div class="bar-fill bar-amber" [style.width.%]="draftWaybillsPercent"></div>
+
+    <!-- DRAFT WAYBILLS -->
+    <div class="bar-row">
+      <span class="chip amber-label">DRAFT WAYBILLS</span>
+      <div class="progress">
+        <div class="fill amber-fill" [style.width.%]="draftWaybillsPercent"></div>
+      </div>
+      <span class="count amber-label">{{ draftWaybillsCount }}</span>
     </div>
-    <span class="bar-count bar-amber">{{ draftWaybillsCount }}</span>
-  </div>
-</ion-card>
+
+  </ion-card>
+</div>

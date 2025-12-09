@@ -1,4 +1,10 @@
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-down-outline"
+      refreshingSpinner="crescent">
+    </ion-refresher-content>
+  </ion-refresher>
   <ngx-spinner
     bdColor="rgba(255,255,255,0.1)"
     color="#2ca85e"
@@ -172,7 +178,9 @@
       <div class="donut-section">
         <div class="donut-chart-wrapper">
           <div class="edited-percent-label">
-            <span class="percent-bar">{{ wbEditedPercent }}%</span>
+            @if(wbEditedPercent> 0){
+             <span class="percent-bar">{{ wbEditedPercent }}%</span>
+            }
           </div>
 
           <app-pie-chart

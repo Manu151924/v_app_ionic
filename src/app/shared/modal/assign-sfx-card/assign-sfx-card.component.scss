@@ -1,73 +1,174 @@
-.assign-sfx-card {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 2px 6px rgba(44,62,80,0.08);
-  padding: 14px 22px 20px 22px;
-  border: 4px solid #28a745;
+:host {
+  --background: #ffffff !important;
+  background: #ffffff !important;
+}
 
-  .header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
-    .location-select {
-      width: 130px;
-      background: #f7f7f7;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-    }
-    .assigned-sfx {
-      color: #333;
-      font-size: 18px;
-      font-weight: 500;
-      .assigned-sfx-value {
-        color: #28a745;
-        font-size: 22px;
-        font-weight: bold;
-        margin-left: 8px;
-      }
-    }
+/* OUTER CARD BORDER */
+.card-border {
+  border: 6px solid #2AAA61;
+  border-radius: 24px;
+  padding: 10px;
+  background: white;
+}
+
+/* INNER CARD SECTION */
+.figma-card {
+  --background: transparent !important;
+  position: relative;
+  width: 100%;
+  background: transparent;
+  border-radius: 24fpx;
+  overflow: hidden;
+  padding: 16px 14px;
+}
+
+
+.figma-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 62%;
+  height: 92px;
+  pointer-events: none;
+  z-index: 1;
+
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 145 52' preserveAspectRatio='none'><path fill='%232AAA61' d='M144.959 4.0884C144.959 4.0884 125.608 1.75903 125.691 18.3978C125.774 35.0365 108.452 33.7293 108.452 33.7293H23.2681C23.2681 33.7293 15.275 33.1702 10.085 37.8177C8.22351 39.4791 6.721 41.5189 5.67334 43.8065C4.62568 46.0942 4.05587 48.5797 4 51.105H0V0H144.956L144.959 4.0884Z'/></svg>");
+  background-repeat: no-repeat;
+  background-size: 50% 100%;
+}
+
+/* WHITE BODY BELOW CURVE */
+.figma-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 58px;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  z-index: 1;
+}
+
+/* ALL CONTENT ABOVE BOTH LAYERS */
+.figma-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* --------------------------------------
+   HEADER
+--------------------------------------- */
+
+.header-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+  margin-bottom: 14px;
+}
+
+/* Location Dropdown Pill */
+.location-pill {
+  background: #2AAA61;
+  border-radius: 22px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 6px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.location-pill ion-select {
+  --color: #fff;
+  --padding-start: 0;
+  background: transparent !important;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.assigned-text {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.assigned-text span {
+  color: #2AAA61;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+
+/* --------------------------------------
+   PROGRESS ROWS
+--------------------------------------- */
+
+.bar-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin-top: 13px;
+}
+
+.chip {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.progress {
+  height: 9px;
+  border-radius: 9px;
+  background: #ededed;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 9px;
+}
+
+/* COUNT TEXT */
+.count {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* LABEL COLORS */
+.zero-label { background: #B00020; }
+.maroon-label { background: #8B0000; }
+.amber-label { background: #F6B51F; }
+
+/* BAR COLORS */
+.zero-fill { background: #B00020; }
+.maroon-fill { background: #8B0000; }
+.amber-fill { background: #F6B51F; }
+
+
+/* --------------------------------------
+   RESPONSIVE
+--------------------------------------- */
+@media (max-width: 500px) {
+  .assigned-text span {
+    font-size: 18px;
   }
-
-  .bar-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 13px;
-    cursor: pointer;
-    .bar-label {
-      width: 125px;
-      font-size: 14px;
-      font-weight: 500;
-      &.zero { background: #8b0022; color: #fff; border-radius: 4px; padding: 2px 8px; }
-      &.not-manifested { background: #ba1f28; color: #fff; border-radius: 4px; padding: 2px 8px; }
-      &.draft { background: #ffe066; color: #ba8b14; border-radius: 4px; padding: 2px 8px; }
-    }
-    .bar-bg {
-      flex: 1;
-      background: #e4e4e4;
-      border-radius: 4px;
-      margin: 0 10px;
-      height: 14px;
-      position: relative;
-      .bar-fill {
-        height: 100%;
-        border-radius: 4px;
-        position: absolute;
-        left: 0;
-        top: 0;
-      }
-      .bar-red { background: #ba1f28; }
-      .bar-maroon { background: #8b0022; }
-      .bar-amber { background: #ffe066; }
-    }
-    .bar-count {
-      font-family: 'Roboto', sans-serif;
-      font-size: 16px;
-      font-weight: bold;
-      margin-left: 8px;
-      &.bar-red { color: #ba1f28; }
-      &.bar-maroon { color: #8b0022; }
-      &.bar-amber { color: #ba8b14; }
-    }
+  .location-pill {
+    font-size: 11px;
+  }
+  .figma-card {
+    padding: 12px;
+  }
+  .card-border {
+    padding: 8px;
   }
 }

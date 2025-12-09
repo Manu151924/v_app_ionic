@@ -11,6 +11,78 @@
     </ion-button>
   </div>
   <app-trip-report-delivery></app-trip-report-delivery>
+<!-- <ion-grid class="summary-grid">
+  <ion-row>
+    <ion-col size="6">
+      <ion-card class="summary-card">
+        <div class="card-row">
+          <div class="card-icon-wrap">
+            <img src="assets/icon/rupee.png" alt="rupee" class="rupee-icon" />
+          </div>
+          <div class="card-info">
+            <div class="card-main red">
+              {{ amount | number: '1.0-0' }}
+            </div>
+            <div class="card-label">
+              To Be Collected <span class="mini">(As on)</span>
+            </div>
+          </div>
+        </div>
+      </ion-card>
+    </ion-col>
+
+    <ion-col size="6">
+      <ion-card class="summary-card">
+        <div class="card-row">
+          <div class="card-icon-wrap">
+            <img src="assets/icon/pod.png" alt="pod" class="pod-icon" />
+          </div>
+          <div class="card-info">
+            <div class="card-main">{{ pending }}</div>
+            <div class="card-label">Pending POD's <span class="mini">(As on)</span></div>
+          </div>
+        </div>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+
+  <ion-row>
+    <ion-col size="6">
+      <ion-card class="summary-card">
+        <div class="card-row">
+          <div class="card-icon-wrap">
+            <img src="assets/icon/usage.png" alt="usage" class="usage-icon" />
+          </div>
+          <div class="card-info">
+            <div class="card-main">{{ usage }}</div>
+            <div class="card-label">
+              Market Vehicle Usage <span class="mini">(Today)</span>
+            </div>
+          </div>
+        </div>
+      </ion-card>
+    </ion-col>
+
+    <ion-col size="6">
+      <ion-card class="summary-card">
+        <div class="card-row">
+          <div class="card-icon-wrap">
+            <img src="assets/icon/safe.png" alt="safe" class="safe-icon" />
+          </div>
+          <div class="card-info">
+            <div class="card-main green">
+              {{ safe }}<span class="percent">%</span>
+            </div>
+            <div class="card-label">
+              Safedrop Usage <span class="mini">(Today)</span>
+            </div>
+          </div>
+        </div>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-grid> -->
+
   <ion-grid class="summary-grid">
     <!-- ROW 1 -->
     <ion-row>
@@ -21,8 +93,8 @@
               <img src="assets/icon/waybill.png" class="waybill-icon" />
             </div>
             <div class="card-info">
-              <div class="card-main red">{{ amount | number: '1.0-0' }}</div>
-              <div class="card-label"> To Be Collected <span class="mini">(As on)</span></div>
+              <div class="card-main red"> {{ amount | number: '1.0-0' }}</div>
+              <div class="card-label">To Be Collected</div>
             </div>
           </div>
         </ion-card>
@@ -36,7 +108,7 @@
             </div>
             <div class="card-info">
               <div class="card-main green">{{ pending }}</div>
-              <div class="card-label">Pending POD's <span class="mini">(As on)</span></div>
+              <div class="card-label">Pending POD's</div>
             </div>
           </div>
         </ion-card>
@@ -53,9 +125,9 @@
             </div>
             <div class="card-info">
               <div class="card-main red">
-                {{ usage | number: '1.0-0' }}.<span class="decimal">00</span>
+               {{ usage }}.<span class="decimal">00</span>
               </div>
-              <div class="card-label">Market Vehicle Usage <span class="mini">(Today)</span></div>
+              <div class="card-label">Market Vehicle Usage</div>
             </div>
           </div>
         </ion-card>
@@ -71,15 +143,13 @@
               <div class="card-main green">
                 {{ safe }}<span class="percent">%</span>
               </div>
-              <div class="card-label">Safedrop Usage <span class="mini">(Today)</span></div>
+              <div class="card-label">Safedrop Usage</div>
             </div>
           </div>
         </ion-card>
       </ion-col>
     </ion-row>
   </ion-grid>
-
-
   <div class="snapshot-header">
     <span class="snapshot-title">Month Wise Snapshot</span>
     <ion-button class="snapshot-dropdown" fill="solid" size="small" (click)="openMonthPicker()">
@@ -87,6 +157,8 @@
       <ion-icon name="chevron-down-outline" slot="end"></ion-icon>
     </ion-button>
   </div>
+
+  <!-- 
   <ion-card class="snapshot-card">
     <mat-form-field style="display: none">
       <input matInput [matDatepicker]="monthPicker" [min]="minDate" [max]="maxDate" [value]="selectedMonth" readonly/>
@@ -113,8 +185,64 @@
         <app-progress-slider [delivery]="bars"></app-progress-slider>
       </div>
     </div>
-  </ion-card>
+  </ion-card> -->
 
+
+    <ion-card class="snapshot-card">
+    <div class="snapshot-header">
+      <span class="snapshot-title">Waybill Edited</span>
+    </div>
+
+    <div class="snapshot-content">
+      <div class="donut-section">
+        <div class="donut-chart-wrapper">
+          <!-- <div class="edited-percent-label">
+            @if(wbEditedPercent> 0){
+             <span class="percent-bar">{{ wbEditedPercent }}%</span>
+            }
+          </div> -->
+
+          <app-pie-chart
+            [data]="(pieChartData$ | async) ?? []"
+            [view]="[180, 180]"
+            
+          ></app-pie-chart>
+
+          <div class="donut-center-text">
+            <div class="donut-label">BOOKED</div>
+            <div class="donut-value">{{ totalWaybill }}</div>
+          </div>
+        </div>
+
+        <div class="donut-stat-row">
+          <span class="donut-stat-label">WB:</span>
+          <span class="donut-stat-value">{{ waybill }}</span>
+        </div>
+      </div>
+
+      <div class="divider-line"></div>
+
+      <div class="snapshot-bars2">
+        <app-progress-slider [delivery]="bars"></app-progress-slider>
+      </div>
+    </div>
+
+    <ion-popover
+      [isOpen]="popoverOpen"
+      [event]="popoverEvent"
+      (didDismiss)="popoverOpen = false"
+    >
+      <ng-template>
+        <ion-list>
+          @for(m of validMonths; track m) {
+          <ion-item button (click)="selectMonth(m)">
+            {{ m }}
+          </ion-item>
+          }
+        </ion-list>
+      </ng-template>
+    </ion-popover>
+  </ion-card>
   <app-progress-slider
     [value]="progressValue"
     (valueChange)="onProgressChange($event)"

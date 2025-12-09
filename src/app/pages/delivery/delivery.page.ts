@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit, ViewChild } from '@angular/core';
-import { IonContent, IonCard, IonItem, IonIcon , IonSelect,IonSelectOption, IonNote, IonButton, IonToolbar, IonFooter, IonButtons, IonText, IonModal, IonRow, IonCol, IonGrid } from "@ionic/angular/standalone";
+import { IonContent, IonCard, IonItem, IonIcon , IonSelect,IonSelectOption, IonNote, IonButton, IonToolbar, IonFooter, IonButtons, IonText, IonModal, IonRow, IonCol, IonGrid, IonPopover, IonList } from "@ionic/angular/standalone";
 import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
 import { MatNativeDateModule } from '@angular/material/core'; 
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -27,9 +27,10 @@ import { InventoryCardComponent } from "src/app/shared/components/inventory-card
   selector: 'app-delivery',
   templateUrl: './delivery.page.html',
   styleUrls: ['./delivery.page.scss'],
-  imports: [IonGrid, IonCol, IonRow, IonModal,
+  imports: [IonList, IonPopover, IonGrid, IonCol, IonRow, IonModal,
     IonContent,
     IonCard,
+    IonItem,
     MatDatepickerModule,
     MatFormFieldModule,
     ReactiveFormsModule,
@@ -49,17 +50,23 @@ import { InventoryCardComponent } from "src/app/shared/components/inventory-card
 })
 export class DeliveryPage implements OnInit {
       @Input() vendorId!: string;
+      
+  validMonths: string[] = [];
+  popoverOpen = false;
+  popoverEvent: any;
 
 
   form: FormGroup;
   cities = ['Delhi', 'Mumbai', 'Hyderabad', 'Chennai'];
   @ViewChild('monthPicker') monthPicker!: MatDatepicker<Date>;
+    totalWaybill = 0;
+  waybill = 0;
 
   today = new Date();
   minDate!: Date;
   maxDate!: Date;
   availableMonths: string[] = [];
-  selectedMonth: Date = new Date();
+  selectedMonth: any = new Date();
   calendarOpen = false;
   selectedDate: Date = new Date(); 
   tempSelectedDate: Date = new Date();
@@ -203,6 +210,13 @@ openCalendar() {
 ];
 this.updateAverageProgress();
     datepicker.close();
+  }
+  
+  selectMonth(month: any) {
+    this.selectedMonth = month;
+    this.popoverOpen = false;
+
+    this.getGradient(month);
   }
 
 getGradient(value: number): string {

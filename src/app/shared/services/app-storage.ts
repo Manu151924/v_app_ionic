@@ -2,35 +2,26 @@ import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 
 export interface UserDetails {
-
   vendorId?: number;
-  vendorType?: string[] | string;
-
+  vendorType?: any;
   vendorName?: string;
   vendorEmail?: string;
   vendorPhone?: string;
   vendorGstin?: string;
-  contactList?: any[];
-
   branchId?: number;
-  accessToken?: string;   
-  refreshToken?: string;    
 
-  bookingVendorId?: number;
-  deliveryVendorId?: number;
+  accessToken?: string;
+  refreshToken?: string;
 
-  // UI State
-  activeSegment?: string;
+  cap_sec_access_token?: string;
+  cap_sec_refresh_token?: string;
 
-  // Device Info
   viewportHeight?: number;
   viewportWidth?: number;
   devicePixelRatio?: number;
 
-  // Utility
   lastSplashTime?: number;
 }
-
 
 @Injectable({
   providedIn: 'root'
@@ -44,14 +35,17 @@ export class AppStorageService {
     this.ready = this.init();
   }
 
+  /** Initialize Ionic Storage */
   private async init() {
     this._storage = await this.storage.create();
   }
 
+  /** Ensure storage is fully initialized */
   async waitUntilReady() {
     await this.ready;
   }
 
+  /** Generic SET */
   async set(key: string, value: any) {
     await this.waitUntilReady();
     return this._storage.set(key, value);
@@ -72,7 +66,6 @@ export class AppStorageService {
     return this._storage.clear();
   }
 
-  /** USER METADATA ONLY */
   async setUserDetails(details: UserDetails) {
     return this.set('userDetails', details);
   }

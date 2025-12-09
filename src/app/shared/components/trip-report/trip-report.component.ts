@@ -10,8 +10,7 @@ import { NgxSpinnerService, NgxSpinnerComponent, NgxSpinnerModule } from 'ngx-sp
 
 import { ShExModalComponent } from '../../modal/sh-ex-modal/sh-ex-modal.component';
 import { Api } from '../../services/api';
-import { Auth } from '../../services/auth';
-import { AppStorageService } from '../../services/app-storage';
+
 @Component({
   selector: 'app-trip-report',
   standalone: true,
@@ -30,13 +29,11 @@ import { AppStorageService } from '../../services/app-storage';
   ],
 })
 export class TripReportComponent implements OnInit {
-
   private modalController = inject(ModalController);
   private toastController = inject(ToastController);
   private api = inject(Api);
-  private spinner = inject(NgxSpinnerService);
-  private auth = inject(Auth);
-  private storage = inject(AppStorageService);
+  private spinner = inject (NgxSpinnerService);
+
 
   today = new Date();
   selectedDate: Date = new Date();
@@ -49,24 +46,32 @@ export class TripReportComponent implements OnInit {
   showCalendar = false;
   showAll = false;
 
-  branchId: number = 0;
+  branchId = 0;
 
   tripStatusRows: any[] = [];
   absentRows: any[] = [];
 
+  // ------------------ WAIT FOR BRANCH ID ------------------
+  private async waitForBranchId(): Promise<number> {
+    return new Promise(resolve => {
+      const check = () => {
+        const id = Number(localStorage.getItem('branchId'));
+        console.log("⏳ Checking branchId:", id);
+
+        if (id && id !== 0) {
+          resolve(id);
+        } else {
+          setTimeout(check, 100);
+        }
+      };
+      check();
+    });
+  }
+
   async ngOnInit() {
     console.log("ngOnInit started");
-
-    const user = await this.storage.getUserDetails();
-
-    if (!user || !user.branchId) {
-      console.error("No branchId stored!");
-      this.showToast("Cannot fetch trip data. Branch info missing.");
-      return;
-    }
-
-    this.branchId = user.branchId;
-    console.log("Final branchId:", this.branchId);
+    this.branchId = await this.waitForBranchId();
+    console.log("FINAL branchId:", this.branchId);
 
     this.setDateRange();
     this.fetchTripAndAbsentData();
@@ -76,49 +81,46 @@ export class TripReportComponent implements OnInit {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   }
 
-async fetchTripAndAbsentData(): Promise<void> {
-  this.spinner.show();
+  // -------------------- API --------------------
+fetchTripAndAbsentData(): void {
+   this.spinner.show();
 
-  try {
-    const apiDate = this.formatApiDate(this.selectedDate);
+  console.log("API CALL → branchId:", this.branchId);
 
-    this.api.getPanelTwoTable(apiDate).subscribe({
-      next: (res: any) => {
-        this.spinner.hide();
+  const token = localStorage.getItem('accessToken') ?? '';
+  const apiDate = this.formatApiDate(this.selectedDate);
 
-        if (!res?.responseStatus || !res?.responseObject) {
-          this.tripStatusRows = [];
-          this.absentRows = [];
-          this.showToast('No data found for selected date.');
-          return;
-        }
+  console.log("API CALL → Date:", apiDate);
 
-        const { tripStatusResponse, absentVehicleResponse } = res.responseObject;
+  this.api.getPanelTwoTable(this.branchId, apiDate, token).subscribe({
+    next: (res: any) => {
+              this.spinner.hide();
 
-        this.tripStatusRows = (tripStatusResponse?.tripStatus || []).map((row: any) => ({
-          ...row,
-          vehcleNoShort: row.vehcleNo?.slice(-4) || '-'
-        }));
+      if (!res?.responseStatus || !res?.responseObject) {
+        this.tripStatusRows = [];
+        this.absentRows = [];
+        this.showToast('No data found for selected date.');
+        return;
+      }
 
-        this.absentRows =
-          absentVehicleResponse?.absentVehicles?.map((v: any) => ({
-            vehicleNo: v.vehcleNo,
-            vehicleNoShort: v.vehcleNo?.slice(-4) || '-',
-            lastPickup: v.lastPickupDate?.split(' ')[0] || '-',
-          })) || [];
-      },
-      error: () => {
-        this.spinner.hide();
-        this.showToast('Failed to fetch trip data. Try again.');
-      },
-    });
+      const { tripStatusResponse, absentVehicleResponse } = res.responseObject;
 
-  } catch {
-    this.spinner.hide();
-    this.showToast("Authentication failed. Please re-login.");
-  }
+      this.tripStatusRows = (tripStatusResponse?.tripStatus || []).map((row: any) => ({
+        ...row,
+        vehcleNoShort: row.vehcleNo?.slice(-4) || '-'  
+      }));
+
+      this.absentRows =
+        absentVehicleResponse?.absentVehicles?.map((v: any) => ({
+          vehicleNo: v.vehcleNo,
+          vehicleNoShort: v.vehcleNo?.slice(-4) || '-',  
+          lastPickup: v.lastPickupDate?.split(' ')[0] || '-',
+        })) || [];
+
+    },
+    error: () => this.showToast('Failed to fetch trip data. Please try again.'),
+  });
 }
-
 
   formatApiDate(date: Date): string {
     const dd = String(date.getDate()).padStart(2, '0');
@@ -126,7 +128,7 @@ async fetchTripAndAbsentData(): Promise<void> {
     return `${date.getFullYear()}-${mm}-${dd}`;
   }
 
-  // -------- Visible Rows ----------
+  // -------------------- VISIBLE ROWS --------------------
   get visibleTripStatusRows() {
     return this.showAll ? this.tripStatusRows : this.tripStatusRows.slice(0, 5);
   }
@@ -143,7 +145,7 @@ async fetchTripAndAbsentData(): Promise<void> {
     return val === expected ? 'green' : 'red';
   }
 
-  // -------- Calendar ----------
+  // -------------------- CALENDAR --------------------
   toggleCalendar(event: MouseEvent) {
     event.stopPropagation();
     this.showCalendar = !this.showCalendar;
@@ -182,45 +184,48 @@ async fetchTripAndAbsentData(): Promise<void> {
       const min = new Date(today);
       min.setMonth(today.getMonth() - 3);
 
-      this.maxDate = max;
-      this.minDate = min;
+      this.maxDate = new Date(max.getFullYear(), max.getMonth(), max.getDate());
+      this.minDate = new Date(min.getFullYear(), min.getMonth(), min.getDate());
 
       this.calendarKey++;
     }, 30);
   }
 
-  // -------- Modal ----------
+  // -------------------- MODAL --------------------
   selectedVehicle = '';
   shExDetails: any[] = [];
 
-  async openShExModal(manifestNo: string, vehicleNo: string) {
-    if (!manifestNo) {
-      this.showToast('Manifest number not found.');
-      return;
-    }
-
-    await this.fetchShExDetails(manifestNo);
-
-    const modal = await this.modalController.create({
-      component: ShExModalComponent,
-      componentProps: {
-        shExDetails: this.shExDetails,
-        vehcleNoFull: vehicleNo
-      },
-      cssClass: 'bottom-sheet-modal',
-      backdropDismiss: true,
-      breakpoints: [0, 0.65, 0.95],
-      initialBreakpoint: 0.65
-    });
-
-    await modal.present();
+async openShExModal(manifestNo: string, vehicleNo: string) {
+  if (!manifestNo) {
+    this.showToast('Manifest number not found.');
+    return;
   }
 
-  async fetchShExDetails(manifestNo: string): Promise<void> {
-    const token = await this.auth.getAccessToken();
+  await this.fetchShExDetails(manifestNo);
 
+  const modal = await this.modalController.create({
+    component: ShExModalComponent,
+    componentProps: {
+      shExDetails: this.shExDetails,
+      vehcleNoFull: vehicleNo   // ✅ send full vehicle no to modal
+    },
+  
+    cssClass: 'bottom-sheet-modal',
+    backdropDismiss: true,
+    breakpoints: [0, 0.65, 0.95],
+    initialBreakpoint: 0.65  
+  });
+
+  await modal.present();
+}
+
+
+
+  fetchShExDetails(manifestNo: string): Promise<void> {
     return new Promise((resolve) => {
-      this.api.getPanelTwoShortExcessDetails(manifestNo).subscribe({
+      const token = localStorage.getItem('accessToken') ?? '';
+
+      this.api.getPanelTwoShortExcessDetails(manifestNo, token).subscribe({
         next: (res: any) => {
           if (!res?.responseStatus || !res?.responseObject) {
             this.shExDetails = [];
@@ -236,7 +241,7 @@ async fetchTripAndAbsentData(): Promise<void> {
             consignor: item.ccName,
             pickupDate: item.pickDt,
             status: item.status,
-            vehicleNo: item.vehcleNo
+            vehicleNo: item.vehcleNo  
           }));
 
           resolve();
@@ -249,7 +254,7 @@ async fetchTripAndAbsentData(): Promise<void> {
     });
   }
 
-  // -------- Toast ----------
+  // -------------------- TOAST --------------------
   async showToast(message: string) {
     const toast = await this.toastController.create({
       message,

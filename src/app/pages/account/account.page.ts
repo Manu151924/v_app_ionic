@@ -1,17 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   IonContent, IonHeader, IonTitle, IonToolbar, IonButtons,
-  IonBackButton, IonCard, IonIcon, AlertController, NavController
+  IonBackButton, IonCard, IonIcon, IonButton, NavController, AlertController
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { addIcons } from 'ionicons';
 import { personCircleOutline, powerOutline, busOutline } from 'ionicons/icons';
-
 import { Api } from 'src/app/shared/services/api';
 import { environment } from 'src/environments/environment';
-import { Auth } from 'src/app/shared/services/auth';
-import { AppStorageService } from 'src/app/shared/services/app-storage';
 
 @Component({
   selector: 'app-account',
@@ -20,52 +17,63 @@ import { AppStorageService } from 'src/app/shared/services/app-storage';
   standalone: true,
   imports: [
     IonIcon, IonCard, IonBackButton, IonButtons,
-    IonContent, IonHeader, IonTitle, IonToolbar,
-    CommonModule, FormsModule
+    IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule
   ]
 })
 export class AccountPage implements OnInit {
 
-  private navCtrl = inject(NavController);
-  private alertCtrl = inject(AlertController);
-  private api = inject(Api);
-  private auth = inject(Auth);
-  private storage = inject(AppStorageService);
-
   vendorName: string = '';
-  version = environment.version;
 
-  constructor() {
-    addIcons({ personCircleOutline, busOutline, powerOutline });
+  constructor(
+    private navCtrl: NavController,
+    private alertCtrl: AlertController,
+    private api: Api
+  ) {
+    addIcons({personCircleOutline,busOutline,powerOutline});
   }
 
-  async ngOnInit() {
-    const user = await this.storage.getUserDetails();
-    this.vendorName = user?.vendorName ?? 'My Profile';
+  ngOnInit() {
+    this.vendorName = localStorage.getItem("vendorName") ?? "My Profile";
+  }
+    version = environment.version;
+  
+
+openProfileDetails() {
+
+  const segment = localStorage.getItem("activeSegment") || "booking";
+
+  const vendorId =
+    segment === "booking"
+      ? localStorage.getItem("bookingVendorId")
+      : localStorage.getItem("deliveryVendorId");
+
+  const token = localStorage.getItem("accessToken");
+
+  if (!vendorId || !token) {
+    console.error("Missing vendorId or token");
+    return;
   }
 
- async openProfileDetails() {
-    this.api.getVendorDetails().subscribe({
-      next: async (res) => {
-        console.log('Vendor Details:', res);
+  this.api.getVendorDetails(vendorId, token).subscribe({
+    next: (res) => {
+      console.log("Vendor Details:", res);
 
-        if (!res?.responseStatus) return;
+      localStorage.setItem("vendorName", res.vendorName ?? "");
+      localStorage.setItem("vendorEmail", res.userEmail ?? "");
+      localStorage.setItem("vendorGstin", res.gstin ?? "");
+      localStorage.setItem("vendorPhone", res.userPhone ?? "");
+      localStorage.setItem("contactList", JSON.stringify(res.contactList ?? []));
 
-        await this.storage.updateUserDetails({
-          vendorName: res.responseObject?.vendorName ?? '',
-          vendorEmail: res.responseObject?.userEmail ?? '',
-          vendorGstin: res.responseObject?.gstin ?? '',
-          vendorPhone: res.responseObject?.userPhone ?? '',
-          contactList: res.responseObject?.contactList ?? []
-        });
+      this.navCtrl.navigateForward('/profile-details');
+    },
+    error: (err) => {
+      console.error("Vendor API Error:", err);
+    }
+  });
+}
 
-        this.navCtrl.navigateForward('/profile-details');
-      },
-      error: (err) => {
-        console.error('Vendor API Error:', err);
-      }
-    });
-  }
+
+
 
   async logout() {
     const alert = await this.alertCtrl.create({
@@ -75,8 +83,9 @@ export class AccountPage implements OnInit {
         { text: 'Cancel', role: 'cancel' },
         {
           text: 'Logout',
-          handler: async () => {
-            await this.auth.logout();
+          handler: () => {
+            localStorage.clear();
+            this.navCtrl.navigateRoot('/login');
           }
         }
       ],
@@ -84,4 +93,5 @@ export class AccountPage implements OnInit {
 
     await alert.present();
   }
+
 }

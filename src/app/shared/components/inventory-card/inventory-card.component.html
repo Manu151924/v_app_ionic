@@ -21,15 +21,23 @@
 
   <!-- Bar Chart List -->
   <div class="bar-list" role="list" aria-label="Inventory by route">
-    <div class="bar-row" *ngFor="let r of routesData" (click)="handleRouteClick(r)" role="listitem" tabindex="0" [attr.aria-label]="'Route ' + r.route + ' with ' + r.waybills + ' waybills'">
+    <div class="bar-row"
+         *ngFor="let r of routesData"
+         (click)="handleRouteClick(r)"
+         role="listitem"
+         tabindex="0"
+         [attr.aria-label]="'Route ' + r.route + ' with ' + r.waybills + ' waybills'">
+
       <div class="y-axis-label">DLV. ROUTE WISE WB COUNT</div>
+
       <div class="bar-container" aria-hidden="true">
-        <div class="bar" 
-             [style.width.%]="(r.waybills / maxWaybills) * 100" 
-             [style.background]="r.color">
+        <div class="bar"
+          [style.width.%]="getBarWidth(r)"
+          [style.background]="r.color">
           <span class="route-name">{{ r.route }}</span>
         </div>
       </div>
+
       <span class="count" [style.color]="r.color">{{ r.waybills }}</span>
     </div>
   </div>

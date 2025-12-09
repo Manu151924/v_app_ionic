@@ -87,5 +87,15 @@ handleRouteClick(routeData: RouteData): void {
     }
   });
 }
+  getBarWidth(r: any): number {
+    const actualWidth = (r.waybills / this.maxWaybills) * 100;
+    const textLength = (r.route || '').length;
+    const minRequiredWidth = textLength * 2.5; 
+    const absoluteMin = 20;
+    const maxAllowed = 98;
+    let finalWidth = Math.max(actualWidth, minRequiredWidth, absoluteMin);
+    finalWidth = Math.min(finalWidth, maxAllowed);
+    return finalWidth;
+  }
 
 }

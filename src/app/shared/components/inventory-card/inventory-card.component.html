@@ -1,47 +1,111 @@
-<div class="inventory-card">
-  <div class="header-row">
-    <ion-item lines="none" class="branch-select">
-      <ion-icon name="location" slot="start" color="success"></ion-icon>
-      <ion-select [(ngModel)]="selectedBranch" interface="popover" (ionChange)="onBranchChange()">
-        <ion-select-option *ngFor="let b of branches" [value]="b">{{ b }}</ion-select-option>
-      </ion-select>
-    </ion-item>
-
-    <div class="stats-box">
-      <span>WAYBILLS: {{ totals.waybills }}</span>
-      <span>PKGS: {{ totals.packages }}</span>
-      <span>WT (T): {{ totals.weight.toFixed(1) }}</span>
-    </div>
-  </div>
-
-  <!-- Title -->
-  <div class="title-row">
-    <span class="title">AVL. INVENTORY</span>
-  </div>
-
-  <!-- Bar Chart List -->
-  <div class="bar-list" role="list" aria-label="Inventory by route">
-    <div class="bar-row"
-         *ngFor="let r of routesData"
-         (click)="handleRouteClick(r)"
-         role="listitem"
-         tabindex="0"
-         [attr.aria-label]="'Route ' + r.route + ' with ' + r.waybills + ' waybills'">
-
-      <div class="y-axis-label">DLV. ROUTE WISE WB COUNT</div>
-
-      <div class="bar-container" aria-hidden="true">
-        <div class="bar"
-          [style.width.%]="getBarWidth(r)"
-          [style.background]="r.color">
-          <span class="route-name">{{ r.route }}</span>
+<div>
+  <ngx-spinner
+    bdColor="rgba(255,255,255,0.1)"
+    color="#2ca85e"
+    size="large"
+    type="ball-clip-rotate"
+    [fullScreen]="true">
+    <p class="loader-text">Loading...</p>
+  </ngx-spinner>
+  <ion-card class="pan1-card">
+    <ion-card-content class="pan1-card-header">
+      <div class="header-row">
+        <div class="pan1-header-left">
+          <div class="location-dropdown">
+            <img src="assets/icon/location.png" class="location-icon" />
+            <ion-select
+              interface="popover"
+              [(ngModel)]="selectedBranchId"
+              (ionChange)="onBranchChange($event)"
+              class="city-select">
+              @for (b of branches; track b.branchId) {
+                <ion-select-option [value]="b.branchId">
+                  {{ b.branchName }}
+                </ion-select-option>
+              }
+            </ion-select>
+          </div>
+        </div>
+        <div class="pan1-header-right">
+          <div class="assigned-sfx">
+            <div class="total">
+              <div class="total-data">
+                <span class="total-label">WAYBILLS:</span>
+                <span class="total-values">{{ totals.waybills }}</span>
+              </div>
+              <div class="total-data">
+                <span class="total-label">PKGS:</span>
+                <span class="total-values">{{ totals.packages }}</span>
+              </div>
+              <div class="total-data">
+                <span class="total-label">WT (T):</span>
+                <span class="total-values">{{ totals.weight.toFixed(1) }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <span class="count" [style.color]="r.color">{{ r.waybills }}</span>
-    </div>
-  </div>
+      <div class="title-row">
+        <span class="title">AVL. INVENTORY</span>
+      </div>
 
-  <!-- Footer -->
-  <div class="footer-label">{{ selectedBranch }}</div>
+      <!-- CONTENT -->
+      <div class="pan1-card-content">
+
+        <div class="route-card">
+
+          <div class="y-axis-title">
+            DLV ROUTE WISE WB COUNT
+          </div>
+
+          <div class="chart-area">
+            <ngx-charts-bar-horizontal
+              *ngIf="axisData.length"
+              class="axis-chart"
+              [xAxis]="true"
+              [yAxis]="true"
+              [showXAxisLabel]="false"
+              [showYAxisLabel]="false"
+              [showGridLines]="false"
+              [animations]="true"
+              [tooltipDisabled]="true"
+              yAxisLabel="ROUTE"
+              xAxisLabel="WAYBILLS">
+            </ngx-charts-bar-horizontal>
+
+            <!-- CUSTOM BAR LIST -->
+            <div class="bar-list">
+              <ion-content class="bar-list">
+
+                @for (r of routesData; track r.route) {
+                  <div class="bar-row" (click)="handleRouteClick(r)">
+                    <div class="bar-container">
+                      <div
+                        class="bar"
+                        [style.width.%]="getBarWidth(r)"
+                        [style.background]="r.color">
+                        <span class="route-name">{{ r.route }}</span>
+                      </div>
+                    </div>
+                    <span class="count" [style.color]="r.color">
+                      {{ r.waybills }}
+                    </span>
+                  </div>
+                }
+
+              </ion-content>
+            </div>
+
+          </div>
+
+          <div class="footer">
+            {{ selectedBranchName }}
+          </div>
+
+        </div>
+      </div>
+
+    </ion-card-content>
+  </ion-card>
 </div>

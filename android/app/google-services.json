@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "967613704420",
+    "project_id": "vappionic-1f18f",
+    "storage_bucket": "vappionic-1f18f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967613704420:android:342939da68fcbfa15224f1",
+        "android_client_info": {
+          "package_name": "com.vendor.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBP4_Dl8CbwUBU0TnD3EDwLTjb3xz4E3QI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967613704420:android:6dbb8b5db6f7d1215224f1",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBP4_Dl8CbwUBU0TnD3EDwLTjb3xz4E3QI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

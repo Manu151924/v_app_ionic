@@ -1,88 +1,77 @@
 <ion-content>
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content
-      pullingIcon="arrow-down-outline"
-      refreshingSpinner="crescent">
+    <ion-refresher-content pullingIcon="arrow-down-outline" refreshingSpinner="crescent">
     </ion-refresher-content>
   </ion-refresher>
-  <ngx-spinner
-    bdColor="rgba(255,255,255,0.1)"
-    color="#2ca85e"
-    size="large"
-    type="ball-clip-rotate"
-    [fullScreen]="true"
-  >
+  <ngx-spinner bdColor="rgba(255,255,255,0.1)" color="#2ca85e" size="large" type="ball-clip-rotate" [fullScreen]="true">
     <p class="loader-text">Loading..</p>
   </ngx-spinner>
 
   <!-- DELHI CARD -->
-  <ion-card class="delhi-card">
-    <ion-card-content class="delhi-card-content">
+  <ion-card class="pan1-card">
+    <ion-card-content class="pan1-card-content">
       <div class="header-row">
-        <div class="location-dropdown">
-          <img src="assets/icon/location.png" class="location-icon" />
+        <div class="pan1-header-left">
+          <div class="location-dropdown">
+            <img src="assets/icon/location.png" class="location-icon" />
 
-          <ion-select
-            interface="popover"
-            [formControl]="selectedCityControl"
-            (ionChange)="onCityChange($event)"
-            class="city-select"
-          >
-            @for(city of cities; track city) {
-            <ion-select-option [value]="city">{{ city }}</ion-select-option>
-            }
-          </ion-select>
+            <ion-select interface="popover" [formControl]="selectedCityControl" (ionChange)="onCityChange($event)"
+              class="city-select">
+              @for(city of cities; track city) {
+              <ion-select-option [value]="city">{{ city }}</ion-select-option>
+              }
+            </ion-select>
+          </div>
         </div>
-
-        <div class="assigned-sfx">
-          <span class="label">Assigned SFX</span>
-          <span class="value" (click)="openSfxModal()">{{ assignedSfx }}</span>
+        <div class="pan1-header-right">
+          <div class="assigned-sfx">
+            <span class="label">Assigned SFX</span>
+            <span class="value" (click)="openSfxModal()">{{ assignedSfx }}</span>
+          </div>
         </div>
       </div>
 
-      <ion-col size="12" style="padding: 0">
-        <div class="tab-content-container">
-          <div class="card-content">
-            <div class="status-list">
-              <!-- ZERO -->
-              <div class="status-row zero" (click)="openModal('ZERO PICKUP SFX')">
-                <div class="bar-section">
-                  <div class="bar-rail">
-                    <div class="bar-fill" >
-                      <span class="status-label">ZERO PICKUP SFX</span>
-                    </div>
+      <div class="tab-content">
+        <div class="card-content">
+          <div class="status-list">
+            <!-- ZERO -->
+            <div class="status-row zero" (click)="openModal('ZERO PICKUP SFX')">
+              <div class="bar-section">
+                <div class="bar-rail">
+                  <div class="bar-fill">
+                    <span class="status-label">ZERO PICKUP SFX</span>
                   </div>
                 </div>
-                <span class="status-value">{{ statusList[0]?.value }}</span>
               </div>
+              <span class="status-value">{{ statusList[0]?.value }}</span>
+            </div>
 
-              <!-- NOT MANIFESTED -->
-              <div class="status-row not" (click)="openModal('NOT-MANIFESTED')">
-                <div class="bar-section">
-                  <div class="bar-rail">
-                    <div class="bar-fill">
-                      <span class="status-label">NOT-MANIFESTED</span>
-                    </div>
+            <!-- NOT MANIFESTED -->
+            <div class="status-row not" (click)="openModal('NOT-MANIFESTED')">
+              <div class="bar-section">
+                <div class="bar-rail">
+                  <div class="bar-fill">
+                    <span class="status-label">NOT-MANIFESTED</span>
                   </div>
                 </div>
-                <span class="status-value">{{ statusList[1]?.value }}</span>
               </div>
+              <span class="status-value">{{ statusList[1]?.value }}</span>
+            </div>
 
-              <!-- DRAFT -->
-              <div class="status-row draft" (click)="openModal('DRAFT WAYBILLS')">
-                <div class="bar-section">
-                  <div class="bar-rail">
-                    <div class="bar-fill">
-                      <span class="status-label">DRAFT WAYBILLS</span>
-                    </div>
+            <!-- DRAFT -->
+            <div class="status-row draft" (click)="openModal('DRAFT WAYBILLS')">
+              <div class="bar-section">
+                <div class="bar-rail">
+                  <div class="bar-fill">
+                    <span class="status-label">DRAFT WAYBILLS</span>
                   </div>
                 </div>
-                <span class="status-value">{{ statusList[2]?.value }}</span>
               </div>
+              <span class="status-value">{{ statusList[2]?.value }}</span>
             </div>
           </div>
         </div>
-      </ion-col>
+      </div>
     </ion-card-content>
   </ion-card>
 
@@ -179,15 +168,11 @@
         <div class="donut-chart-wrapper">
           <div class="edited-percent-label">
             @if(wbEditedPercent> 0){
-             <span class="percent-bar">{{ wbEditedPercent }}%</span>
+            <span class="percent-bar">{{ wbEditedPercent }}%</span>
             }
           </div>
 
-          <app-pie-chart
-            [data]="(pieChartData$ | async) ?? []"
-            [view]="[380, 380]"
-            [labels]="true"
-          ></app-pie-chart>
+          <app-pie-chart [data]="(pieChartData$ | async) ?? []" [view]="[380, 380]" [labels]="true"></app-pie-chart>
 
           <div class="donut-center-text">
             <div class="donut-label">BOOKED</div>
@@ -208,11 +193,7 @@
       </div>
     </div>
 
-    <ion-popover
-      [isOpen]="popoverOpen"
-      [event]="popoverEvent"
-      (didDismiss)="popoverOpen = false"
-    >
+    <ion-popover [isOpen]="popoverOpen" [event]="popoverEvent" (didDismiss)="popoverOpen = false">
       <ng-template>
         <ion-list>
           @for(m of validMonths; track m) {

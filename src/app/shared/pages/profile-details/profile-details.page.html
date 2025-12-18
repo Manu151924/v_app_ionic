@@ -37,18 +37,19 @@
   </ion-card>
 
   <!-- Contact List -->
-  <ion-card *ngFor="let c of contactList" class="user-card">
-    <div class="user-info">
-      <p class="name">{{ c.empName }}</p>
-      <p class="mobile">{{ c.mobile }}</p>
-    </div>
+   @for(c of contactList; track c){
+    <ion-card  class="user-card">
+      <div class="user-info">
+        <p class="name">{{ c.empName }}</p>
+        <p class="mobile">{{ c.mobile }}</p>
+      </div>
 
-    <div class="status-info">
-      <p>Status</p>
-      <strong>{{ c.status }}</strong>
-    </div>
+      <div class="status-info">
+        <p>Status</p>
+        <strong>{{ c.status }}</strong>
+      </div>
 
-    <ion-icon name="trash-outline" class="delete-icon"></ion-icon>
-  </ion-card>
-
+      <ion-icon name="trash-outline" class="delete-icon"></ion-icon>
+    </ion-card>
+   }
 </ion-content>

@@ -56,7 +56,7 @@ export class TripReportComponent implements OnInit {
     return new Promise(resolve => {
       const check = () => {
         const id = Number(localStorage.getItem('branchId'));
-        console.log("⏳ Checking branchId:", id);
+        console.log("Checking branchId:", id);
 
         if (id && id !== 0) {
           resolve(id);
@@ -132,6 +132,11 @@ fetchTripAndAbsentData(): void {
   get visibleTripStatusRows() {
     return this.showAll ? this.tripStatusRows : this.tripStatusRows.slice(0, 5);
   }
+  isMatch(mf: any, uld: any): boolean {
+  if (mf == null || uld == null) return false;
+  return Number(mf) === Number(uld);
+}
+
 
   get visibleAbsentRows() {
     return this.showAll ? this.absentRows : this.absentRows.slice(0, 5);
@@ -207,7 +212,7 @@ async openShExModal(manifestNo: string, vehicleNo: string) {
     component: ShExModalComponent,
     componentProps: {
       shExDetails: this.shExDetails,
-      vehcleNoFull: vehicleNo   // ✅ send full vehicle no to modal
+      vehcleNoFull: vehicleNo   
     },
   
     cssClass: 'bottom-sheet-modal',

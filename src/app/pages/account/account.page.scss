@@ -77,7 +77,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.footer {
+.footer-two {
   margin-top: 31rem;
   text-align: center;
   position: relative;
@@ -102,23 +102,32 @@
 }
 
 .version {
-  margin-top: 10px;
-  margin-right: 12px;
-  font-size: 13px;
-  text-align: right;
-  color: gray;
-}
-@media (min-width:360px) and (max-widtg:390px){
-  .footer{
-    margin-top: 28rem;
-    text-align: center;
-    position: relative;
-  }
-  .version{
-    margin-top: -75px;
-    margin-right: 12px;
     font-size: 13px;
     text-align: right;
     color: gray;
+    top: -4rem;
+    left: 21rem;
+    position: absolute;
+}
+@media screen and (min-width: 360px) and (max-width: 390px) {
+
+  .footer-two {
+    margin-top: 20rem; 
+    text-align: center;
+    position: relative;
+  }
+
+  .logout-card {
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .version {
+    position: static;      
+    margin-top: 12px;
+    text-align: center;
+    font-size: 12px;
+    color: gray;
   }
 }
+

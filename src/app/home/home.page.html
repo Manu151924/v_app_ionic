@@ -40,13 +40,15 @@
 
 <ion-content>
 
-  @if (segment === 'booking') {
-    <app-booking [vendorId]="bookingVendorID"></app-booking>
-  }
+ <app-booking
+  [vendorId]="bookingVendorID"
+  [hidden]="segment !== 'booking'">
+</app-booking>
 
-  @else if (segment === 'delivery') {
-    <app-delivery [vendorId]="deliveryVendorID"></app-delivery>
-  }
+<app-delivery
+  [vendorId]="deliveryVendorID"
+  [hidden]="segment !== 'delivery'">
+</app-delivery>
 
 </ion-content>
 

@@ -1,71 +1,42 @@
-<ion-content [fullscreen]="true" class="login-content"  keyboardResize="ionic">
-  <div class="login-header">
-    <p class="product-text">A product by</p>
-    <img
-      src="assets/icon/logo.png"
-      alt="Safexpress Logo"
-      class="logo"  [class.active]="showOtpField"
-      (click)="showOtpField && onLogoClick()"
-    />
+<ion-content [fullscreen]="true" class="login-content" scroll-y="false"> 
+ <div class="login-header">
+    @if(showOtpField){
+      <ion-icon name="chevron-back" class="back-icon" (click)="handleBack()"></ion-icon>
+    }     
+    <img src="assets/icon/logo2.png" alt="Safexpress Logo" class="logo"  />
   </div>
-
-  <div class="login-card">
-    <h2>Sign in to your account</h2>
-
-    <!-- Mobile Input -->
-         <ion-item lines="full" class="custom-item">
-
-<ion-input
-  type="text"
-  maxlength="10"
-  inputmode="numeric"
-  placeholder="Enter Mobile"
-  [(ngModel)]="mobileNumber"
-  (ionInput)="filterNumberInput($event, 'mobile')">
-</ion-input>
-         </ion-item>
-
-    <!-- OTP Input (only after OTP sent) -->
-    @if (showOtpField) {
+  <div class="main-container">
+    <div class="login-card">
+      <h2>Sign in to your account</h2>
       <ion-item lines="full" class="custom-item">
-<ion-input
-  type="password"
-  maxlength="6"
-  inputmode="numeric"
-  placeholder="Enter OTP"
-  [(ngModel)]="otp"
-  (ionInput)="filterNumberInput($event, 'otp')">
-</ion-input>
+        <ion-input  type="text"  maxlength="10" inputmode="numeric" placeholder="Enter Mobile"  [(ngModel)]="mobileNumber"
+          (ionInput)="filterNumberInput($event, 'mobile')">
+        </ion-input>
       </ion-item>
-    }
 
-    <!-- Send OTP Button -->
-    @if (!showOtpField) {
-      <div class="actions">
-        <button
-          class="send-otp-btn"
-          (click)="sendOtp()"
-          [disabled]="isSendingOtp">
-          {{ isSendingOtp ? 'Sending...' : 'Send OTP' }}
-        </button>
-      </div>
-    }
+      @if (showOtpField) {
+        <ion-item lines="full" class="custom-item">
+          <ion-input type="password"  maxlength="6" inputmode="numeric" placeholder="Enter OTP" [(ngModel)]="otp"
+            (ionInput)="filterNumberInput($event, 'otp')">
+          </ion-input>
+        </ion-item>
+      }
 
-    <!-- OTP Actions (Submit + Resend) -->
-    @else() {
-      <div class="otp-actions">
-        <a
-          class="resend-otp"
-          (click)="resendOtp()"
-          [class.disabled]="resendDisabled">
-          {{ resendDisabled ? ('Resend OTP') : 'Resend OTP' }}
-        </a>
-
-        <button class="submit-btn" (click)="login()">
-          Submit
-        </button>
-      </div>
-    }
+      @if (!showOtpField) {
+        <div class="actions">
+          <button class="send-otp-btn" (click)="sendOtp()" [disabled]="isSendingOtp">
+            {{ isSendingOtp ? 'Sending...' : 'Send OTP' }}
+          </button>
+        </div>
+      } @else {
+        <div class="otp-actions">
+          <a class="resend-otp" (click)="resendOtp()" [class.disabled]="resendDisabled">
+            Resend OTP
+          </a>
+          <button class="submit-btn" (click)="login()">Submit</button>
+        </div>
+      }
+    </div>
   </div>
 
   <div class="footer">

@@ -8,16 +8,14 @@ import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { formatDisplayDate, formatMonthYearShort } from 'src/app/shared/utilities/date-utils';
 import { AbsentVehicle, Delivery, TripVehicle } from 'src/app/shared/services/delivery';
-import { TripStatusTableComponent } from "src/app/shared/components/trip-status-table/trip-status-table.component";
-import { AbsentVehicleListComponent } from 'src/app/shared/components/absent-vehicle-list/absent-vehicle-list.component';
 import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart.component';
 import { ProgressSliderComponent } from 'src/app/shared/components/progress-slider/progress-slider.component';
 import { addIcons } from 'ionicons';
+import { NgxSpinnerService, NgxSpinnerComponent, NgxSpinnerModule } from 'ngx-spinner';
 import { calendar, carOutline, chevronDownOutline, chevronUpOutline, document, location, shieldCheckmark } from 'ionicons/icons';
-import { TripReportComponent } from "src/app/shared/components/trip-report/trip-report.component";
 import { TripReportDeliveryComponent } from "src/app/shared/components/trip-report-delivery/trip-report-delivery.component";
 import { InventoryCardComponent } from "src/app/shared/components/inventory-card/inventory-card.component";
 
@@ -45,11 +43,14 @@ import { InventoryCardComponent } from "src/app/shared/components/inventory-card
     ProgressSliderComponent,
     IonToolbar,
     IonFooter,
+    NgxSpinnerComponent, NgxSpinnerModule,
     IonButtons, TripReportDeliveryComponent, InventoryCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeliveryPage implements OnInit {
-      @Input() vendorId!: string;
+      @Input() vendorId!: any;
+  deliveryVendorId$ = new BehaviorSubject<number | null>(null);
+
       
   validMonths: string[] = [];
   popoverOpen = false;
@@ -102,7 +103,7 @@ bars = [
     domain: ['#06B4A2', '#FF8A0D']
   };
 
-  constructor(private fb: FormBuilder, private service: Delivery) {
+  constructor(private fb: FormBuilder, private service: Delivery, private spinner: NgxSpinnerService,) {
     this.form = this.fb.group({
       selectedCity: [this.cities[0]],
       selectedDate: [new Date()],
@@ -116,6 +117,11 @@ bars = [
     this.tripVehicles$ = this.service.getTripVehicles();
     this.absentVehicles$ = this.service.getAbsentVehicles();
     this.setDateRange();
+      const id = localStorage.getItem('deliveryVendorId');
+
+    if (id) {
+      this.deliveryVendorId$.next(Number(id));
+    }
     this.updateAverageProgress();
     this.generateAvailableMonths();
   }
@@ -221,13 +227,10 @@ this.updateAverageProgress();
 
 getGradient(value: number): string {
   if (value >= 0 && value <= 33) {
-    // Dominantly red
     return 'linear-gradient(90deg, #DA2D24 0%, #D2E241 60%, #42D844 100%)';
   } else if (value >= 34 && value <= 66) {
-    // Mid range: yellow center dominant
     return 'linear-gradient(90deg, #D2E241 0%, #42D844 80%, #DA2D24 100%)';
   } else {
-    // High: mostly green
     return 'linear-gradient(90deg, #42D844 0%, #D2E241 60%, #DA2D24 100%)';
   }
 }

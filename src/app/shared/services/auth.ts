@@ -1,67 +1,67 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
-import { Api } from './api';
-
+import { AppStorageService, UserDetails } from './app-storage';
 @Injectable({ providedIn: 'root' })
 export class Auth {
-  private api = inject(Api);
-  private router = inject(Router);
 
   private _isAuthenticated = new BehaviorSubject<boolean>(false);
   isAuthenticated$ = this._isAuthenticated.asObservable();
 
-  private userData: any = null;
-
-async setUserData(data: any) {
-  this.userData = data;
-  this._isAuthenticated.next(true);
-
-  localStorage.setItem('access_token', data.accessToken);
-  localStorage.setItem('refresh_token', data.refreshToken);
-  localStorage.setItem('vendor_type', JSON.stringify(data.vendorType));
-
-  await SecureStoragePlugin.set({ key: 'access_token', value: data.accessToken });
-  await SecureStoragePlugin.set({ key: 'refresh_token', value: data.refreshToken });
-  await SecureStoragePlugin.set({ key: 'vendor_type', value: JSON.stringify(data.vendorType) });
-}
+  constructor(
+    private storage: AppStorageService,
+    private router: Router
+  ) {}
 
 
-  async getVendorType(): Promise<string[]> {
-    const vendorType = await SecureStoragePlugin.get({ key: 'vendor_type' }).catch(() => null);
-    return vendorType ? JSON.parse(vendorType.value) : [];
-  }
+  async setUserData(res: any): Promise<void> {
+    const data = res?.data ?? res;
 
-  async logout() {
-    await SecureStoragePlugin.clear();
-    this._isAuthenticated.next(false);
-    this.router.navigate(['/login']);
-  }
+    if (!data?.accessToken) {
+      throw new Error('Access token missing');
+    }
 
-  verifyOtp(mobile: string, otp: string) {
-    return this.api.verifyOtp(otp, mobile);
-  }
+    const userDetails: UserDetails = {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      vendorType: data.vendors?.map((v: any) => v.vendorType),
+      vendorId: data.vendors?.[0]?.vendorId
+    };
 
-async isLoggedIn(): Promise<boolean> {
-  // Fast check
-  const localToken = localStorage.getItem('access_token');
-  if (localToken) {
+    await this.storage.setUserDetails(userDetails);
+
     this._isAuthenticated.next(true);
-    return true;
   }
 
-  // Fallback if secure storage is available
-  const secureToken = await SecureStoragePlugin.get({ key: 'access_token' }).catch(() => null);
-
-  const isAuth = !!secureToken?.value;
-  this._isAuthenticated.next(isAuth);
-
-  if (isAuth) {
-    localStorage.setItem('access_token', secureToken.value);
+  async getAccessToken(): Promise<string | null> {
+    const user = await this.storage.getUserDetails();
+    return user?.accessToken ?? null;
   }
 
-  return isAuth;
+  async getRefreshToken(): Promise<string | null> {
+    const user = await this.storage.getUserDetails();
+    return user?.refreshToken ?? null;
+  }
+
+  async updateAccessToken(token: string): Promise<void> {
+    await this.storage.updateUserDetails({ accessToken: token });
+    this._isAuthenticated.next(true);
+  }
+
+isAuthenticatedSnapshot(): boolean {
+  return this._isAuthenticated.value;
 }
 
+async restoreSession(): Promise<void> {
+  const token = await this.getAccessToken();
+  this._isAuthenticated.next(!!token);
+}
+
+  /* ================= LOGOUT ================= */
+
+  async logout(): Promise<void> {
+    await this.storage.clearUserDetails();
+    this._isAuthenticated.next(false);
+    await this.router.navigateByUrl('/login', { replaceUrl: true });
+  }
 }

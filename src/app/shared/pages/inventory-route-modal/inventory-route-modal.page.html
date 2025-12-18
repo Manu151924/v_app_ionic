@@ -30,7 +30,7 @@
 
 
   <!-- CARD #1 : < 24 -->
-  <ion-card class="detail-card">
+  <ion-card class="detail-card" (click)="openAgeDetails('<24')">
     <div class="badge green-bg">&lt; 24 Hours</div>
 
     <div class="content-grid">
@@ -53,7 +53,7 @@
 
 
   <!-- CARD #2 : > 24 -->
-  <ion-card class="detail-card">
+  <ion-card class="detail-card" (click)="openAgeDetails('>=24')">
     <div class="badge yellow-bg">&gt; 24 Hours</div>
 
     <div class="content-grid">

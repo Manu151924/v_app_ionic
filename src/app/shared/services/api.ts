@@ -16,14 +16,15 @@ export class Api {
   }
 
   private handleError(err: any) {
-    if (err.name === 'TimeoutError') {
+    if (err?.name === 'TimeoutError') {
       return throwError(() => ({
-        error: { message: 'Server response timed out (20s). Please try again later.' },
+        error: { message: 'Server response timed out (20s). Please try again later.' }
       }));
     }
-    if (err.status === 0) {
+
+    if (err?.status === 0) {
       return throwError(() => ({
-        error: { message: 'Unable to reach server. Check your internet connection.' },
+        error: { message: 'Unable to reach server. Check your internet connection.' }
       }));
     }
     return throwError(() => err);
@@ -44,59 +45,107 @@ export class Api {
   }
 
   sendOtp(mobileNo: string): Observable<any> {
-    const body = { mobileNo };
-    return this.post(API_ENDPOINTS.LOGIN.SENDOTP, body);
+    return this.post(API_ENDPOINTS.LOGIN.SENDOTP, { mobileNo });
   }
 
   verifyOtp(otp: string, mobileNo: string): Observable<any> {
-    const body = { otp, mobileNo };
-    return this.post(API_ENDPOINTS.LOGIN.VERIFYOTP, body);
+    return this.post(API_ENDPOINTS.LOGIN.VERIFYOTP, { otp, mobileNo });
+  }
+  generateAccessTokenFromRefreshToken(refreshToken: string) {
+    return this.http.post<any>(
+      'https://dgapi-uat-nonprod.safexpress.com/vappcore/core/api/v1/generateAccessTokenFromRefreshToken',
+      { token: refreshToken }
+    );
+  }
+
+  //booking apis start here
+
+  getBranchDetails(token: string) {
+    const vendorId = localStorage.getItem('bookingVendorId') ?? '0';
+    const url = `${API_ENDPOINTS.BOOKING.LOCATIONDROPDOWN}?id=${vendorId}`;
+    return this.get(url, token);
   }
 
   getPanelOneCount(branchId: number, token: string): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.PANNELONECOUNT}?branchId=${branchId}`;
     return this.get(url, token);
   }
+
   getPanelTwoTable(branchId: number, date: string, token: string): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.PANNELTWOTABLE}?branchId=${branchId}&date=${date}`;
     return this.get(url, token);
   }
-  getPanelThreeData(branchId: number, token:string): Observable<any>{
+
+  getPanelThreeData(branchId: number, token: string): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.PANNELTHREEDATA}?branchId=${branchId}`;
     return this.get(url, token);
   }
-  getPanelFourData(year: number, month: number, branchId: number, token: string): Observable<any>{
+
+  getPanelFourData(year: number, month: number, branchId: number, token: string): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.PANNELFOUR}?year=${year}&month=${month}&branchId=${branchId}`;
-    return this.get(url, token)
+    return this.get(url, token);
   }
-  getBranchDetails(token: string){
-    const vendorId = localStorage.getItem('bookingVendorId') ?? '0';
-    const url = `${API_ENDPOINTS.BOOKING.LOCATIONDROPDOWN}?id=${vendorId}`;
-     return this.get(url, token);
-  }
+
   getAssignedSfxDetails(assignedBranchId: number, token: string): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.ASSIGNEDSFXDETAILS}?assignedBranchId=${assignedBranchId}`;
     return this.get(url, token);
   }
+
   getZeroPickupDetails(assignedBranchId: number, token: string): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.ZEROPICKUP}?assignedBranchId=${assignedBranchId}`;
     return this.get(url, token);
   }
+
   getNotManifestedDetails(branchId: number, token: string): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.NOTMANIFISTED}?branchId=${branchId}`;
     return this.get(url, token);
   }
+
   getDraftWaybillDetails(branchId: number, token: string): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.DRAFTWATBILL}?branchId=${branchId}`;
     return this.get(url, token);
   }
-  getPanelTwoShortExcessDetails(manifestNo:string, token: string): Observable<any>{
+
+  getPanelTwoShortExcessDetails(manifestNo: string, token: string): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.SHEXMODAL}?manifestNo=${manifestNo}`;
-    return this.get(url, token)
+    return this.get(url, token);
   }
+
   getVendorDetails(bookingVendorId: string, token: string) {
     const url = `${API_ENDPOINTS.VENDOR.DETAILS}/${bookingVendorId}/details`;
     return this.get(url, token);
   }
 
+
+  //delivery apis start here
+getDeliveryBranchDetails(token: string) {
+    const vendorId = localStorage.getItem('deliveryVendorId') ?? '0';
+    const url = `${API_ENDPOINTS.DELIVERY.LOCATIONDROPDOWN}?id=${vendorId}`;
+    return this.get(url, token,);
+  }
+
+  getPanelOneDeliveryCount(vendorId: number, propeliBrId: number, token: string) {
+    const url = `${API_ENDPOINTS.DELIVERY.PANENELONE}?propeliBrId=${propeliBrId}&vendorId=${vendorId}`;
+    return this.get(url, token);
+  }
+
+  getPanelOneInventoryDetails(
+    vendorId: number,
+    propeliBrId: number,
+    token: string,
+    rteCd: string
+  ) {
+    const url = `${API_ENDPOINTS.DELIVERY.PANNELONEOVERLAY}?propeliBrId=${propeliBrId}&vendorId=${vendorId}&rteCd=${rteCd}`;
+    return this.get(url, token,);
+  }
+
+  getPanelOneIntrenalDetails(propeliBrId: number, rteCd: string, vendorId:number,token: string) {
+    const url = `${API_ENDPOINTS.DELIVERY.PANNELONESECONDOVERLAY}?propeliBrId=${propeliBrId}&rteCd=${rteCd}&vendorId=${vendorId}`;
+    return this.get(url, token);
+  }
+
+  getPanelThreeDeliveryData(propeliId: number, token: string, vendorId: number): Observable<any> {
+    const url = `${API_ENDPOINTS.DELIVERY.PANNELTHREE}?propeliId=${propeliId}&vendorId=${vendorId}`;
+    return this.get(url, token);
+  }
 }

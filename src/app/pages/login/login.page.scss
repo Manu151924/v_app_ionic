@@ -6,8 +6,31 @@
   align-items: center;
   position: relative;
 }
+.back-icon {
+    position: absolute;
+    top: calc(42vh - 95px);
+    left: 6%;
+    transform: translateX(-50%);
+    font-size: 25px;
+    color: #ffffff;
+    z-index: 3;
+    cursor: pointer;
+}
+
+
+.scroll-area {
+  position: absolute;
+  top: 50vh;       
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  padding-bottom: 250px; 
+  z-index: 5;
+}
+
 .product-text{
-width: 68px;
+    width: 68px;
     height: 14px;
     opacity: 1;
     position: relative;
@@ -20,11 +43,8 @@ width: 68px;
     white-space: nowrap;
     line-height: 100%;
     letter-spacing: 0%;
-    width: 68;
-    height: 14;
     opacity: 1;
     top: 145px;
-    /* left: 180.05px; */
 }
 
 .login-header {
@@ -45,7 +65,6 @@ width: 68px;
   z-index: 2;
 }
 
-/* ✅ Floating white card section */
 .login-card {
   background: #fff;
   border-radius: 22px;
@@ -72,7 +91,6 @@ width: 68px;
   border-right: 15px solid transparent;
   border-top: 20px solid #1A1B1B;
 }
-/* Title inside the card */
 .login-card h2 {
   font-size: 17px;
   font-weight: 500;
@@ -82,7 +100,6 @@ width: 68px;
   text-align: left;
 }
 
-/* Input styling */
 .custom-item {
   margin-bottom: 0;
   --background: #fff;
@@ -101,7 +118,6 @@ ion-input {
   border: none;
 }
 
-/* Send OTP button area */
 .actions, .otp-actions {
   margin-top: 22px;
   display: flex;
@@ -158,7 +174,6 @@ ion-button {
   letter-spacing: 0.5px;
 }
 
-/* Footer area */
 .footer {
   position: fixed;
   left: 0;
@@ -212,7 +227,7 @@ ion-button {
     top: 17vh;
   }
 }
-@media (min-width:360px) and (max-width:390px){
+@media (min-width:320px) and (max-width:390px){
   .resend-otp{
         margin-left: -15rem;
   }
@@ -222,7 +237,7 @@ ion-button {
     height: 14px;
     opacity: 1;
     position: relative;
-    left: 152.05px;
+    left: 150.05px;
     font-family: Roboto;
     font-weight: 500;
     font-style: Medium;
@@ -233,18 +248,8 @@ ion-button {
   }
 }
 
-.logo {
-  opacity: 0.45;
-  pointer-events: none;
-  transition: 0.25s ease;
-}
-
-.logo.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: scale(1);
-}
-
-.logo.active:active {
-  transform: scale(0.93);
+@media(min-width:390px) and (max-width:415px){
+  .product-text{
+    left:164.05px;
+  }
 }

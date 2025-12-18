@@ -1,14 +1,3 @@
-/* -------------------------
-    SAFE AREA / NOTCH FIX
---------------------------*/
-ion-header ion-toolbar {
-  padding-top: max(var(--sat), 12px); // notch fix
-  --background: #fff;
-}
-
-/* -------------------------
-      SEGMENT WRAPPER
---------------------------*/
 .segment-wrapper {
   display: flex;
   justify-content: center;

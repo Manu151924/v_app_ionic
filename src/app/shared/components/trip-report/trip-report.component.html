@@ -19,11 +19,11 @@
     @if(calendarKey){
     <mat-calendar
       [selected]="selectedDate"
+      [startAt]="selectedDate"
       [minDate]="minDate"
       [maxDate]="maxDate"
-      (selectedChange)="onDateChange($event)"
-    ></mat-calendar>
-
+      (selectedChange)="onDateChange($event)">
+    </mat-calendar>
     }
    
   </div>
@@ -72,20 +72,28 @@
               <tr>
                 <td class="veh-no">{{ ts.vehicle ?? ts.vehcleNoShort  }}</td>
 
-                <td>
-                  <span [ngClass]="getTextColorClass(ts.manifestedWB, ts.unloadedWB)">
-                    {{ ts.manifestedWB ?? '-' }}/{{ ts.unloadedWB ?? '-' }}
+                 <td>
+                  <span class="green">
+                    {{ ts.manifestedWB ?? '-' }}
+                  </span>
+                  /
+                  <span
+                    [ngClass]="isMatch(ts.manifestedWB, ts.unloadedWB) ? 'green' : 'red'">
+                    {{ ts.unloadedWB ?? '-' }}
                   </span>
                 </td>
 
+                <!-- MF vs ULD (PKGS) -->
                 <td>
-                  <span [ngClass]="getTextColorClass(ts.manifestedPkg, ts.unloadedPkg)">
+                  <span class="green">
                     {{ ts.manifestedPkg ?? '-' }}
                   </span>
                   /
-                  {{ ts.unloadedPkg ?? '-' }}
+                  <span
+                    [ngClass]="isMatch(ts.manifestedPkg, ts.unloadedPkg) ? 'green' : 'red'">
+                    {{ ts.unloadedPkg ?? '-' }}
+                  </span>
                 </td>
-
                 <td class="sh-ex">
                   <span
                     [class.red]="ts.shortExcessCount > 0"

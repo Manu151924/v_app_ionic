@@ -1,10 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  ChangeDetectorRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { BarChartModule } from '@swimlane/ngx-charts';
+import { Api } from '../../services/api';
 
+interface Branch {
+  branchId: number;
+  branchName: string;
+  branchCode: string;
+}
 
 interface RouteData {
   route: string;
@@ -12,90 +24,160 @@ interface RouteData {
   packages: number;
   weight: number;
   lyingHours: number;
+  color: string;
 }
 
 @Component({
   selector: 'app-inventory-card',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule],
-  templateUrl: 'inventory-card.component.html', 
-  styleUrls: [ 'inventory-card.component.scss'],
+  imports: [
+    CommonModule,
+    IonicModule,
+    FormsModule,
+    NgxSpinnerModule,
+    BarChartModule
+  ],
+  templateUrl: './inventory-card.component.html',
+  styleUrls: ['./inventory-card.component.scss']
 })
 export class InventoryCardComponent implements OnInit {
-  constructor(private router: Router){}
-  selectedBranch = 'DELHI-11';
-  branches = ['DELHI-11', 'DELHI-12', 'DELHI-13'];
-  
-  routesData: (RouteData & { color: string })[] = [];
-  totals = { waybills: 0, packages: 0, weight: 0 };
-  maxWaybills = 0;
 
-  private mockData: Record<string, RouteData[]> = {
-    'DELHI-11': [
-      { route: 'DWARKA', waybills: 120, packages: 240, weight: 2.4, lyingHours: 12 },
-      { route: 'KAROLBAGH', waybills: 79, packages: 190, weight: 1.9, lyingHours: 30 },
-      { route: 'UTTAMNAGAR', waybills: 16, packages: 60, weight: 0.9, lyingHours: 10 },
-      { route: 'MAHIPALPUR', waybills: 11, packages: 45, weight: 0.6, lyingHours: 28 },
-      { route: 'VASANTKUNJ', waybills: 9, packages: 40, weight: 0.5, lyingHours: 8 },
-    ],
-    'DELHI-12': [
-      { route: 'ASHOK VIHAR', waybills: 95, packages: 260, weight: 2.8, lyingHours: 18 },
-      { route: 'JANAKPURI', waybills: 33, packages: 100, weight: 1.2, lyingHours: 42 },
-      { route: 'PATEL NAGAR', waybills: 44, packages: 120, weight: 1.6, lyingHours: 20 },
-    ],
-    'DELHI-13': [
-      { route: 'OKHLA', waybills: 130, packages: 400, weight: 3.6, lyingHours: 14 },
-      { route: 'SAKET', waybills: 78, packages: 190, weight: 2.1, lyingHours: 29 },
-      { route: 'MEHRAULI', waybills: 65, packages: 170, weight: 1.9, lyingHours: 10 },
-    ],
+  @Input() deliveryVendorId!: number;
+
+  token = localStorage.getItem('accessToken') ?? '';
+
+  branches: Branch[] = [];
+  selectedBranchId!: number;
+  selectedBranchName = '';
+  selectedBranchCode = '';
+
+  routesData: RouteData[] = [];
+  axisData: { name: string; value: number }[] = [];
+
+  totals = {
+    waybills: 0,
+    packages: 0,
+    weight: 0
   };
 
-  ngOnInit() {
-    this.loadBranchData();
+  constructor(
+    private api: Api,
+    private router: Router,
+    private spinner: NgxSpinnerService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    console.log(' VendorId received:', this.deliveryVendorId);
+    this.loadBranches();
   }
 
-  loadBranchData(): void {
-    const data = this.mockData[this.selectedBranch] || [];
-    
-    this.maxWaybills = Math.max(...data.map(r => r.waybills), 0);
-    
-    this.routesData = data.map((r) => ({
-      ...r,
-      color: r.lyingHours > 24 ? '#ffb700' : '#22c55e', // yellow-500 : green-500
-    })).sort((a,b) => b.waybills - a.waybills);
+  loadBranches(): void {
+    this.spinner.show();
 
-    this.totals = {
-      waybills: data.reduce((sum, item) => sum + item.waybills, 0),
-      packages: data.reduce((sum, item) => sum + item.packages, 0),
-      weight: data.reduce((sum, item) => sum + item.weight, 0),
-    };
+    this.api.getDeliveryBranchDetails(this.token).subscribe({
+      next: res => {
+        if (res?.responseStatus && res.responseObject?.length) {
+          this.branches = res.responseObject;
+
+          const first = this.branches[0];
+          this.selectedBranchId = first.branchId;
+          this.selectedBranchName = first.branchName;
+          this.selectedBranchCode = first.branchCode;
+
+          localStorage.setItem('deliveryBranchId', String(first.branchId));
+
+          this.loadPanelOneCard();
+        } else {
+          this.spinner.hide();
+        }
+      },
+      error: err => {
+        this.spinner.hide();
+        console.error('Branch API error', err);
+      }
+    });
   }
 
-  onBranchChange(): void {
-    this.loadBranchData();
+  onBranchChange(event: any): void {
+    const branchId = event.detail.value;
+    const branch = this.branches.find(b => b.branchId === branchId);
+    if (!branch) return;
+
+    this.selectedBranchId = branch.branchId;
+    this.selectedBranchName = branch.branchName;
+    this.selectedBranchCode = branch.branchCode;
+
+    localStorage.setItem('deliveryBranchId', String(branch.branchId));
+
+    this.loadPanelOneCard();
   }
 
-handleRouteClick(routeData: RouteData): void {
-  this.router.navigate(['/inventory-route-modal'], {
-    queryParams: {
-      branch: this.selectedBranch,
-      route: routeData.route,
-      waybills: routeData.waybills,
-      packages: routeData.packages,
-      weight: routeData.weight,
-      lyingHours: routeData.lyingHours
+  loadPanelOneCard(): void {
+    if (!this.deliveryVendorId || !this.selectedBranchId) {
+      this.spinner.hide();
+      return;
     }
-  });
-}
-  getBarWidth(r: any): number {
-    const actualWidth = (r.waybills / this.maxWaybills) * 100;
-    const textLength = (r.route || '').length;
-    const minRequiredWidth = textLength * 2.5; 
-    const absoluteMin = 20;
-    const maxAllowed = 98;
-    let finalWidth = Math.max(actualWidth, minRequiredWidth, absoluteMin);
-    finalWidth = Math.min(finalWidth, maxAllowed);
-    return finalWidth;
+
+    this.spinner.show();
+
+    this.api
+      .getPanelOneDeliveryCount(
+        this.deliveryVendorId,
+        this.selectedBranchId,
+        this.token
+      )
+      .subscribe({
+        next: res => {
+          this.spinner.hide();
+          if (!res?.responseStatus) return;
+
+          const obj = res.responseObject;
+
+          this.totals = {
+            waybills: obj.waybillCount ?? 0,
+            packages: obj.totalPkgs ?? 0,
+            weight: obj.totalWt ?? 0
+          };
+
+          const routes = obj.routes ?? [];
+
+          this.routesData = routes
+            .map((r: any) => ({
+              route: r.rteCd,
+              waybills: Number(r.inventoryCount) || 0,
+              packages: r.totalPkgs ?? 0,
+              weight: r.totalWt ?? 0,
+              lyingHours: r.lyingHours ?? 0,
+              color: r.inventoryCount > 100 ? '#ffb700' : '#22c55e'
+            }))
+            .sort((a: { waybills: number; }, b: { waybills: number; }) => b.waybills - a.waybills);
+          this.axisData = this.routesData.map(r => ({
+            name: r.route,
+            value: r.waybills
+          }));
+
+          this.cdr.detectChanges();
+        },
+        error: err => {
+          this.spinner.hide();
+          console.error('PanelOne API error', err);
+        }
+      });
   }
 
+  getBarWidth(r: RouteData): number {
+    const max = Math.max(...this.routesData.map(x => x.waybills), 1);
+    return (r.waybills / max) * 100;
+  }
+
+  handleRouteClick(r: RouteData): void {
+    this.router.navigate(['/inventory-route-modal'], {
+      queryParams: {
+        rteCd: r.route,
+        branchId: this.selectedBranchId,
+        branchName: this.selectedBranchName
+      }
+    });
+  }
 }

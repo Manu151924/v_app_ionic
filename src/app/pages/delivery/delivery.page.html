@@ -1,5 +1,16 @@
-<ion-content>
-<app-inventory-card></app-inventory-card>
+<div>
+   <ngx-spinner
+    bdColor="rgba(255,255,255,0.1)"
+    color="#2ca85e"
+    size="large"
+    type="ball-clip-rotate"
+    [fullScreen]="true"
+  >
+    <p class="loader-text">Loading..</p>
+  </ngx-spinner>
+    @if(deliveryVendorId$ | async; as vendorId){
+    <app-inventory-card     [deliveryVendorId]="vendorId">  </app-inventory-card>
+    } 
   <div class="status-bar-row">
     <div class="status-pill">
       OFD: 330 | DELIVERED: 170 / PKG.400 / WT. 3 Ton
@@ -247,7 +258,7 @@
     [value]="progressValue"
     (valueChange)="onProgressChange($event)"
   ></app-progress-slider>
-</ion-content>
+</div>
 
 <ion-modal [isOpen]="calendarOpen">
   <ng-template>

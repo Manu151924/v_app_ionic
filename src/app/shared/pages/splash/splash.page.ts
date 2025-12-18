@@ -1,24 +1,35 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonContent } from '@ionic/angular/standalone';
+import { Auth } from '../../services/auth';
 
 @Component({
   selector: 'app-splash',
   templateUrl: './splash.page.html',
   styleUrls: ['./splash.page.scss'],
-  imports: [IonContent],
+  standalone: true
 })
 export class SplashPage implements OnInit {
-  constructor(private router: Router) {}
 
-  ngOnInit() {
-    const splash = document.querySelector('.splash-wrapper') as HTMLElement;
+  fadeOut = false;
+
+  constructor(
+    private router: Router,
+    private auth: Auth
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    await this.auth.restoreSession();
+
+    const isLoggedIn = this.auth.isAuthenticatedSnapshot();
+    const target = isLoggedIn ? '/home' : '/login';
 
     setTimeout(() => {
-      splash.classList.add('fade-out'); 
+      this.fadeOut = true;
+
       setTimeout(() => {
-        this.router.navigateByUrl('/login', { replaceUrl: true });
-      }, 600);
-    }, 3000);
+        this.router.navigateByUrl(target, { replaceUrl: true });
+      }, 800);
+
+    }, 1500);
   }
 }

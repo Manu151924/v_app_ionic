@@ -1,64 +1,150 @@
-   .inventory-card {
-  background: #fff;
-  border: 2px solid #108942;
-  border-radius: 14px;
-  padding: 6px 10px;
+.pan1-card {
+  border-radius: 1em;
+  border: 0.7em solid #27ae60;
+  box-shadow: none;
   width: 100%;
-  max-width: 360px;
-  margin: auto;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  color: #333;
-}
-
-    .header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-
-    .branch-select {
-      --background: transparent;
-      --padding-start: 0;
-      --inner-padding-end: 0;
-    }
-
-    ion-icon[name="location"] {
-        margin-right: 4px;
-    }
-    
-    ion-select {
-      font-weight: 600;
-      color: #108942;
-      font-size: 16px;
-      --padding-start: 8px;
-    }
-
-    .stats-box {
-      background: #525252;
-      color: #fff;
-      font-size: 11px;
-      padding: 6px 10px;
-      border-radius: 8px;
-      display: flex;
-      gap: 12px;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .title-row .title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #2d2d2d;
-      letter-spacing: 0.5px;
-    }
-
-.bar-list {
-  margin-top: 6px;
-  padding-left: 0;
+  margin: 8px auto;
   position: relative;
 }
-    
+
+.pan1-card-header {
+  background: #ffffff;
+  overflow: hidden;
+  margin: -4.2px;
+  padding: 0;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  box-shadow: inset 1em 1em 0.3em #27ae60;
+
+  .pan1-header-left {
+    width: 40%;
+    padding: 0.15em 0.6em 0.6em 0em;
+    background-color: #27ae60;
+    border-bottom-right-radius: 1em;
+    display: flex;
+  }
+
+  .pan1-header-right {
+    width: 59%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 242px;
+    background: #27ae60;
+    border-top-left-radius: 18px;
+    border-bottom-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
+    z-index: 0;
+  }
+
+  >* {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.location-dropdown {
+  background: #ffffff;
+  border-radius: 1em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0em 0.5em;
+  cursor: pointer;
+  transition: 0.2s ease;
+  flex-wrap: nowrap;
+  width: 100%;
+
+  &:hover {
+    background: #f7fff7;
+  }
+
+  .location-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .city-select {
+    --padding-start: 0;
+    --padding-end: 0;
+    --background: transparent;
+    color: #27ae60;
+    font-size: clamp(11px, 2.6vw, 13px);
+    font-weight: 600;
+    min-width: 65px;
+    --highlight-height: 0;
+  }
+
+  .arrow-icon {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.assigned-sfx {
+  display: flex;
+  align-items: flex-end;
+  background: #ffffff;
+  width: 100%;
+  padding: 0 0.2em;
+  border: -5px solid transparent;
+  height: 3.56em;
+  border-top-left-radius: 1em;
+  justify-content: flex-end;
+}
+
+.branch-select {
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+ion-icon[name="location"] {
+  margin-right: 4px;
+}
+
+
+.stats-box {
+  background: #525252;
+  color: #fff;
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.title-row {
+  margin-top: 0.7em;
+
+  .title {
+    font-size: 1em;
+    font-weight: 700;
+    color: #2d2d2d;
+    letter-spacing: 0.5px;
+    margin-left: 1em;
+  }
+}
+
+.bar-list {
+  margin: 0.5em 0 0 0.3em;
+  padding-left: 0;
+  position: relative;
+  height: 13vh;
+}
+
 .y-axis-label {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
@@ -73,13 +159,13 @@
 .bar-row {
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
+  margin: 0.2em 0;
   padding: 0;
 }
 
-    .bar-row:hover {
-        background-color: #f7f7f7;
-    }
+.bar-row:hover {
+  background-color: #f7f7f7;
+}
 
 .bar-container {
   height: 20px;
@@ -87,20 +173,19 @@
   background: #ececec;
   border-radius: 20px;
   overflow: hidden;
-  margin: 0 10px;
 }
 
-    .bar {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 0.4s ease-out;
-      display: flex;
-      width: 10%;
-      align-items: center;
-      padding-left: 10px;
-      position: relative;
-      color: #fff;
-    }
+.bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease-out;
+  display: flex;
+  width: 10%;
+  align-items: center;
+  padding-left: 10px;
+  position: relative;
+  color: #fff;
+}
 
 .route-name {
   width: 90px;
@@ -111,26 +196,142 @@
   font-size: 10px;
   line-height: 100%;
   letter-spacing: 0%;
+  white-space: nowrap;
 
 }
 
-    .count {
-      width: 30px;
-      text-align: right;
-      font-family: Roboto;
-      font-weight: 500;
-      font-style: Medium;
-      font-size: 12px;
-      line-height: 100%;
-      letter-spacing: 0%;
-    }
+.count {
+  width: 30px;
+  text-align: right;
+  font-family: Roboto;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 12px;
+  line-height: 100%;
+  letter-spacing: 0%;
+}
 
-    .footer-label {
-      text-align: center;
-      font-size: 11px;
-      font-weight: 600;
-      color: #555;
-      margin-top: 4px;
-      padding-top: 8px;
-      border-top: 1px solid #eee;
-    }
+.footer-label {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  padding-bottom: 1em;
+}
+
+.total-data {
+  display: flex;
+  color: #fff;
+  font-size: 0.55em;
+  height: 4.5em;
+  align-items: center;
+  max-width: 33.33%;
+}
+
+.total {
+  background-color: #656565;
+  display: flex;
+  justify-content: space-around;
+  font-weight: 500;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 0.2em;
+  width: 100%;
+}
+
+.total-label {
+  white-space: nowrap;
+}
+
+.total-values {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.avlInventory {
+padding: 0.4em;
+    width: 90%;
+    align-items: center;
+    align-content: space-between;
+    border-left: 2px solid #A5A5A5;
+    border-bottom: 2px solid #A5A5A5;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.pan1-card-content {
+display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+    align-items: center;
+}
+
+.route-card {
+position: relative;
+    width: 93%;
+    padding: 1em;
+}
+
+.y-axis-title {
+    position: absolute;
+    left: 1.51%;
+    top: 40%;
+    transform: rotate(-90deg) translateX(-50%);
+    transform-origin: left center;
+    font-size: 0.6em;
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+.chart-area {
+      position: relative;
+    border-left: 1px solid #A5A5A5;
+    border-bottom: 1px solid #A5A5A5;
+    padding: 0.3em;
+}
+
+.axis-chart {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.axis-chart rect.bar {
+  opacity: 0;
+}
+
+.axis-chart text {
+  display: none;
+}
+
+.axis-chart .x.axis path {
+  stroke: #2e7d32;
+  stroke-width: 1.5;
+}
+
+.bar {
+  height: 22px;
+  border-radius: 12px;
+  padding-left: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  display: flex;
+  align-items: center;
+}
+
+.count {
+  width: 30px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.footer {
+    text-align: center;
+    font-size: 0.6em;
+    color: #2e7d32;
+    font-weight: 600;
+}

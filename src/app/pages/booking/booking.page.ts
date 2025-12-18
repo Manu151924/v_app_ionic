@@ -27,7 +27,6 @@ import { NotManifestedModalComponent } from 'src/app/shared/modal/not-manifisted
 import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart.component';
 import { ProgressSliderComponent } from 'src/app/shared/components/progress-slider/progress-slider.component';
 
-import { Delivery } from 'src/app/shared/services/delivery';
 import { Api } from 'src/app/shared/services/api';
 
 import { Observable, of } from 'rxjs';
@@ -66,7 +65,6 @@ interface DraftWaybillsData {
   pickupDate: string;
 }
 
-// -----------------------------------------------------------------------------------
 
 @Component({
   selector: 'app-booking',
@@ -121,12 +119,10 @@ export class BookingPage implements OnInit {
   ];
 
   interchangeWaybill = 0;
-  // marketVehicleReq = 3;
   paidOutstanding = 0;
   marketVehReq = 0;
   weightVolumePercent = 0;
 
-  // Panel-4
   totalWaybill = 0;
   waybill = 0;
   wbEditedPercent = 0;
@@ -145,6 +141,11 @@ export class BookingPage implements OnInit {
     'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
     'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
   };
+  getPercent(index: number): number {
+  const max = Math.max(...this.statusList.map(s => s.value || 0));
+  return max ? (this.statusList[index].value / max) * 100 : 0;
+}
+
 
   constructor(
     private spinner: NgxSpinnerService,
@@ -182,7 +183,7 @@ doRefresh(event: any) {
     this.fetchPanelFourData(branchId),
   ])
   .finally(() => {
-    event.target.complete();  // VERY IMPORTANT
+    event.target.complete(); 
   });
 }
   // -------------------------------- Branch Load -------------------------------------
@@ -201,9 +202,6 @@ doRefresh(event: any) {
 
           this.selectedBranchId = this.branchList[0].branchId;
           localStorage.setItem("branchId", this.selectedBranchId.toString());
-
-          // this.assignedSfx = this.branchList[0].assignedSfxCount;
-
           this.fetchPanelOneCount(this.selectedBranchId);
           this.fetchPanelThreeData(this.selectedBranchId);
           this.fetchPanelFourData(this.selectedBranchId);
@@ -322,14 +320,12 @@ doRefresh(event: any) {
           this.totalWaybill = d.booked ?? 0;
           this.waybill = d.wb ?? 0;
           this.wbEditedPercent = d.wbEdited ?? 0;
-
-          // -------------------- Correct Calculation (Edited is % NOT count) --------------------
           const editedCount = Math.round((this.wbEditedPercent / 100) * this.waybill);
           const notEditedCount = this.waybill - editedCount;
 
             this.pieChartData$ = of([
-              { name: 'Edited', value: this.wbEditedPercent },           // e.g. 30%
-              { name: 'Not Edited', value: 100 - this.wbEditedPercent }  // e.g. 70%
+              { name: 'Edited', value: this.wbEditedPercent },          
+              { name: 'Not Edited', value: 100 - this.wbEditedPercent }  
             ]);
 
           this.weightVolume = d.weightVolume ?? 0;
@@ -470,9 +466,9 @@ doRefresh(event: any) {
     }
   }
   getBarWidth(value: number): string {
-  if (!value || value === 0) return '5%';   // minimum width so label is visible
+  if (!value || value === 0) return '5%'; 
 
-  const max = 10; // you can change logic
+  const max = 10;
   const percentage = (value / max) * 100;
 
   return Math.min(percentage, 100) + '%';

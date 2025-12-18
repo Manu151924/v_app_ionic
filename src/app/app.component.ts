@@ -2,7 +2,8 @@ import { Component, inject } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { IonApp, IonRouterOutlet, ToastController } from '@ionic/angular/standalone';
 import { NgxSpinnerModule } from "ngx-spinner";
-import { Keyboard } from '@capacitor/keyboard';
+import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
+
 import { Capacitor } from '@capacitor/core';
 
 @Component({
@@ -11,25 +12,27 @@ import { Capacitor } from '@capacitor/core';
   imports: [IonApp, IonRouterOutlet, NgxSpinnerModule],
 })
 export class AppComponent {
+
   private router = inject(Router);
-  private toastCtrl = inject(ToastController);
 
   constructor() {
     this.enableKeyboardAdjustment();
     this.handleInputBlurOnNavigation();
     this.logViewportDetails();
-    this.showSplashEveryThreeSeconds();
   }
 
   private enableKeyboardAdjustment() {
     if (!Capacitor.isNativePlatform()) return;
 
+    Keyboard.setResizeMode({ mode: KeyboardResize.Body });
+    Keyboard.setScroll({ isDisabled: false });
+
     Keyboard.addListener('keyboardWillShow', () => {
-      document.body.classList.add('keyboard-is-open');
+      document.body.classList.add('keyboard-open');
     });
 
     Keyboard.addListener('keyboardWillHide', () => {
-      document.body.classList.remove('keyboard-is-open');
+      document.body.classList.remove('keyboard-open');
     });
   }
 
@@ -43,18 +46,5 @@ export class AppComponent {
         (document.activeElement as HTMLElement)?.blur();
       }
     });
-  }
-
-  private showSplashEveryThreeSeconds() {
-    const lastShown = localStorage.getItem('lastSplashTime');
-    const now = Date.now();
-    const gap = 5000;
-
-    if (!lastShown || now - +lastShown > gap) {
-      localStorage.setItem('lastSplashTime', now.toString());
-      this.router.navigateByUrl('/splash', { replaceUrl: true });
-    } else {
-      this.router.navigateByUrl('/login', { replaceUrl: true });
-    }
   }
 }

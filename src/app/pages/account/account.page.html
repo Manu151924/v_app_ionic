@@ -1,3 +1,4 @@
+<ion-content class="account-content">
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
@@ -6,9 +7,6 @@
     <ion-title>My Account</ion-title>
   </ion-toolbar>
 </ion-header>
-
-<ion-content class="account-content">
-
   <!-- PROFILE CARD -->
   <ion-card class="profile-card" (click)="openProfileDetails()">
     <div class="profile-row">
@@ -49,13 +47,13 @@
   </ion-card> -->
 
   <!-- FOOTER -->
-  <div class="footer">
+  <div class="footer-two">
     <ion-card class="logout-card" (click)="logout()">
       <ion-icon name="power-outline" class="logout-icon"></ion-icon>
       <span>Logout</span>
     </ion-card>
 
-    <p class="version">{{ version }}</p>
+    <span class="version">Version {{ version }}</span>
   </div>
 
 </ion-content>

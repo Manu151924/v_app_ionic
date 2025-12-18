@@ -1,0 +1,98 @@
+
+  <ngx-spinner
+    bdColor="rgba(255,255,255,0.1)"
+    color="#2ca85e"
+    size="large"
+    type="ball-clip-rotate"
+    [fullScreen]="true">
+    <p class="loader-text">Loading...</p>
+  </ngx-spinner><ion-header>
+  <ion-toolbar>
+    <ion-button slot="start" fill="clear" (click)="goBack()">
+  <ion-icon name="arrow-back"></ion-icon>
+</ion-button>
+
+
+    <ion-title>AVL. INVENTORY</ion-title>
+
+    <ion-button slot="end" class="branch-btn">
+      {{ backBranchName }}
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <!-- SUMMARY STRIP -->
+  <div class="top-bar">
+    <ion-segment-button class="seg">WB Count</ion-segment-button>
+
+    <div class="chip-group">
+      <div class="chip">WAYBILLS: {{ summary.waybills }}</div>
+      <div class="chip">PKGS: {{ summary.packages }}</div>
+      <div class="chip">WT (T): {{ summary.weight }}</div>
+    </div>
+     <span class="route-name">{{ rteCd }}</span>
+  </div>
+
+  <!-- AGE CARD -->
+  <ion-card class="age-card">
+    <div class="side-label" [ngClass]="ageType === '<24' ? 'green-bg' : 'yellow-bg'">
+      {{ ageType === '<24' ? '< 24 Hours' : '> 24 Hours' }}
+    </div>
+
+    <div class="age-content">
+      <div class="count">
+        <label>Waybill Count</label>
+        <h1>{{ summary.waybills | number:'2.0' }}</h1>
+      </div>
+
+      <div class="stat">
+        <label>Packages</label>
+        <p>{{ summary.packages }}</p>
+      </div>
+
+      <div class="stat">
+        <label>Weight (T)</label>
+        <p>{{ summary.weight }}</p>
+      </div>
+    </div>
+  </ion-card>
+
+  <!-- WAYBILL LIST -->
+  <div class="list-card" *ngFor="let wb of waybillList">
+    <div class="list-header">
+      <span>Waybill No.</span>
+      <span>Package</span>
+      <span>Weight (T)</span>
+      <span>Arrived On</span>
+      <span>Inv. Age</span>
+    </div>
+
+    <div class="list-row">
+      <span>{{ wb.waybillNo }}</span>
+      <span>{{ wb.packages }}</span>
+      <span>{{ wb.weight }}</span>
+      <span>{{ wb.arrivedOn }}</span>
+      <span class="green-text">{{ wb.invAge }}</span>
+    </div>
+
+    <div class="list-footer">
+      <div>
+        <label>Consignee</label>
+        <p>{{ wb.consignee }}</p>
+      </div>
+
+      <div class="to-pay">
+        <label>To Pay</label>
+        <p class="red">{{ wb.toPay > 0 ? (wb.toPay | number) : '-' }}</p>
+      </div>
+
+      <div class="vas">
+        <span *ngIf="!wb.vas.length">-</span>
+        <span *ngFor="let v of wb.vas">{{ v }}</span>
+      </div>
+    </div>
+  </div>
+
+</ion-content>

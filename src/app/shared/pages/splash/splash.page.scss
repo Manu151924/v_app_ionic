@@ -1,27 +1,29 @@
 .splash-content {
-  --background: #ffffff; 
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
+  background: #ffffff;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 .splash-wrapper {
+  position: fixed;
+  inset: 0;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
-  width: 100vw;
+  justify-content: center;
   overflow: hidden;
-  position: relative;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .splash-gif {
-  height: 100%;
   width: 100%;
-  object-fit: cover; 
+  height: 100%;
+  object-fit: cover;
   object-position: center;
+
   animation: fadeIn 0.8s ease-in-out;
 }
 
@@ -41,9 +43,6 @@
 }
 
 @keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
   to {
     opacity: 0;
   }

@@ -1,14 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButtons,
-  IonBackButton, IonCard, IonIcon, IonButton, NavController, AlertController
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonCard,
+  IonIcon,
+  NavController,
+  AlertController
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { addIcons } from 'ionicons';
-import { personCircleOutline, powerOutline, busOutline } from 'ionicons/icons';
-import { Api } from 'src/app/shared/services/api';
+import { personCircleOutline, powerOutline, busOutline, person } from 'ionicons/icons';
 import { environment } from 'src/environments/environment';
+
+import { Api } from 'src/app/shared/services/api';
+import { Auth } from 'src/app/shared/services/auth';
+import { AppStorageService } from 'src/app/shared/services/app-storage';
 
 @Component({
   selector: 'app-account',
@@ -16,64 +27,119 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./account.page.scss'],
   standalone: true,
   imports: [
-    IonIcon, IonCard, IonBackButton, IonButtons,
-    IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule
-  ]
+    IonIcon,
+    IonBackButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    CommonModule,
+    FormsModule,
+    IonCard
+]
 })
 export class AccountPage implements OnInit {
 
-  vendorName: string = '';
+  private navCtrl = inject(NavController);
+  private alertCtrl = inject(AlertController);
+  private api = inject(Api);
+  private storage = inject(AppStorageService);
+  private auth = inject(Auth);
 
-  constructor(
-    private navCtrl: NavController,
-    private alertCtrl: AlertController,
-    private api: Api
-  ) {
-    addIcons({personCircleOutline,busOutline,powerOutline});
+  vendorName = 'My Profile';
+  version = environment.version;
+
+  constructor() {
+    addIcons({person,powerOutline,personCircleOutline,busOutline});
   }
 
-  ngOnInit() {
-    this.vendorName = localStorage.getItem("vendorName") ?? "My Profile";
+  /* ---------------- Lifecycle ---------------- */
+
+  async ngOnInit() {
+    const user = await this.storage.getUserDetails();
+    this.vendorName = user?.vendorName || 'My Profile';
   }
-    version = environment.version;
-  
 
-openProfileDetails() {
+  /* ---------------- Profile Details ---------------- */
 
-  const segment = localStorage.getItem("activeSegment") || "booking";
+  // async openProfileDetails() {
+  //   const user = await this.storage.getUserDetails();
 
-  const vendorId =
-    segment === "booking"
-      ? localStorage.getItem("bookingVendorId")
-      : localStorage.getItem("deliveryVendorId");
+  //   if (!user) {
+  //     console.error('User details missing');
+  //     return;
+  //   }
 
-  const token = localStorage.getItem("accessToken");
+  //   // Decide vendor based on availability
+  //   const vendorId =
+  //     user.vendorType?.includes('BOOKING')
+  //       ? user.bookingVendorId
+  //       : user.deliveryVendorId;
 
-  if (!vendorId || !token) {
-    console.error("Missing vendorId or token");
+  //   if (!vendorId) {
+  //     console.error('VendorId not available');
+  //     return;
+  //   }
+
+  //   const token = await this.auth.getAccessToken();
+  //   if (!token) {
+  //     console.error('Access token missing');
+  //     return;
+  //   }
+
+  //   this.api.getVendorDetails(vendorId, token).subscribe({
+  //     next: async (res) => {
+  //       // Persist vendor details in Ionic Storage
+  //       await this.storage.updateUserDetails({
+  //         vendorName: res.vendorName ?? '',
+  //         vendorEmail: res.userEmail ?? '',
+  //         vendorGstin: res.gstin ?? '',
+  //         vendorPhone: res.userPhone ?? ''
+  //       });
+
+  //       this.navCtrl.navigateForward('/profile-details');
+  //     },
+  //     error: (err) => {
+  //       console.error('Vendor API Error:', err);
+  //     }
+  //   });
+  // }
+  async openProfileDetails() {
+  const vendorId = await this.storage.getActiveVendorId();
+
+  if (!vendorId) {
+    console.error('VendorId not available');
     return;
   }
 
-  this.api.getVendorDetails(vendorId, token).subscribe({
-    next: (res) => {
-      console.log("Vendor Details:", res);
+  const token = await this.auth.getAccessToken();
+  if (!token) {
+    console.error('Access token missing');
+    return;
+  }
 
-      localStorage.setItem("vendorName", res.vendorName ?? "");
-      localStorage.setItem("vendorEmail", res.userEmail ?? "");
-      localStorage.setItem("vendorGstin", res.gstin ?? "");
-      localStorage.setItem("vendorPhone", res.userPhone ?? "");
-      localStorage.setItem("contactList", JSON.stringify(res.contactList ?? []));
+  console.log('Calling Vendor API with VendorId:', vendorId);
+
+  this.api.getVendorDetails(vendorId, token).subscribe({
+    next: async (res) => {
+      await this.storage.updateUserDetails({
+        vendorName: res.vendorName ?? '',
+        vendorEmail: res.userEmail ?? '',
+        vendorGstin: res.gstin ?? '',
+        vendorPhone: res.userPhone ?? ''
+      });
 
       this.navCtrl.navigateForward('/profile-details');
     },
     error: (err) => {
-      console.error("Vendor API Error:", err);
+      console.error('Vendor API Error:', err);
     }
   });
 }
 
 
-
+  /* ---------------- Logout ---------------- */
 
   async logout() {
     const alert = await this.alertCtrl.create({
@@ -83,8 +149,8 @@ openProfileDetails() {
         { text: 'Cancel', role: 'cancel' },
         {
           text: 'Logout',
-          handler: () => {
-            localStorage.clear();
+          handler: async () => {
+            await this.auth.logout();
             this.navCtrl.navigateRoot('/login');
           }
         }
@@ -93,5 +159,4 @@ openProfileDetails() {
 
     await alert.present();
   }
-
 }

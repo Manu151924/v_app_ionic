@@ -34,17 +34,15 @@ body {
 @import "@ionic/angular/css/flex-utils.css";
 
 :root {
-  --ion-color-primary: #27AE60;
+  --ion-color-primary: #27ae60;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-secondary: #0163aa;
-  --ion-color-tertiary: #FFBC00;
+  --ion-color-tertiary: #ffbc00;
   --ion-color-success: #2dd55b;
-  --ion-color-danger: #B00021;
+  --ion-color-danger: #b00021;
   --ion-color-medium: #636469;
-  --ion-color-light: #EFEFEF;
+  --ion-color-light: #efefef;
 }
-
-
 
 ion-popover {
   --background: #efefef !important;
@@ -54,8 +52,12 @@ ion-content {
   --background: #efefef;
   --padding-start: 0.5em;
   --padding-end: 0.5em;
+  --padding-bottom: 60px;
+
 
 }
+
+
 @media (max-width: 375px) {
   .card-welcome {
     width: 100%;
@@ -86,8 +88,6 @@ ion-content {
     height: auto;
     padding: 6px 8px;
   }
-
-
 
   .custom-dropdown {
     width: 100px;
@@ -129,8 +129,6 @@ ion-content {
     padding-left: 8px;
   }
 
-
-
   .custom-dropdown {
     width: 110px;
     font-size: 13px;
@@ -167,8 +165,6 @@ ion-content {
     padding: 10px;
   }
 
-
-
   .custom-dropdown {
     width: 115px;
     font-size: 14px;
@@ -185,6 +181,7 @@ ion-content {
   border: none;
   min-width: 0;
 }
+
 @media (max-width: 360px) {
   .assigned-sfx {
     flex-direction: column;
@@ -238,11 +235,11 @@ ion-content {
 }
 
 .card-main.red {
-  color: #B00021;
+  color: #b00021;
 }
 
 .card-main.green {
-  color: #1A1A1A;
+  color: #1a1a1a;
   font-family: Roboto, sans-serif;
   font-weight: 500;
   font-size: 18px;
@@ -270,49 +267,27 @@ ion-content {
   white-space: nowrap;
 }
 
-@media (max-width: 700px) {
-
-  .summary-card,
-  .snapshot-card,
-  .card-welcome {
-    border-radius: 8px;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .snapshot-content {
-    padding: 0;
-    gap: 0;
-  }
-
-  .donut-section {
-    min-width: 98px;
-  }
-}
-
 .snapshot-card {
   border-radius: 14px;
-  box-shadow: 0 2px 10px #ebebeb;
+  box-shadow: none;
+  width: 100%;
+  margin: 0;
   padding: 13px 12px 8px 12px;
-  margin: 20px 8px 10px 8px;
-  min-width: 300px;
 }
 
 .snapshot-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
   position: relative;
-  top: 4px;
+  margin-bottom: 0;
+  top: 0;
 
   .snapshot-title {
-    font-weight: 700;
-    color: #2d2d2d;
-    font-size: 14px;
-    left: 2px;
+    font-weight: 500;
+    font-size: 1em;
+    color: #000000;
     position: relative;
-
   }
 
   .snapshot-dropdown {
@@ -320,7 +295,7 @@ ion-content {
     border-radius: 7px;
     height: 35px;
     font-size: 12px;
-    background: #11C15B;
+    background: #11c15b;
     color: #fff;
     border: none;
     font-family: Roboto, Arial, sans-serif;
@@ -350,7 +325,7 @@ ion-content {
 }
 
 ion-popover {
-  --min-width: 100px;
+  --min-width: 180px;
   --max-width: 120px;
 
   ion-item {
@@ -361,28 +336,29 @@ ion-popover {
 
 .snapshot-content {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
-  gap: 16px;
+  gap: 0;
   width: 100%;
-  padding: 10px 0;
+  justify-content: flex-start;
+  height: 13em;
 
   .donut-section {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     position: relative;
     min-width: 160px;
+    width: 50%;
+    height: 100%;
 
     .donut-chart-wrapper {
       position: relative;
-      width: 150px;
-      height: 150px;
+      width: 100%;
+      height: 100%;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: flex-start;
 
       ngx-charts-pie-chart {
         overflow: visible !important;
@@ -406,9 +382,9 @@ ion-popover {
         z-index: 2;
 
         .donut-value {
-          font-size: 20px;
+          font-size: 1.5em;
           font-weight: 700;
-          color: #02834A;
+          color: #02834a;
         }
 
         .donut-label {
@@ -420,12 +396,15 @@ ion-popover {
     }
 
     .donut-stat-row {
-      margin-top: 3px;
       font-size: 13px;
       display: flex;
-      justify-content: center;
       gap: 4px;
       margin-left: 7rem;
+      position: absolute;
+      bottom: 2em;
+      right: 0.5em;
+      align-items: center;
+      justify-content: flex-end;
 
       .donut-stat-label {
         font-weight: 500;
@@ -441,11 +420,10 @@ ion-popover {
         letter-spacing: 0%;
         top: 790.08px;
         left: 166px;
-
       }
 
       .donut-stat-value {
-        color: #32917a;
+        color: #0AB3A2;
         font-family: Roboto;
         font-weight: 700;
         font-style: Bold;
@@ -457,15 +435,16 @@ ion-popover {
   }
 
   .divider-line {
-    width: 1px;
-    height: 120px;
-    background-color: #dcdcdc;
+    width: 1.6px;
+    height: 11em;
+    background: rgba(220, 220, 220, 0.9);
+    border-radius: 20px;
   }
 
   .snapshot-bars2 {
-    flex: 1;
-    width: 100%;
-    padding-left: 8px;
+    width: 50%;
+    padding-left: 1em;
+    height: 11em;
 
     .bar-section {
       margin-bottom: 10px;
@@ -567,7 +546,6 @@ ion-popover {
   border-radius: 50%;
 }
 
-
 /* Bottom sheet modal shape */
 .sfx-modal .modal-wrapper {
   border-radius: 20px 20px 0 0;
@@ -593,4 +571,25 @@ ion-modal.sfx-modal::part(backdrop) {
 
 .bottom-sheet-modal::part(backdrop) {
   background: rgba(0, 0, 0, 0.35);
+}
+
+.today-btn {
+  background: #11c15b;
+  color: #fff;
+  border: none;
+  border-radius: 0.7em;
+  font-family: Roboto, Arial, sans-serif;
+  font-size: 0.858em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin: 0;
+
+  &:hover {
+    background: #16a34a;
+  }
+}
+
+.large-field {
+  width: 45%;
 }

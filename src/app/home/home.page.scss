@@ -1,59 +1,62 @@
-.segment-wrapper {
+.figma-pill {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 70%;
-  padding: 4px 0;
+  background: #f3f3f3;
+  border-radius: 999px;
+  width: 60%;
+  max-width: 340px;
+  border: 1px solid #C3C3C3;
 }
 
-/* Responsive capsule segment */
-.custom-segment {
-  --background: transparent;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 70%;   /* fluid - auto scales */
-  max-width: 260px;
-  min-width: 200px;
-  height: 32px;
-  padding: 2px;
-  border-radius: 40px;
-  background: #f5f5f5;
-}
-
-ion-segment-button {
-  --color: #8c8c8c;
-  --background: transparent;
-  --indicator-color: transparent;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  border-radius: 50px;
-  transition: all 0.25s ease-in-out;
-  height: 28px;
-  line-height: 28px;
+/* Each segment */
+.pill-btn {
   flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  &.segment-button-checked {
-    --background: #ffffff;
-    --color: #27ae60;
-    border: 1px solid #27ae60;
-  }
+  height: 30px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #C3C3C3;
+  font-weight: 600;
+  font-size: 11px;
+  position: relative;
+  z-index: 1;
 }
 
-ion-label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+.figma-pill.booking .delivery {
+  margin-left: -22px;
+  margin-right: -22px;
+  z-index: 1; 
 }
 
-/* -------------------------
-        BELL BADGE
---------------------------*/
+.figma-pill.booking .booking,
+.figma-pill.delivery .delivery,
+.figma-pill.network .network {
+  background: #ffffff;
+  border: 2px solid #27ae60;
+  color: #27ae60;
+  z-index: 5;
+}
+.pill-btn.active {
+  background: #ffffff;
+  border: 2px solid #27ae60;
+  color: #27ae60;
+  z-index: 5;
+}
+
+.figma-pill.booking .delivery {
+  margin-left: -22px;
+  margin-right: -22px;
+  // border: 1px solid;
+}
+
+.figma-pill.network .delivery {
+  border: 1px solid;
+  margin-left: -22px;
+  margin-right: -22px;
+}
+ion-toolbar{
+ --background: #efefef !important;
+
+}
 .bell-container {
   position: relative;
   display: flex;
@@ -70,122 +73,6 @@ ion-label {
   border-radius: 10px;
   background: #41b883;
   color: #fff;
+}.hidden {
+  display: none !important;
 }
-
-
-.custom-tab-bar {
-  --background: #fff;
-  border-radius: 24px 24px 0 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  padding: 0 12px;
-}
-
-.nav-buttons {
-  width: 100%;
-  display: flex;
-  justify-content: space-around;
-}
-
-.nav-btn {
-  position: relative;
-  flex-direction: column;
-  --padding-start: 0;
-  --padding-end: 0;
-  color: #555;
-
-  &.ion-activated,
-  &.ion-focused,
-  &.ion-selected {
-    color: #3880ff;
-  }
-}
-
-.badge {
-  position: absolute;
-  top: -8px;
-  right: 20px;
-  font-size: 0.65rem;
-}
-.footer-container {
-  background: transparent;
-  border: none;
-}
-
-.tab-bar {
-  position: relative;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background: #fff;
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 8px 0;
-  height: 64px;
-}
-
-.center-button {
-  position: absolute;
-  top: -26px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-}
-
-.home-btn {
-  --border-radius: 50%;
-  width: 56px;
-  height: 56px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  --background: #26AD60;
-}
-
-.home-btn ion-icon {
-  font-size: 22px;
-}
-
-.home-btn ion-label {
-  display: none;
-}
-.home-label{
-  display: flex;
-  justify-content: center;
-}
-
-.tab-item {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  --padding-start: 0;
-  --padding-end: 0;
-  color: #555;
-  font-size: 12px;
-}
-
-.tab-item ion-icon {
-  font-size: 22px;
-  margin-bottom: 2px;
-}
-
-/* badge */
-.task-badge {
-  position: absolute;
-  top: -12px;
-  right: 12px;
-  font-size: 9px;
-  padding: 2px 5px;
-  border-radius: 8px;
-  font-weight: 700;
-  color: #fff;
-}
-
-/* active state */
-.tab-item.ion-activated,
-.tab-item.ion-focused,
-.tab-item.ion-selected {
-  color: #41b883;
-}
-

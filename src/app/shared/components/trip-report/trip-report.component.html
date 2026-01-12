@@ -1,9 +1,24 @@
-<div class="today-btn-container">
-  <ion-button fill="clear" class="today-btn" (click)="toggleCalendar($event)">
-    {{ selectedDateLabel }}
-    <img src="assets/icon/fit.png" alt="arrow-down" />
-  </ion-button>
-</div>
+<div class="container">
+  <div class="today-btn-container">
+    <ion-button fill="clear" class="today-btn" (click)="toggleCalendar($event)">
+      {{ selectedDateLabel }}
+      <img src="assets/icon/fit.png" alt="arrow-down" class="arrow-down" />
+    </ion-button>
+  </div>
+  @if (showCalendar) {
+  <div class="calendar-popup" (click)="$event.stopPropagation()">
+    @if(calendarKey){
+    <mat-calendar
+      [selected]="selectedDate"
+      [startAt]="selectedDate"
+      [minDate]="minDate"
+      [maxDate]="maxDate"
+      (selectedChange)="onDateChange($event)"
+    >
+    </mat-calendar>
+    }
+  </div>
+  }
   <ngx-spinner
     bdColor="rgba(255,255,255,0.1)"
     color="#2ca85e"
@@ -14,137 +29,174 @@
     <p class="loader-text">Loading..</p>
   </ngx-spinner>
 
-@if (showCalendar) {
-  <div class="calendar-popup" (click)="$event.stopPropagation()">
-    @if(calendarKey){
-    <mat-calendar
-      [selected]="selectedDate"
-      [startAt]="selectedDate"
-      [minDate]="minDate"
-      [maxDate]="maxDate"
-      (selectedChange)="onDateChange($event)">
-    </mat-calendar>
-    }
-   
-  </div>
-}
+  <div class="trip-report-card">
+    <div class="header-row">
+      <div class="header-left">
+        <div class="trip-status-header">
+          <div class="trip-name">
+            <img src="assets/icon/trip.png" alt="trip" />
 
-<div class="trip-report-card">
-  <div class="header-row">
-    <div class="header-left">
-      <img src="assets/icon/trip.png" alt="trip" />
-      <span class="title">Trip Status</span>
-      <span class="big-count green">{{ tripStatusRows.length }}</span>
-    </div>
+            <div class="trip-title">
+              <span class="title">Trip Status</span>
+              <span class="sub">(Short/Excess)</span>
+            </div>
+          </div>
 
-    <div class="header-right">
-      <img src="assets/icon/absent.png" alt="absent" />
-      <span class="title">Absent</span>
-      <span class="count red">{{ absentRows.length }}</span>
-    </div>
-  </div>
+          <span class="big-count green">{{ tripStatusRows.length }}</span>
+        </div>
+        <div class="trip-status-data">
+          <div class="table-left">
+            <table class="trip-table">
+              <thead>
+                <tr>
+                  <th>VEH No.</th>
+                  <th class="mf-uld-header">
+                    <span class="mf">MF </span>
+                    <span class="vs">vs </span>
+                    <span class="uld">ULD (WB)</span>
+                  </th>
+                  <th>
+                    <span class="mf">MF</span>
+                    <span class="vs"> vs </span>
+                    <span class="mf">ULD (Pkgs.)</span>
+                  </th>
+                  <th>SH/EX</th>
+                </tr>
+              </thead>
 
-  <div class="tables-row">
-    <!-- LEFT TABLE -->
-    <div class="table-left">
-      <table class="trip-table">
-        <thead>
-          <tr>
-            <th>VEH No.</th>
-            <th class="mf-uld-header">
-              <span class="mf">MF </span>
-              <span class="vs">vs </span>
-              <span class="uld">ULD (WB)</span>
-            </th>
-             <th>
-              <span class="mf">MF</span>
-              <span class="vs"> vs </span>
-              <span class="mf">ULD</span>
-              <span class="wb">(Pkgs.)</span>
-            </th>
-            <th>SH/EX</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @if (visibleTripStatusRows.length > 0) {
-            @for (ts of visibleTripStatusRows; track $index) {
-              <tr>
-                <td class="veh-no">{{ ts.vehicle ?? ts.vehcleNoShort  }}</td>
-
-                 <td>
-                  <span class="green">
-                    {{ ts.manifestedWB ?? '-' }}
-                  </span>
-                  /
-                  <span
-                    [ngClass]="isMatch(ts.manifestedWB, ts.unloadedWB) ? 'green' : 'red'">
-                    {{ ts.unloadedWB ?? '-' }}
-                  </span>
-                </td>
-
-                <!-- MF vs ULD (PKGS) -->
-                <td>
-                  <span class="green">
-                    {{ ts.manifestedPkg ?? '-' }}
-                  </span>
-                  /
-                  <span
-                    [ngClass]="isMatch(ts.manifestedPkg, ts.unloadedPkg) ? 'green' : 'red'">
-                    {{ ts.unloadedPkg ?? '-' }}
-                  </span>
-                </td>
-                <td class="sh-ex">
-                  <span
-                    [class.red]="ts.shortExcessCount > 0"
-                    (click)="openShExModal(ts.manifestNo, ts.vehcleNo)"
+              <tbody>
+                @if (visibleTripStatusRows.length > 0) { @for (ts of
+                visibleTripStatusRows; track $index) {
+                <tr>
+                  <td
+                    class="veh-no clickable"
+                    (click)="showPopover($event, ts.manifestNo)"
                   >
-                    {{ ts.shortExcessCount > 0 ? ts.shortExcessCount : '-' }}
-                  </span>
-                </td>
-              </tr>
-            }
-          } @else {
-            <tr><td colspan="4" class="no-data">No Trip Data Found</td></tr>
-          }
-        </tbody>
-      </table>
+                    {{ ts.vehicle ?? ts.vehcleNoShort }}
+                  </td>
+
+                  <td>
+                    <span class="green">
+                      {{ ts.manifestedWB ?? "-" }}
+                    </span>
+                    /
+                    <span
+                      [ngClass]="
+                        isMatch(ts.manifestedWB, ts.unloadedWB)
+                          ? 'green'
+                          : 'red'
+                      "
+                    >
+                      {{ ts.unloadedWB ?? "-" }}
+                    </span>
+                  </td>
+
+                  <!-- MF vs ULD (PKGS) -->
+                  <td>
+                    <span class="green">
+                      {{ ts.manifestedPkg ?? "-" }}
+                    </span>
+                    /
+                    <span
+                      [ngClass]="
+                        isMatch(ts.manifestedPkg, ts.unloadedPkg)
+                          ? 'green'
+                          : 'red'
+                      "
+                    >
+                      {{ ts.unloadedPkg ?? "-" }}
+                    </span>
+                  </td>
+                  <td class="sh-ex">
+                    <span
+                      [class.red]="ts.shortExcessCount > 0"
+                      (click)="openShExModal(ts.manifestNo, ts.vehcleNo)"
+                    >
+                      {{ ts.shortExcessCount > 0 ? ts.shortExcessCount : "-" }}
+                    </span>
+                  </td>
+                </tr>
+                } } @else {
+                <tr>
+                  <td colspan="4" class="no-data">No Trip Data Found</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="absent-vehicle-header">
+          <div class="absent-name">
+            <img src="assets/icon/absent.png" alt="absent" />
+            <span class="title">Absent</span>
+          </div>
+          <span class="count red">{{ absentRows.length }}</span>
+        </div>
+        <div class="absent-vehicle-data">
+          <div class="table-right">
+            <table class="absent-table">
+              <thead>
+                <tr class="table-row">
+                  <th>VEH No.</th>
+                  <th>Last Pickup Date</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @if (visibleAbsentRows.length > 0) { @for (ab of
+                visibleAbsentRows; track $index) {
+                <tr class="table-row">
+                  <td class="veh-no">{{ ab.vehicleNo }}</td>
+                  <td class="date">{{ ab.lastPickup }}</td>
+                </tr>
+                } } @else {
+                <tr>
+                  <td colspan="2" class="no-data">No Absent Vehicles Found</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- RIGHT TABLE -->
-    <div class="table-right">
-      <table class="absent-table">
-        <thead>
-          <tr>
-            <th>VEH No.</th>
-            <th>Last Pickup Date</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @if (visibleAbsentRows.length > 0) {
-            @for (ab of visibleAbsentRows; track $index) {
-              <tr>
-                <td class="veh-no">{{ ab.vehicleNo }}</td>
-                <td class="date">{{ ab.lastPickup }}</td>
-              </tr>
-            }
-          } @else {
-            <tr><td colspan="2" class="no-data">No Absent Vehicles Found</td></tr>
-          }
-        </tbody>
-      </table>
+    <!-- TOGGLE ROW -->
+    <div class="toggle-arrow-row">
+      <span class="arrow-btn" (click)="toggleShowAll()">
+        @if (!showAll) {
+        <img
+          src="assets/icon/arrow-back.png"
+          alt="arrow-back"
+          class="arrow-icon"
+        />
+        } @else {
+        <img
+          src="assets/icon/uparrow.png"
+          alt="arrow-up"
+          class="arrow-up-icon"
+        />
+        }
+      </span>
     </div>
-  </div>
-
-  <!-- TOGGLE ROW -->
-  <div class="toggle-arrow-row">
-    <span class="arrow-btn" (click)="toggleShowAll()">
-      @if (!showAll) {
-        <img src="assets/icon/arrow-back.png" alt="arrow-back" class="arrow-icon" />
-      } @else {
-        <img src="assets/icon/uparrow.png" alt="arrow-up" class="arrow-up-icon" />
-      }
-    </span>
   </div>
 </div>
+<ion-popover
+  [isOpen]="isPopoverOpen"
+  [event]="popoverEvent"
+  cssClass="mf-popover"
+  side="bottom"
+  arrow="true"
+  backdropDismiss="true"
+  (didDismiss)="isPopoverOpen = false"
+>
+  <ng-template>
+    <div class="mf-box">
+      <span class="mf-label">MF# :</span>
+      <span class="mf-number">{{ selectedManifestNo }}</span>
+    </div>
+  </ng-template>
+</ion-popover>

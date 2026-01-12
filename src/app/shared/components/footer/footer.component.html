@@ -1,0 +1,27 @@
+<ion-footer class="liquid-footer">
+  <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
+    <path [attr.d]="path"></path>
+  </svg>
+  <div class="tabs">
+    <button
+      *ngFor="let tab of tabs; let i = index"
+      (click)="go(tab.id, i)"
+      class="tab-btn"
+    >
+      <div class="floating" [class.show]="activeIndex === i">
+        <div class="circle">
+          <img [src]="tab.activeIcon" />
+        </div>
+      </div>
+
+      <div class="inactive" [class.hide]="activeIndex === i">
+        <div class="icon-wrap">
+          <img [src]="tab.inactiveIcon" />
+          <p *ngIf="tab.id === 'task' && activeIndex !== i" class="task-label">
+            {{ tab.label }}
+          </p>
+        </div>
+      </div>
+    </button>
+  </div>
+</ion-footer>

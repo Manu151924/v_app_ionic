@@ -1,28 +1,38 @@
-<ion-header>
-      <ion-toolbar>
-        <ion-title class="title">Draft Waybills Data</ion-title>
-        <ion-buttons slot="end">
+<ion-content class="ion-padding scroll-area">
+  <div class="header-container">
+    <ion-text class="title">DRAFT WAYBILLS</ion-text>
+    <ion-buttons>
       <ion-button fill="clear" class="close-btn" (click)="close()">
-        <ion-icon name="close"></ion-icon>
+        <ion-icon name="close" size="large"></ion-icon>
       </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
-<ion-content class="ion-padding draft-waybills-list-container">
-  @for(item of draftWaybillsData; track item){
-      <div class="draft-waybills-card">
-      <div class="draft-waybills-row">
-      <div class="dwb-label">WB#</div>
-      <div class="dwb-date-label">Pickup Date</div>
-      <div class="dwb-value">{{ item.waybill }}</div>
-      <div class="dwb-date-value">{{ item.pickupDate | date:'dd-MMM-yyyy' }}</div>
-      </div>
-      <div class="dwb-consignor-row">
-      <span class="dwb-consignor-label">Consignor<br></span>&nbsp;
-      </div>
-      <span class="dwb-consignor-value">{{ item.consignor }}</span>
+    </ion-buttons>
   </div>
-}
+
+  <div class="sfx-list-container">
+
+    @for (item of draftWaybillsData; track item) {
+
+    <div class="sfx-card">
+
+      <div class="first-row">
+        <div class="field">
+          <div class="label">WB#</div>
+          <div class="value">{{ item.waybill }}</div>
+        </div>
+        <div class="field">
+          <div class="label">Pickup</div>
+          <div class="value">{{ item.pickupDate | date:'dd-MMM-yyyy' }}</div>
+        </div>
+      </div>
+
+      <div class="second-row">
+        <div class="label">Consignor</div>
+        <div class="value">{{ item.consignor }}</div>
+      </div>
+    </div>
+
+    }
+
+  </div>
 
 </ion-content>

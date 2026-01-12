@@ -1,7 +1,25 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, SimpleChange, ViewChild } from '@angular/core';
 import { Color, ScaleType } from '@swimlane/ngx-charts';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { CommonModule } from '@angular/common';
+
+import {
+  Chart,
+  DoughnutController,
+  ArcElement,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { outsideLabel } from '../../services/outside-label';
+
+
+Chart.register(
+  DoughnutController,
+  ArcElement,
+  Tooltip,
+  Legend,
+  outsideLabel
+);
 
 @Component({
   selector: 'app-pie-chart',
@@ -11,23 +29,78 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./pie-chart.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PieChartComponent {
-  @Input() data: { name: string; value: number }[] = [];
-  @Input() arcWidth = 0.5;
-  @Input() view: [number, number] = [380, 380];
-  @Input() labels = false;
+export class PieChartComponent implements AfterViewInit {
+
+  @ViewChild('chartCanvas') canvas!: ElementRef<HTMLCanvasElement>;
+  @Input() data: any = [];
+  @Input() totalWaybillAndWeight: any = [];
+  @Input() tab: string = '';
+  @Input() totalWaybill: number = 0;
+  label: any[] = [];
+  labelValues: any[] = []
+  chart!: Chart;
+  arcWidth = 0.4;
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.data.forEach((d: { name: 'string', value: 'number' }) => {
+        this.label.push(d.name);
+        this.labelValues.push(d.value)
+      });
+      this.createChart()
+    }, 2000);
+  }
+
+  ngOnChanges(changes: SimpleChange) {
+    console.log('deliveryData', this.data);
+
+    if (this.chart) {
+      this.labelValues = []
+      this.data.forEach((d: { name: string, value: number }) => {
+        this.labelValues.push(d.value)
+      });
+
+      this.chart.data.datasets[0].data = this.labelValues;
+      this.chart.update();
+    }
+  }
 
   colorScheme: Color = {
     name: 'pieScheme',
     selectable: true,
     group: ScaleType.Ordinal,
-    domain: ['#FF8A0D', '#06B4A2'],  
+    domain: ['#FF8A0D', '#06B4A2'],
   };
 
-  labelFormatting = (label: string, value: number): string => {
-    if (this.data && label === this.data[0].name) {
-      return '';
-    }
-    return ''; 
+  createChart() {
+    this.chart = new Chart(this.canvas?.nativeElement, {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: this.labelValues,
+          backgroundColor: ['#FF8A0D', '#06B4A2'],
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        layout: {
+          padding: {
+            left: 0,
+            right: 50,
+            top: 0,
+            bottom: 0
+          }
+        },
+
+        plugins: {
+          legend: { display: false },
+        }
+      },
+      plugins: this.tab === 'booking' ? [outsideLabel] : []
+
+    });
   }
 }

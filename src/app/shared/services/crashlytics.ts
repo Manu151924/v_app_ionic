@@ -3,14 +3,13 @@ import { Capacitor } from '@capacitor/core';
 import {
   FirebaseCrashlytics,
   StackFrame,
-  CustomKeyAndValue
+  CustomKeyAndValue,
 } from '@capacitor-firebase/crashlytics';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class Crashlytics {
-
   private isNative = Capacitor.isNativePlatform();
 
   async setUserContext(user: {
@@ -21,14 +20,14 @@ export class Crashlytics {
     if (!this.isNative) return;
 
     await FirebaseCrashlytics.setUserId({
-      userId: user.userId
+      userId: user.userId,
     });
 
     if (user.role) {
       await FirebaseCrashlytics.setCustomKey({
         key: 'role',
         value: user.role,
-        type: 'string'
+        type: 'string',
       });
     }
 
@@ -36,16 +35,19 @@ export class Crashlytics {
       await FirebaseCrashlytics.setCustomKey({
         key: 'appVersion',
         value: user.appVersion,
-        type: 'string'
+        type: 'string',
       });
     }
   }
 
   async logBusinessEvent(event: string, data?: any): Promise<void> {
-    if (!this.isNative) return;
+    if (!this.isNative) {
+      // console.log('[BUSINESS]', event, data || '');
+      return;
+    }
 
     await FirebaseCrashlytics.log({
-      message: `[BUSINESS] ${event} ${data ? JSON.stringify(data) : ''}`
+      message: `[BUSINESS] ${event} ${data ? JSON.stringify(data) : ''}`,
     });
   }
 
@@ -54,19 +56,23 @@ export class Crashlytics {
     context: string,
     keys?: CustomKeyAndValue[]
   ): Promise<void> {
-    if (!this.isNative) return;
-
+    if (!this.isNative) {
+      // console.error('[NON_FATAL]', context, error, keys || []);
+      return;
+    }
     await FirebaseCrashlytics.recordException({
       message: `[NON_FATAL] ${context} | ${this.safeMessage(error)}`,
-      keysAndValues: keys
+      keysAndValues: keys,
     });
   }
 
   async recordFatal(error: any): Promise<void> {
-    if (!this.isNative) return;
-
+    if (!this.isNative) {
+      // console.error('[FATAL]', error);
+      return;
+    }
     await FirebaseCrashlytics.recordException({
-      message: `[FATAL] ${this.safeMessage(error)}`
+      message: `[FATAL] ${this.safeMessage(error)}`,
     });
   }
 

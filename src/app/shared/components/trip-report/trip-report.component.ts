@@ -1,4 +1,12 @@
-import { Component, HostListener, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
@@ -6,10 +14,16 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { NgxSpinnerService, NgxSpinnerComponent, NgxSpinnerModule } from 'ngx-spinner';
+import {
+  NgxSpinnerService,
+  NgxSpinnerComponent,
+  NgxSpinnerModule,
+} from 'ngx-spinner';
 
 import { ShExModalComponent } from '../../modal/sh-ex-modal/sh-ex-modal.component';
 import { Api } from '../../services/api';
+import { Auth } from '../../services/auth';
+import { Crashlytics } from '../../services/crashlytics';
 
 @Component({
   selector: 'app-trip-report',
@@ -25,19 +39,25 @@ import { Api } from '../../services/api';
     MatDatepickerModule,
     NgxSpinnerComponent,
     NgxSpinnerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
   ],
 })
-export class TripReportComponent implements OnInit {
+export class TripReportComponent implements OnInit, OnChanges {
+  /* ---------------- Inputs ---------------- */
+  @Input() branchId!: number;
+
+  /* ---------------- Injected Services ---------------- */
   private modalController = inject(ModalController);
   private toastController = inject(ToastController);
   private api = inject(Api);
-  private spinner = inject (NgxSpinnerService);
+  private auth = inject(Auth);
+  private spinner = inject(NgxSpinnerService);
+  private crashlytics = inject(Crashlytics);
 
+  /* ---------------- State ---------------- */
 
   today = new Date();
   selectedDate: Date = new Date();
-  selectedDateISO = '';
   selectedDateLabel = 'Today';
 
   minDate!: Date;
@@ -46,55 +66,44 @@ export class TripReportComponent implements OnInit {
   showCalendar = false;
   showAll = false;
 
-  branchId = 0;
-
   tripStatusRows: any[] = [];
   absentRows: any[] = [];
 
-  // ------------------ WAIT FOR BRANCH ID ------------------
-  private async waitForBranchId(): Promise<number> {
-    return new Promise(resolve => {
-      const check = () => {
-        const id = Number(localStorage.getItem('branchId'));
-        console.log("Checking branchId:", id);
+  calendarKey = 0;
 
-        if (id && id !== 0) {
-          resolve(id);
-        } else {
-          setTimeout(check, 100);
-        }
-      };
-      check();
-    });
-  }
-
-  async ngOnInit() {
-    console.log("ngOnInit started");
-    this.branchId = await this.waitForBranchId();
-    console.log("FINAL branchId:", this.branchId);
-
+  ngOnInit() {
     this.setDateRange();
-    this.fetchTripAndAbsentData();
   }
 
-  normalize(date: Date): Date {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['branchId'] && changes['branchId'].currentValue) {
+      // this.crashlytics.logBusinessEvent('BOOKING_TRIP_REPORT_OPEN', {
+      //   branch: this.branchId,
+      //   date: this.formatApiDate(this.selectedDate),
+      // });
+
+      this.fetchTripAndAbsentData();
+    }
   }
 
-  // -------------------- API --------------------
-fetchTripAndAbsentData(): void {
-   this.spinner.show();
+  /* ---------------- API ---------------- */
 
-  console.log("API CALL → branchId:", this.branchId);
+async fetchTripAndAbsentData(): Promise<void> {
+  this.spinner.show();
 
-  const token = localStorage.getItem('accessToken') ?? '';
+  const token = await this.auth.getAccessToken();
+
+  if (!token) {
+    this.spinner.hide();
+    this.showToast('Session expired. Please login again.');
+    return;
+  }
+
   const apiDate = this.formatApiDate(this.selectedDate);
-
-  console.log("API CALL → Date:", apiDate);
 
   this.api.getPanelTwoTable(this.branchId, apiDate, token).subscribe({
     next: (res: any) => {
-              this.spinner.hide();
+      this.spinner.hide();
 
       if (!res?.responseStatus || !res?.responseObject) {
         this.tripStatusRows = [];
@@ -103,24 +112,48 @@ fetchTripAndAbsentData(): void {
         return;
       }
 
-      const { tripStatusResponse, absentVehicleResponse } = res.responseObject;
+      const { tripStatusResponse, absentVehicleResponse } =
+        res.responseObject;
 
-      this.tripStatusRows = (tripStatusResponse?.tripStatus || []).map((row: any) => ({
-        ...row,
-        vehcleNoShort: row.vehcleNo?.slice(-4) || '-'  
-      }));
+      /* ---------------- Trip Status Sorting ---------------- */
+      this.tripStatusRows = (tripStatusResponse?.tripStatus || [])
+        .map((row: any) => ({
+          ...row,
+          vehcleNoShort: row.vehcleNo?.slice(-4) || '-',
+          manifestedPkgNum: Number(row.manifestedPkg || 0),
+        }))
+        // BA: Vehicle with maximum packages should come on top
+        .sort((a: any, b: any) => b.manifestedPkgNum - a.manifestedPkgNum);
 
-      this.absentRows =
-        absentVehicleResponse?.absentVehicles?.map((v: any) => ({
+      /* ---------------- Absent Vehicle Sorting ---------------- */
+      this.absentRows = (absentVehicleResponse?.absentVehicles || [])
+        .map((v: any) => ({
           vehicleNo: v.vehcleNo,
-          vehicleNoShort: v.vehcleNo?.slice(-4) || '-',  
+          vehicleNoShort: v.vehcleNo?.slice(-4) || '-',
+          lastPickupRaw: new Date(v.lastPickupDate),
           lastPickup: v.lastPickupDate?.split(' ')[0] || '-',
-        })) || [];
-
+        }))
+        // BA: Oldest last pickup date should come on top
+        .sort(
+          (a: any, b: any) =>
+            a.lastPickupRaw.getTime() - b.lastPickupRaw.getTime()
+        );
     },
-    error: () => this.showToast('Failed to fetch trip data. Please try again.'),
+    error: (err) => {
+      this.spinner.hide();
+
+      this.crashlytics.recordNonFatal(err, 'BOOKING_TRIP_API_FAILED', [
+        { key: 'branch', value: String(this.branchId), type: 'string' },
+        { key: 'date', value: apiDate, type: 'string' },
+      ]);
+
+      this.showToast('Failed to fetch trip data. Please try again.');
+    },
   });
 }
+
+
+  /* ---------------- Date Helpers ---------------- */
 
   formatApiDate(date: Date): string {
     const dd = String(date.getDate()).padStart(2, '0');
@@ -128,29 +161,6 @@ fetchTripAndAbsentData(): void {
     return `${date.getFullYear()}-${mm}-${dd}`;
   }
 
-  // -------------------- VISIBLE ROWS --------------------
-  get visibleTripStatusRows() {
-    return this.showAll ? this.tripStatusRows : this.tripStatusRows.slice(0, 5);
-  }
-  isMatch(mf: any, uld: any): boolean {
-  if (mf == null || uld == null) return false;
-  return Number(mf) === Number(uld);
-}
-
-
-  get visibleAbsentRows() {
-    return this.showAll ? this.absentRows : this.absentRows.slice(0, 5);
-  }
-
-  toggleShowAll() {
-    this.showAll = !this.showAll;
-  }
-
-  getTextColorClass(val: number, expected: number) {
-    return val === expected ? 'green' : 'red';
-  }
-
-  // -------------------- CALENDAR --------------------
   toggleCalendar(event: MouseEvent) {
     event.stopPropagation();
     this.showCalendar = !this.showCalendar;
@@ -158,7 +168,6 @@ fetchTripAndAbsentData(): void {
 
   onDateChange(selected: Date) {
     this.selectedDate = selected;
-    this.selectedDateISO = selected.toISOString();
 
     const today = new Date();
     this.selectedDateLabel =
@@ -179,57 +188,78 @@ fetchTripAndAbsentData(): void {
     if (this.showCalendar) this.showCalendar = false;
   }
 
-  calendarKey = 0;
-
   private setDateRange(): void {
     const today = new Date();
 
     setTimeout(() => {
-      const max = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      this.maxDate = new Date(today);
       const min = new Date(today);
       min.setMonth(today.getMonth() - 3);
-
-      this.maxDate = new Date(max.getFullYear(), max.getMonth(), max.getDate());
-      this.minDate = new Date(min.getFullYear(), min.getMonth(), min.getDate());
-
+      this.minDate = min;
       this.calendarKey++;
     }, 30);
   }
 
-  // -------------------- MODAL --------------------
-  selectedVehicle = '';
-  shExDetails: any[] = [];
+  /* ---------------- Visible Rows ---------------- */
 
-async openShExModal(manifestNo: string, vehicleNo: string) {
-  if (!manifestNo) {
-    this.showToast('Manifest number not found.');
-    return;
+  get visibleTripStatusRows() {
+    return this.showAll ? this.tripStatusRows : this.tripStatusRows.slice(0, 5);
   }
 
-  await this.fetchShExDetails(manifestNo);
+  get visibleAbsentRows() {
+    return this.showAll ? this.absentRows : this.absentRows.slice(0, 5);
+  }
 
-  const modal = await this.modalController.create({
-    component: ShExModalComponent,
-    componentProps: {
-      shExDetails: this.shExDetails,
-      vehcleNoFull: vehicleNo   
-    },
-  
-    cssClass: 'bottom-sheet-modal',
-    backdropDismiss: true,
-    breakpoints: [0, 0.65, 0.95],
-    initialBreakpoint: 0.65  
-  });
+  toggleShowAll() {
+    this.showAll = !this.showAll;
+  }
 
-  await modal.present();
-}
+  isMatch(mf: any, uld: any): boolean {
+    if (mf == null || uld == null) return false;
+    return Number(mf) === Number(uld);
+  }
 
+  getTextColorClass(val: number, expected: number) {
+    return val === expected ? 'green' : 'red';
+  }
 
+  /* ---------------- Modal ---------------- */
 
-  fetchShExDetails(manifestNo: string): Promise<void> {
+  shExDetails: any[] = [];
+
+  async openShExModal(manifestNo: string, vehicleNo: string) {
+    if (!manifestNo) {
+      this.showToast('Manifest number not found.');
+      return;
+    }
+
+    await this.fetchShExDetails(manifestNo);
+    // this.crashlytics.logBusinessEvent('SHORT_EXCESS_OPEN', {
+    //   branch: this.branchId,
+    //   manifest: manifestNo,
+    //   vehicle: vehicleNo,
+    // });
+
+    const modal = await this.modalController.create({
+      component: ShExModalComponent,
+      componentProps: {
+        shExDetails: this.shExDetails,
+        vehcleNoFull: vehicleNo,
+      },
+      cssClass: 'bottom-sheet-modal',
+      backdropDismiss: true,
+      breakpoints: [0, 0.65, 0.95],
+      initialBreakpoint: 0.65,
+    });
+
+    await modal.present();
+  }
+
+  private async fetchShExDetails(manifestNo: string): Promise<void> {
+    const token = await this.auth.getAccessToken();
+    if (!token) return;
+
     return new Promise((resolve) => {
-      const token = localStorage.getItem('accessToken') ?? '';
-
       this.api.getPanelTwoShortExcessDetails(manifestNo, token).subscribe({
         next: (res: any) => {
           if (!res?.responseStatus || !res?.responseObject) {
@@ -246,20 +276,23 @@ async openShExModal(manifestNo: string, vehicleNo: string) {
             consignor: item.ccName,
             pickupDate: item.pickDt,
             status: item.status,
-            vehicleNo: item.vehcleNo  
+            vehicleNo: item.vehcleNo,
           }));
 
           resolve();
         },
-        error: () => {
+        error: (err) => {
+          this.crashlytics.recordNonFatal(err, 'SHORT_EXCESS_API_FAILED', [
+            { key: 'branch', value: String(this.branchId), type: 'string' },
+            { key: 'manifest', value: manifestNo, type: 'string' },
+          ]);
           this.shExDetails = [];
           resolve();
-        }
+        },
       });
     });
   }
 
-  // -------------------- TOAST --------------------
   async showToast(message: string) {
     const toast = await this.toastController.create({
       message,
@@ -267,6 +300,22 @@ async openShExModal(manifestNo: string, vehicleNo: string) {
       color: 'medium',
       position: 'bottom',
     });
-    toast.present();
+    await toast.present();
+  }
+  isPopoverOpen = false;
+  popoverEvent: any;
+  selectedManifestNo = '';
+
+showPopover(ev: any, manifestNo: string) {
+  if (!manifestNo) return;
+
+  this.selectedManifestNo = manifestNo;
+  this.popoverEvent = ev instanceof MouseEvent ? ev : ev?.detail?.event;
+  this.isPopoverOpen = true;
+}
+
+
+  hidePopover() {
+    this.isPopoverOpen = false;
   }
 }

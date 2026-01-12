@@ -3,18 +3,17 @@
   <div class="progress-bar">
     <div class="progress-fill" [style.width.%]="value"></div>
   </div>
-  <div class="progress-emoji" [style.left.%]="value">{{ face }}</div>
-  <div class="progress-text">{{ value | number : "1.0-0" }}%</div>
-</div>
-}
+  <div class="emoji-thumb" [style.left.%]="value">
+    @if (faceIcon.type === 'emoji') {
+    {{ faceIcon.value }}
+    } @else {
+    <img [src]="faceIcon.value" class="emoji-img" />
+    }
+  </div>
 
-<!--<div class="progress-wrapper"
-       (mousedown)="startDrag($event)"
-       (mousemove)="onDrag($event)"
-       (mouseup)="endDrag()"
-       (mouseleave)="endDrag()"
-       #wrap>-->
-@if(booking.length){
+  <!-- <div class="progress-text">{{ value | number : "1.0-0" }}%</div> -->
+</div>
+} @if(booking.length){
 <div class="bars-container">
   @for (bar of booking; track bar.label) {
   <div class="bar-item">
@@ -24,17 +23,17 @@
         class="progress-fill"
         [style.width.%]="100"
         [style.background]="bar.gradient"
-      ></div>
-    </div>
-    <div class="bar-percent" [style.left.%]="bar.percent">
-      {{ bar.percent }}%
+      >
+        <div class="bar-percent" [style.width.%]="bar.percent">
+          {{ bar.percent }}%
+        </div>
+      </div>
     </div>
   </div>
   }
 </div>
 
-}
-@if(delivery.length){
+} @if(delivery.length){
 <div class="bars-container">
   @for (bar of delivery; track bar.label) {
   <div class="bar-item">
@@ -43,12 +42,14 @@
       <div
         class="progress-fill"
         [style.width.%]="100"
-        [style.background]="getGradient(bar.value)"
-      ></div>
+        [style.background]="bar.gradient"
+      >
+        <div class="bar-percent" [style.width.%]="bar.value">
+          {{ bar.value }}%
+        </div>
+      </div>
     </div>
-    <div class="bar-percent" [style.left.%]="bar.value">{{ bar.value }}%</div>
   </div>
   }
 </div>
 }
-

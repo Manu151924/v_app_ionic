@@ -1,35 +1,44 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
+import { AppStorageService } from '../../services/app-storage';
 
 @Component({
   selector: 'app-splash',
+  standalone: true,
   templateUrl: './splash.page.html',
-  styleUrls: ['./splash.page.scss'],
-  standalone: true
+  styleUrls: ['./splash.page.scss']
 })
 export class SplashPage implements OnInit {
 
   fadeOut = false;
 
   constructor(
-    private router: Router,
-    private auth: Auth
+    private auth: Auth,
+    private storage: AppStorageService,
+    private router: Router
   ) {}
 
-  async ngOnInit(): Promise<void> {
-    await this.auth.restoreSession();
+  async ngOnInit() {
 
-    const isLoggedIn = this.auth.isAuthenticatedSnapshot();
-    const target = isLoggedIn ? '/home' : '/login';
+    await this.storage.wait();
 
-    setTimeout(() => {
-      this.fadeOut = true;
+    const hasSession = await this.auth.restoreSession();
 
-      setTimeout(() => {
-        this.router.navigateByUrl(target, { replaceUrl: true });
-      }, 800);
+    await this.delay(2000);
 
-    }, 1500);
+    this.fadeOut = true;
+
+    await this.delay(600);
+
+    if (!hasSession) {
+      await this.router.navigateByUrl('/login', { replaceUrl: true });
+    } else {
+      await this.router.navigateByUrl('/home', { replaceUrl: true });
+    }
+  }
+
+  private delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

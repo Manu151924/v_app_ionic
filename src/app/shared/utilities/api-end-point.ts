@@ -29,6 +29,8 @@ export const API_ENDPOINTS = {
     PANENELONE: `${VAPP_DELIVERY_URL}getPanelOneCount`,
     PANNELONEOVERLAY:`${VAPP_DELIVERY_URL}getPanelOneInventryDet`,
     PANNELONESECONDOVERLAY:`${VAPP_DELIVERY_URL}getPanelOneInternalDetails`,
-    PANNELTHREE:`${VAPP_DELIVERY_URL}getPanelThreeCount`
+    PANNELDELIVERYTWOTABLE:`${VAPP_DELIVERY_URL}getPanelTwoTripAndAbsentDetails`,
+    PANNELTHREE:`${VAPP_DELIVERY_URL}getPanelThreeCount`,
+    PANEELFOUR:`${VAPP_DELIVERY_URL}getPanelFourDetails`
   }
 };

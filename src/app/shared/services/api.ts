@@ -7,11 +7,13 @@ import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class Api {
-  constructor(private http: HttpClient) {}
 
+  constructor(private http: HttpClient) {}
   private getHeaders(token?: string): HttpHeaders {
     let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
     return headers;
   }
 
@@ -27,20 +29,21 @@ export class Api {
         error: { message: 'Unable to reach server. Check your internet connection.' }
       }));
     }
+
     return throwError(() => err);
   }
 
-  private post(url: string, body: any): Observable<any> {
-    return this.http.post(url, body, { headers: this.getHeaders() }).pipe(
+  private post(url: string, body: any, token?: string): Observable<any> {
+    return this.http.post(url, body, { headers: this.getHeaders(token) }).pipe(
       timeout(environment.apiTimeout),
-      catchError((err) => this.handleError(err))
+      catchError(err => this.handleError(err))
     );
   }
 
   private get(url: string, token?: string): Observable<any> {
     return this.http.get(url, { headers: this.getHeaders(token) }).pipe(
       timeout(environment.apiTimeout),
-      catchError((err) => this.handleError(err))
+      catchError(err => this.handleError(err))
     );
   }
 
@@ -51,18 +54,20 @@ export class Api {
   verifyOtp(otp: string, mobileNo: string): Observable<any> {
     return this.post(API_ENDPOINTS.LOGIN.VERIFYOTP, { otp, mobileNo });
   }
-  generateAccessTokenFromRefreshToken(refreshToken: string) {
-    return this.http.post<any>(
-      'https://dgapi-uat-nonprod.safexpress.com/vappcore/core/api/v1/generateAccessTokenFromRefreshToken',
-      { token: refreshToken }
-    );
-  }
 
-  //booking apis start here
+generateAccessTokenFromRefreshToken(refreshToken: string) {
+  return this.post(
+    environment.refreshTokenUrl,
+    { token: refreshToken },
+    'SKIP_AUTH'
+  );
+}
 
-  getBranchDetails(token: string) {
-    const vendorId = localStorage.getItem('bookingVendorId') ?? '0';
-    const url = `${API_ENDPOINTS.BOOKING.LOCATIONDROPDOWN}?id=${vendorId}`;
+
+
+
+  getBranchDetails( token: string): Observable<any> {
+    const url = `${API_ENDPOINTS.BOOKING.LOCATIONDROPDOWN}`;
     return this.get(url, token);
   }
 
@@ -81,18 +86,23 @@ export class Api {
     return this.get(url, token);
   }
 
-  getPanelFourData(year: number, month: number, branchId: number, token: string): Observable<any> {
+  getPanelFourData(
+    year: number,
+    month: number,
+    branchId: number,
+    token: string
+  ): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.PANNELFOUR}?year=${year}&month=${month}&branchId=${branchId}`;
     return this.get(url, token);
   }
 
-  getAssignedSfxDetails(assignedBranchId: number, token: string): Observable<any> {
-    const url = `${API_ENDPOINTS.BOOKING.ASSIGNEDSFXDETAILS}?assignedBranchId=${assignedBranchId}`;
+  getAssignedSfxDetails(branchId: number, token: string): Observable<any> {
+    const url = `${API_ENDPOINTS.BOOKING.ASSIGNEDSFXDETAILS}?assignedBranchId=${branchId}`;
     return this.get(url, token);
   }
 
-  getZeroPickupDetails(assignedBranchId: number, token: string): Observable<any> {
-    const url = `${API_ENDPOINTS.BOOKING.ZEROPICKUP}?assignedBranchId=${assignedBranchId}`;
+  getZeroPickupDetails(branchId: number, token: string): Observable<any> {
+    const url = `${API_ENDPOINTS.BOOKING.ZEROPICKUP}?assignedBranchId=${branchId}`;
     return this.get(url, token);
   }
 
@@ -111,41 +121,57 @@ export class Api {
     return this.get(url, token);
   }
 
-  getVendorDetails(bookingVendorId: string, token: string) {
-    const url = `${API_ENDPOINTS.VENDOR.DETAILS}/${bookingVendorId}/details`;
+  getVendorDetails(vendorId: number, token: string): Observable<any> {
+    const url = `${API_ENDPOINTS.VENDOR.DETAILS}/${vendorId}/details`;
     return this.get(url, token);
   }
 
+  /* ================= DELIVERY ================= */
 
-  //delivery apis start here
-getDeliveryBranchDetails(token: string) {
-    const vendorId = localStorage.getItem('deliveryVendorId') ?? '0';
-    const url = `${API_ENDPOINTS.DELIVERY.LOCATIONDROPDOWN}?id=${vendorId}`;
-    return this.get(url, token,);
+  getDeliveryBranchDetails(deliveryVendorId: number, token: string): Observable<any> {
+    const url = `${API_ENDPOINTS.DELIVERY.LOCATIONDROPDOWN}?id=${deliveryVendorId}`;
+    return this.get(url, token);
   }
 
-  getPanelOneDeliveryCount(vendorId: number, propeliBrId: number, token: string) {
+  getPanelOneDeliveryCount(
+    vendorId: number,
+    propeliBrId: number,
+    token: string
+  ): Observable<any> {
     const url = `${API_ENDPOINTS.DELIVERY.PANENELONE}?propeliBrId=${propeliBrId}&vendorId=${vendorId}`;
     return this.get(url, token);
   }
 
-  getPanelOneInventoryDetails(
-    vendorId: number,
-    propeliBrId: number,
-    token: string,
-    rteCd: string
-  ) {
-    const url = `${API_ENDPOINTS.DELIVERY.PANNELONEOVERLAY}?propeliBrId=${propeliBrId}&vendorId=${vendorId}&rteCd=${rteCd}`;
-    return this.get(url, token,);
-  }
+getPanelOneInventoryDetails(
+  vendorId: number,
+  propeliBrId: number,
+  rteCd: string,
+  token: string
+): Observable<any> {
+  const safeRteCd = encodeURIComponent(rteCd.trim());
 
-  getPanelOneIntrenalDetails(propeliBrId: number, rteCd: string, vendorId:number,token: string) {
+  const url =
+    `${API_ENDPOINTS.DELIVERY.PANNELONEOVERLAY}` +
+    `?propeliBrId=${propeliBrId}` +
+    `&vendorId=${vendorId}` +
+    `&rteCd=${safeRteCd}`;
+
+  return this.get(url, token);
+}
+
+
+  getPanelOneIntrenalDetails(
+    propeliBrId: number,
+    rteCd: string,
+    vendorId: number,
+    token: string
+  ): Observable<any> {
     const url = `${API_ENDPOINTS.DELIVERY.PANNELONESECONDOVERLAY}?propeliBrId=${propeliBrId}&rteCd=${rteCd}&vendorId=${vendorId}`;
     return this.get(url, token);
   }
-
-  getPanelThreeDeliveryData(propeliId: number, token: string, vendorId: number): Observable<any> {
-    const url = `${API_ENDPOINTS.DELIVERY.PANNELTHREE}?propeliId=${propeliId}&vendorId=${vendorId}`;
+   getPanelDelivryTwoTable(propeliId: number, date: string, token: string,    vendorId: number,): Observable<any> {
+    const url = `${API_ENDPOINTS.DELIVERY.PANNELDELIVERYTWOTABLE}?propeliId=${propeliId}&date=${date}&vendorId=${vendorId}`;
     return this.get(url, token);
   }
+
 }

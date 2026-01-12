@@ -1,283 +1,137 @@
 <div>
-   <ngx-spinner
-    bdColor="rgba(255,255,255,0.1)"
-    color="#2ca85e"
-    size="large"
-    type="ball-clip-rotate"
-    [fullScreen]="true"
-  >
+  <!-- Spinner -->
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="arrow-down-outline" refreshingSpinner="crescent">
+    </ion-refresher-content>
+  </ion-refresher>
+  <ngx-spinner bdColor="rgba(255,255,255,0.1)" color="#2ca85e" size="large" type="ball-clip-rotate" [fullScreen]="true">
     <p class="loader-text">Loading..</p>
   </ngx-spinner>
-    @if(deliveryVendorId$ | async; as vendorId){
-    <app-inventory-card     [deliveryVendorId]="vendorId">  </app-inventory-card>
-    } 
-  <div class="status-bar-row">
-    <div class="status-pill">
-      OFD: 330 | DELIVERED: 170 / PKG.400 / WT. 3 Ton
-      <span class="undelivered-labels">UN-DELIVERED: 120</span>
-    </div>
-    <ion-button class="today-btn" fill="solid" (click)="openCalendar()">
-      {{ displayDate }}
-      <ion-icon name="chevron-down-outline" slot="end"></ion-icon>
-    </ion-button>
-  </div>
-  <app-trip-report-delivery></app-trip-report-delivery>
-<!-- <ion-grid class="summary-grid">
-  <ion-row>
-    <ion-col size="6">
-      <ion-card class="summary-card">
-        <div class="card-row">
-          <div class="card-icon-wrap">
-            <img src="assets/icon/rupee.png" alt="rupee" class="rupee-icon" />
-          </div>
-          <div class="card-info">
-            <div class="card-main red">
-              {{ amount | number: '1.0-0' }}
-            </div>
-            <div class="card-label">
-              To Be Collected <span class="mini">(As on)</span>
-            </div>
-          </div>
-        </div>
-      </ion-card>
-    </ion-col>
 
-    <ion-col size="6">
-      <ion-card class="summary-card">
-        <div class="card-row">
-          <div class="card-icon-wrap">
-            <img src="assets/icon/pod.png" alt="pod" class="pod-icon" />
-          </div>
-          <div class="card-info">
-            <div class="card-main">{{ pending }}</div>
-            <div class="card-label">Pending POD's <span class="mini">(As on)</span></div>
-          </div>
-        </div>
-      </ion-card>
-    </ion-col>
-  </ion-row>
+  <!-- Inventory Card -->
+  <div class="container">
+    @if (deliveryVendorId) {
+    <app-inventory-card [deliveryVendorId]="deliveryVendorId" (branchChanged)="onDeliveryBranchChange($event)">
+    </app-inventory-card>
 
-  <ion-row>
-    <ion-col size="6">
-      <ion-card class="summary-card">
-        <div class="card-row">
-          <div class="card-icon-wrap">
-            <img src="assets/icon/usage.png" alt="usage" class="usage-icon" />
-          </div>
-          <div class="card-info">
-            <div class="card-main">{{ usage }}</div>
-            <div class="card-label">
-              Market Vehicle Usage <span class="mini">(Today)</span>
-            </div>
-          </div>
-        </div>
-      </ion-card>
-    </ion-col>
+    } @if (deliveryBranchId && deliveryVendorId) {
+    <app-trip-report-delivery [deliveryBranchId]="deliveryBranchId" [deliveryVendorId]="deliveryVendorId">
+    </app-trip-report-delivery>
+    }
 
-    <ion-col size="6">
-      <ion-card class="summary-card">
-        <div class="card-row">
-          <div class="card-icon-wrap">
-            <img src="assets/icon/safe.png" alt="safe" class="safe-icon" />
-          </div>
-          <div class="card-info">
-            <div class="card-main green">
-              {{ safe }}<span class="percent">%</span>
-            </div>
-            <div class="card-label">
-              Safedrop Usage <span class="mini">(Today)</span>
-            </div>
-          </div>
-        </div>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-</ion-grid> -->
-
-  <ion-grid class="summary-grid">
-    <!-- ROW 1 -->
-    <ion-row>
-      <ion-col class="summary-col">
-        <ion-card class="summary-card">
-          <div class="card-row">
-            <div class="card-icon-wrap">
-              <img src="assets/icon/waybill.png" class="waybill-icon" />
-            </div>
-            <div class="card-info">
-              <div class="card-main red"> {{ amount | number: '1.0-0' }}</div>
-              <div class="card-label">To Be Collected</div>
-            </div>
-          </div>
-        </ion-card>
-      </ion-col>
-
-      <ion-col class="summary-col">
-        <ion-card class="summary-card">
-          <div class="card-row">
-            <div class="card-icon-wrap">
-              <img src="assets/icon/usage.png" class="usage-icon" />
-            </div>
-            <div class="card-info">
-              <div class="card-main green">{{ pending }}</div>
-              <div class="card-label">Pending POD's</div>
-            </div>
-          </div>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-
-    <!-- ROW 2 -->
-    <ion-row>
-      <ion-col class="summary-col">
-        <ion-card class="summary-card">
-          <div class="card-row">
-            <div class="card-icon-wrap">
-              <img src="assets/icon/rupee.png" class="rupee-icon" />
-            </div>
-            <div class="card-info">
-              <div class="card-main red">
-               {{ usage }}.<span class="decimal">00</span>
+    <!-- SUMMARY CARDS -->
+    <ion-grid class="summary-grid">
+      <!-- ROW 1 -->
+      <ion-row>
+        <ion-col class="summary-col">
+          <ion-card class="summary-card">
+            <div class="card-row">
+              <div class="card-icon-wrap">
+                <img src="assets/icon/rupee.png" class="waybill-icon" />
               </div>
-              <div class="card-label">Market Vehicle Usage</div>
-            </div>
-          </div>
-        </ion-card>
-      </ion-col>
-
-      <ion-col class="summary-col">
-        <ion-card class="summary-card">
-          <div class="card-row">
-            <div class="card-icon-wrap green">
-              <img src="assets/icon/weight.png" class="weight-icon" />
-            </div>
-            <div class="card-info">
-              <div class="card-main green">
-                {{ safe }}<span class="percent">%</span>
+              <div class="card-info">
+                <div class="card-main red">{{ amount | number: '1.0-0' }}</div>
               </div>
-              <div class="card-label">Safedrop Usage</div>
             </div>
-          </div>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-  <div class="snapshot-header">
-    <span class="snapshot-title">Month Wise Snapshot</span>
-    <ion-button class="snapshot-dropdown" fill="solid" size="small" (click)="openMonthPicker()">
-      {{ formatMonth(form.get('selectedMonth')?.value) }}
-      <ion-icon name="chevron-down-outline" slot="end"></ion-icon>
-    </ion-button>
-  </div>
+            <div class="card-label">To Be Collected <small>(As on)</small></div>
+          </ion-card>
+        </ion-col>
+        <ion-col class="summary-col">
+          <ion-card class="summary-card">
+            <div class="card-row">
+              <div class="card-icon-wrap">
+                <img src="assets/icon/pod.png" class="usage-icon" />
+              </div>
+              <div class="card-info">
+                <div class="card-main green">{{ pending }}</div>
+              </div>
+            </div>
+            <div class="card-label">Pending POD's <small>(As on)</small></div>
+          </ion-card>
+        </ion-col>
+      </ion-row>
 
-  <!-- 
-  <ion-card class="snapshot-card">
-    <mat-form-field style="display: none">
-      <input matInput [matDatepicker]="monthPicker" [min]="minDate" [max]="maxDate" [value]="selectedMonth" readonly/>
-    </mat-form-field>
-    <mat-datepicker  #monthPicker startView="multi-year"  panelClass="month-picker"
-     (monthSelected)="chosenMonthHandler($event, monthPicker)">
-    </mat-datepicker>
-    <div class="snapshot-content">
-      <div class="donut-section">
-        <app-pie-chart [data]="(pieChartData$ | async) ?? []" [view]="[200,200]"></app-pie-chart>
-        <div class="donut-legend">
-          <div>
-            <span class="delivered-label">Delivered</span>
-            <span class="donut-stats">WB: 370<br />Wt.: 16 Ton</span>
-          </div>
-          <div>
-            <span class="undelivered-label">Un-Delivered</span>
-            <span class="donut-stats">WB: 20<br />Wt.: 1 Ton</span>
-          </div>
-        </div>
-      </div>
-      <div class="divider-line"></div>
-      <div class="snapshot-bars2">
-        <app-progress-slider [delivery]="bars"></app-progress-slider>
-      </div>
+      <!-- ROW 2 -->
+      <ion-row>
+        <ion-col class="summary-col">
+          <ion-card class="summary-card">
+            <div class="card-row">
+              <div class="card-icon-wrap">
+                <img src="assets/icon/usage.png" class="rupee-icon" />
+              </div>
+              <div class="card-info">
+                <div class="card-main red">
+                  {{ usage | number: '1.0-0' }}.<span class="decimal">00</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-label">
+              Market Vehicle Usage<small>(Today)</small>
+            </div>
+          </ion-card>
+        </ion-col>
+
+        <ion-col class="summary-col">
+          <ion-card class="summary-card">
+            <div class="card-row">
+              <div class="card-icon-wrap green">
+                <img src="assets/icon/safe.png" class="weight-icon" />
+              </div>
+              <div class="card-info">
+                <div class="card-main green">
+                  {{ safe }}<span class="percent">%</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-label">Safedrop Usage <small>(Today)</small></div>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- MONTH SNAPSHOT -->
+    <div class="snapshot-header">
+      <span class="snapshot-title">Month Wise Snapshot</span>
+      <ion-button fill="clear" class="today-btn" (click)="toggleMonthPopover($event)">
+        {{ selectedMonth }}
+        <img src="assets/icon/fit.png" alt="arrow-down" class="arrow-down" />
+      </ion-button>
     </div>
-  </ion-card> -->
-
 
     <ion-card class="snapshot-card">
-    <div class="snapshot-header">
-      <span class="snapshot-title">Waybill Edited</span>
-    </div>
+      <div class="snapshot-header">
+        <span class="snapshot-title">Waybill Edited</span>
+      </div>
 
-    <div class="snapshot-content">
-      <div class="donut-section">
-        <div class="donut-chart-wrapper">
-          <!-- <div class="edited-percent-label">
-            @if(wbEditedPercent> 0){
-             <span class="percent-bar">{{ wbEditedPercent }}%</span>
-            }
-          </div> -->
-
-          <app-pie-chart
-            [data]="(pieChartData$ | async) ?? []"
-            [view]="[180, 180]"
-            
-          ></app-pie-chart>
-
-          <div class="donut-center-text">
-            <div class="donut-label">BOOKED</div>
-            <div class="donut-value">{{ totalWaybill }}</div>
+      <div class="snapshot-content">
+        <div class="donut-section">
+          <div class="donut-chart-wrapper">
+            <app-pie-chart [data]="panelFourPieData" [totalWaybill]="totalWaybill"
+              [totalWaybillAndWeight]="totalWaybillAndWeight" [tab]="'delivery'" class="piechart"></app-pie-chart>
           </div>
         </div>
 
-        <div class="donut-stat-row">
-          <span class="donut-stat-label">WB:</span>
-          <span class="donut-stat-value">{{ waybill }}</span>
+        <div class="divider-line"></div>
+
+        <div class="snapshot-bars2">
+          <app-progress-slider [delivery]="panelFourBars"></app-progress-slider>
         </div>
       </div>
 
-      <div class="divider-line"></div>
 
-      <div class="snapshot-bars2">
-        <app-progress-slider [delivery]="bars"></app-progress-slider>
-      </div>
+      <ion-popover [isOpen]="popoverOpen" [event]="popoverEvent" (didDismiss)="popoverOpen = false">
+        <ng-template>
+          <ion-list>
+            @for(m of validMonths; track m) {
+            <ion-item button (click)="selectMonth(m)"> {{ m }} </ion-item>
+            }
+          </ion-list>
+        </ng-template>
+      </ion-popover>
+    </ion-card>
+
+    <div>
+      <app-progress-slider [value]="progressValue" [face]="progressFace" [gradient]="GRADIENT"></app-progress-slider>
     </div>
-
-    <ion-popover
-      [isOpen]="popoverOpen"
-      [event]="popoverEvent"
-      (didDismiss)="popoverOpen = false"
-    >
-      <ng-template>
-        <ion-list>
-          @for(m of validMonths; track m) {
-          <ion-item button (click)="selectMonth(m)">
-            {{ m }}
-          </ion-item>
-          }
-        </ion-list>
-      </ng-template>
-    </ion-popover>
-  </ion-card>
-  <app-progress-slider
-    [value]="progressValue"
-    (valueChange)="onProgressChange($event)"
-  ></app-progress-slider>
+  </div>
 </div>
-
-<ion-modal [isOpen]="calendarOpen">
-  <ng-template>
-    <ion-content class="spacing">
-      <div class="calendar-container">
-        <mat-calendar [selected]="tempSelectedDate" [minDate]="minDate" [maxDate]="maxDate" (selectedChange)="onDateSelect($event)">
-        </mat-calendar>
-      </div>
-    </ion-content>
-
-    <ion-footer>
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-button (click)="cancelDate()">Cancel</ion-button>
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <ion-button (click)="confirmDate()">OK</ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-footer>
-  </ng-template>
-</ion-modal>

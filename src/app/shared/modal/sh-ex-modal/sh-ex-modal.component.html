@@ -1,47 +1,52 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>
-      <span class="modal-title-pill">{{vehcleNoFull}}</span>
-    </ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="close()">
-        <ion-icon name="close"></ion-icon>
+<ion-content class="ion-padding scroll-area">
+  <div class="header-container">
+    <ion-text class="title">{{formattedVehicleNo }}</ion-text>
+    <ion-buttons>
+      <ion-button fill="clear" class="close-btn" (click)="close()">
+        <ion-icon name="close" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+  </div>
 
-<ion-content class="ion-padding sh-ex-list-container">
-  @for(item of shExDetails; track item){
-    <div  class="sh-ex-card" [ngClass]="{'short': item.status === 'Short', 'excess': item.status === 'Exess'}">
-    <div class="sh-ex-row">
-      <div class="sh-label">WB#</div>
-      <div class="sh-date-label">Booked/Manifest/Received</div>
-      <div class="sh-date-label">Pickup Date</div>
+  <div class="sfx-list-container">
+
+    @for (item of shExDetails; track item) {
+
+    <div class="sfx-card"
+      [ngClass]="{'short': item.status.toLowerCase() === 'short', 'excess': item.status.toLowerCase() === 'excess'}">
+
+      <div class="first-row">
+        <div class="field">
+          <div class="label">WB#</div>
+          <div class="value">{{ item.waybill }}</div>
+        </div>
+        <div class="field large-field">
+          <div class="label">Booked/Manifest/Received</div>
+          <div class="value">
+            <span class="green">{{ item.booked }}</span>/
+            <span class="green">{{ item.manifested }}</span>/
+            <span class="red">{{ item.received }}</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Pickup Date</div>
+          <div class="value">{{ item.pickupDate | date:'dd-MMM-yyyy' }}</div>
+        </div>
+      </div>
+
+      <div class="second-row">
+        <div class="field large-value">
+          <div class="label">Consignor</div>
+          <div class="value">{{ item.consignor }}</div>
+        </div>
+        <div class="excessAndExcess">
+          <ion-button shape="round" fill="outline" size="small"
+            [ngClass]="{'short': item.status.toLowerCase() === 'short', 'excess': item.status.toLowerCase() === 'excess'}">{{item.status}}</ion-button>
+        </div>
+      </div>
     </div>
-          <div class="sh-ex-row">
-       <div class="sh-value">{{ item.waybill }}</div>
-       <span class="green">{{ item.booked }}</span>/
-        <span class="green">{{ item.manifested }}</span>/
-        <span class="red">{{ item.received }}</span>
-           <div class="sh-value-date">{{ item.pickupDate }}</div>
- </div>
 
-    <div class="sh-consignor-row">
-      <span class="sh-consignor-label">Consignor</span>
-      @if(item.status === 'Short'){
-        <span class="sh-chip short">Short</span>        
-      } @else  {
-        <span class="sh-chip excess">Exess</span>
-      }      
-    </div>
-        <span class="sh-consignor-value">{{ item.consignor }}</span>
-</div>
-  }
+    }
+  </div>
 
-<ng-template #noData>
-    <ion-text color="medium" class="ion-text-center">
-      <p>No SH/EX details found.</p>
-    </ion-text>
-  </ng-template>
 </ion-content>

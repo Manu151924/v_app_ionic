@@ -1,208 +1,267 @@
-<ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="arrow-down-outline" refreshingSpinner="crescent">
-    </ion-refresher-content>
-  </ion-refresher>
-  <ngx-spinner bdColor="rgba(255,255,255,0.1)" color="#2ca85e" size="large" type="ball-clip-rotate" [fullScreen]="true">
+<div>
+  <ngx-spinner
+    bdColor="rgba(255,255,255,0.1)"
+    color="#2ca85e"
+    size="large"
+    type="ball-clip-rotate"
+    [fullScreen]="true"
+  >
     <p class="loader-text">Loading..</p>
   </ngx-spinner>
 
-  <!-- DELHI CARD -->
-  <ion-card class="pan1-card">
-    <ion-card-content class="pan1-card-content">
-      <div class="header-row">
-        <div class="pan1-header-left">
-          <div class="location-dropdown">
-            <img src="assets/icon/location.png" class="location-icon" />
-
-            <ion-select interface="popover" [formControl]="selectedCityControl" (ionChange)="onCityChange($event)"
-              class="city-select">
-              @for(city of cities; track city) {
-              <ion-select-option [value]="city">{{ city }}</ion-select-option>
-              }
-            </ion-select>
-          </div>
-        </div>
-        <div class="pan1-header-right">
-          <div class="assigned-sfx">
-            <span class="label">Assigned SFX</span>
-            <span class="value" (click)="openSfxModal()">{{ assignedSfx }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="tab-content">
-        <div class="card-content">
-          <div class="status-list">
-            <!-- ZERO -->
-            <div class="status-row zero" (click)="openModal('ZERO PICKUP SFX')">
-              <div class="bar-section">
-                <div class="bar-rail">
-                  <div class="bar-fill">
-                    <span class="status-label">ZERO PICKUP SFX</span>
-                  </div>
-                </div>
-              </div>
-              <span class="status-value">{{ statusList[0]?.value }}</span>
+  <div class="container">
+    <ion-card class="pan1-card">
+      <ion-card-content class="pan1-card-content">
+        <div class="header-row">
+          <div class="pan1-header-left">
+            <div class="location-dropdown">
+              <ion-icon     name="location" class="location-icon"></ion-icon>
+              <ion-select
+                interface="popover"
+                side="bottom"
+                alignment="start"
+                [formControl]="selectedCityControl"
+                (ionChange)="onCityChange($event)"
+                class="city-select"
+              >
+                @for (city of cities; track city) {
+                <ion-select-option [value]="city">
+                  {{ city }}
+                </ion-select-option>
+                }
+              </ion-select>
             </div>
-
-            <!-- NOT MANIFESTED -->
-            <div class="status-row not" (click)="openModal('NOT-MANIFESTED')">
-              <div class="bar-section">
-                <div class="bar-rail">
-                  <div class="bar-fill">
-                    <span class="status-label">NOT-MANIFESTED</span>
-                  </div>
-                </div>
-              </div>
-              <span class="status-value">{{ statusList[1]?.value }}</span>
-            </div>
-
-            <!-- DRAFT -->
-            <div class="status-row draft" (click)="openModal('DRAFT WAYBILLS')">
-              <div class="bar-section">
-                <div class="bar-rail">
-                  <div class="bar-fill">
-                    <span class="status-label">DRAFT WAYBILLS</span>
-                  </div>
-                </div>
-              </div>
-              <span class="status-value">{{ statusList[2]?.value }}</span>
+          </div>
+          <div class="pan1-header-right">
+            <div class="assigned-sfx">
+              <span class="label">Assigned SFX</span>
+              <span class="value" (click)="openSfxModal()"
+                >{{ assignedSfx }}</span
+              >
             </div>
           </div>
         </div>
-      </div>
-    </ion-card-content>
-  </ion-card>
 
-  <!-- Trip report -->
-  <app-trip-report></app-trip-report>
-
-  <!-- SUMMARY GRID -->
-  <ion-grid class="summary-grid">
-    <!-- ROW 1 -->
-    <ion-row>
-      <ion-col class="summary-col">
-        <ion-card class="summary-card">
-          <div class="card-row">
-            <div class="card-icon-wrap">
-              <img src="assets/icon/waybill.png" class="waybill-icon" />
-            </div>
-            <div class="card-info">
-              <div class="card-main red">{{ interchangeWaybill }}</div>
-              <div class="card-label">Interchange Waybill's</div>
-            </div>
-          </div>
-        </ion-card>
-      </ion-col>
-
-      <ion-col class="summary-col">
-        <ion-card class="summary-card">
-          <div class="card-row">
-            <div class="card-icon-wrap">
-              <img src="assets/icon/usage.png" class="usage-icon" />
-            </div>
-            <div class="card-info">
-              <div class="card-main green">{{ marketVehReq }}</div>
-              <div class="card-label">Market Veh. Req.</div>
-            </div>
-          </div>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-
-    <!-- ROW 2 -->
-    <ion-row>
-      <ion-col class="summary-col">
-        <ion-card class="summary-card">
-          <div class="card-row">
-            <div class="card-icon-wrap">
-              <img src="assets/icon/rupee.png" class="rupee-icon" />
-            </div>
-            <div class="card-info">
-              <div class="card-main red">
-                {{ paidOutstanding | number: '1.0-0' }}.<span class="decimal">00</span>
+        <div class="tab-content">
+          <div class="card-content">
+            <div class="status-list">
+              <!-- ZERO -->
+              <div
+                class="status-row zero"
+                [class.is-zero]="statusList[0]?.value === 0"
+                (click)="openModal('ZERO PICKUP SFX')"
+              >
+                <div class="bar-section">
+                  <div class="bar-rail">
+                    <div
+                      class="bar-fill"
+                      [style.width.%]="statusList[0]?.percent"
+                      [style.background]="statusList[0]?.color"
+                    >
+                      <span
+                        class="status-label"
+                        [class.zero-text]="statusList[0]?.value === 0"
+                        >ZERO PICKUP SFX</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <span class="status-value">{{ statusList[0]?.value }}</span>
               </div>
-              <div class="card-label">Paid Outstanding</div>
-            </div>
-          </div>
-        </ion-card>
-      </ion-col>
 
-      <ion-col class="summary-col">
-        <ion-card class="summary-card">
-          <div class="card-row">
-            <div class="card-icon-wrap green">
-              <img src="assets/icon/weight.png" class="weight-icon" />
-            </div>
-            <div class="card-info">
-              <div class="card-main green">
-                {{ weightVolumePercent }}<span class="percent">%</span>
+              <!-- NOT MANIFESTED -->
+              <div
+                class="status-row not"
+                [class.is-zero]="statusList[1]?.value === 0"
+                (click)="openModal('NOT-MANIFESTED')"
+              >
+                <div class="bar-section">
+                  <div class="bar-rail">
+                    <div
+                      class="bar-fill"
+                      [style.width.%]="statusList[1]?.percent"
+                      [style.background]="statusList[1]?.color"
+                    >
+                      <span
+                        class="status-label"
+                        [class.zero-text]="statusList[1]?.value === 0"
+                        >NOT-MANIFESTED</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <span class="status-value">{{ statusList[1]?.value }}</span>
               </div>
-              <div class="card-label">Weight Volume</div>
+
+              <!-- DRAFT -->
+              <div
+                class="status-row draft"
+                [class.is-zero]="statusList[2]?.value === 0"
+                (click)="openModal('DRAFT WAYBILLS')"
+              >
+                <div class="bar-section">
+                  <div class="bar-rail">
+                    <div
+                      class="bar-fill"
+                      [style.width.%]="statusList[2]?.percent"
+                      [style.background]="statusList[2]?.color"
+                    >
+                      <span
+                        class="status-label"
+                        [class.zero-text]="statusList[2]?.value === 0"
+                        >DRAFT WAYBILLS</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <span class="status-value">{{ statusList[2]?.value }}</span>
+              </div>
             </div>
           </div>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+        </div>
+      </ion-card-content>
+    </ion-card>
 
-  <!-- SNAPSHOT HEADER -->
-  <div class="snapshot-header">
-    <span class="snapshot-title">Month Wise Snapshot</span>
+    <!-- Trip report -->
+    @if(selectedBranchId){
+    <app-trip-report [branchId]="selectedBranchId"></app-trip-report>
+    }
 
-    <div class="snapshot-dropdown" (click)="toggleMonthPopover($event)">
-      {{ selectedMonth }}
-      <img src="assets/icon/fit.png" class="arrow-icon" />
-    </div>
-  </div>
+    <!-- SUMMARY GRID -->
+    <ion-grid class="summary-grid">
+      <!-- ROW 1 -->
+      <ion-row>
+        <ion-col class="summary-col">
+          <ion-card class="summary-card">
+            <div class="card-row">
+              <div class="card-icon-wrap">
+                <img src="assets/icon/waybill.png" class="waybill-icon" />
+              </div>
+              <div class="card-info">
+                <div class="card-main red">{{ interchangeWaybill }}</div>
+              </div>
+            </div>
+            <div class="card-label">
+              Interchange Waybill's <small>(Current Month)</small>
+            </div>
+          </ion-card>
+        </ion-col>
 
-  <!-- SNAPSHOT CARD -->
-  <ion-card class="snapshot-card">
+        <ion-col class="summary-col">
+          <ion-card class="summary-card">
+            <div class="card-row">
+              <div class="card-icon-wrap">
+                <img src="assets/icon/usage.png" class="usage-icon" />
+              </div>
+              <div class="card-info">
+                <div class="card-main green">{{ marketVehReq }}</div>
+              </div>
+            </div>
+            <div class="card-label">
+              Market Vehicle Usage <small>(Current Month)</small>
+            </div>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+
+      <!-- ROW 2 -->
+      <ion-row>
+        <ion-col class="summary-col">
+          <ion-card class="summary-card">
+            <div class="card-row">
+              <div class="card-icon-wrap">
+                <img src="assets/icon/rupee.png" class="rupee-icon" />
+              </div>
+              <div class="card-info">
+                <div class="card-main red">
+                  {{ paidOutstanding | number: '1.0-0' }}.<span class="decimal"
+                    >00</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="card-label">
+              Paid Outstanding <small>(As on)</small>
+            </div>
+          </ion-card>
+        </ion-col>
+
+        <ion-col class="summary-col">
+          <ion-card class="summary-card">
+            <div class="card-row">
+              <div class="card-icon-wrap green">
+                <img src="assets/icon/weight.png" class="weight-icon" />
+              </div>
+              <div class="card-info">
+                <div class="card-main green">
+                  {{ weightVolumePercent }}<span class="percent">%</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-label">
+              Weight Volume <small>(Current Month)</small>
+            </div>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- SNAPSHOT HEADER -->
     <div class="snapshot-header">
-      <span class="snapshot-title">Waybill Edited</span>
+      <span class="snapshot-title">Month Wise Snapshot</span>
+      <ion-button
+        fill="clear"
+        class="today-btn"
+        (click)="toggleMonthPopover($event)"
+      >
+        {{ selectedMonth }}
+        <img src="assets/icon/fit.png" alt="arrow-down" class="arrow-down" />
+      </ion-button>
     </div>
 
-    <div class="snapshot-content">
-      <div class="donut-section">
-        <div class="donut-chart-wrapper">
-          <div class="edited-percent-label">
-            @if(wbEditedPercent> 0){
-            <span class="percent-bar">{{ wbEditedPercent }}%</span>
+    <!-- SNAPSHOT CARD -->
+    <ion-card class="snapshot-card">
+      <div class="snapshot-header">
+        <span class="snapshot-title">Waybill Edited</span>
+      </div>
+
+      <div class="snapshot-content">
+        <div class="donut-section">
+          <div class="donut-chart-wrapper">
+            <app-pie-chart
+              [data]="(pieChartData$ | async) ?? []"
+              [tab]="'booking'"
+              [totalWaybill]="totalWaybill"
+              class="piechart"
+            ></app-pie-chart>
+          </div>
+
+          <div class="donut-stat-row">
+            <span class="donut-stat-label">WB:</span>
+            <span class="donut-stat-value">{{ waybill }}</span>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <div class="snapshot-bars2">
+          <app-progress-slider [booking]="bars"></app-progress-slider>
+        </div>
+      </div>
+
+      <ion-popover
+        [isOpen]="popoverOpen"
+        [event]="popoverEvent"
+        (didDismiss)="popoverOpen = false"
+      >
+        <ng-template>
+          <ion-list>
+            @for(m of validMonths; track m) {
+            <ion-item button (click)="selectMonth(m)"> {{ m }} </ion-item>
             }
-          </div>
-
-          <app-pie-chart [data]="(pieChartData$ | async) ?? []" [view]="[380, 380]" [labels]="true"></app-pie-chart>
-
-          <div class="donut-center-text">
-            <div class="donut-label">BOOKED</div>
-            <div class="donut-value">{{ totalWaybill }}</div>
-          </div>
-        </div>
-
-        <div class="donut-stat-row">
-          <span class="donut-stat-label">WB:</span>
-          <span class="donut-stat-value">{{ waybill }}</span>
-        </div>
-      </div>
-
-      <div class="divider-line"></div>
-
-      <div class="snapshot-bars2">
-        <app-progress-slider [booking]="bars"></app-progress-slider>
-      </div>
-    </div>
-
-    <ion-popover [isOpen]="popoverOpen" [event]="popoverEvent" (didDismiss)="popoverOpen = false">
-      <ng-template>
-        <ion-list>
-          @for(m of validMonths; track m) {
-          <ion-item button (click)="selectMonth(m)">
-            {{ m }}
-          </ion-item>
-          }
-        </ion-list>
-      </ng-template>
-    </ion-popover>
-  </ion-card>
-</ion-content>
+          </ion-list>
+        </ng-template>
+      </ion-popover>
+    </ion-card>
+  </div>
+</div>

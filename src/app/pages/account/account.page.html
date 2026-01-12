@@ -1,59 +1,46 @@
-<ion-content class="account-content">
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>My Account</ion-title>
-  </ion-toolbar>
-</ion-header>
-  <!-- PROFILE CARD -->
-  <ion-card class="profile-card" (click)="openProfileDetails()">
-    <div class="profile-row">
-      <ion-icon name="person-circle-outline" class="icon"></ion-icon>
-      <div>
-        <p class="label">Name</p>
-        <p class="value">{{ vendorName }}</p>
+<ion-content class="account-content" [scrollY]="false">
+
+  <!-- Header (unchanged) -->
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/home"></ion-back-button>
+      </ion-buttons>
+      <ion-title>My Account</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Outer container that matches screenshot padding -->
+  <div class="account-shell">
+
+    <!-- White background panel -->
+    <div class="account-panel">
+
+      <!-- Green Name Card -->
+      <div class="profile-wrapper">
+        <ion-card class="profile-card" (click)="openProfileDetails()">
+          <div class="profile-row">
+            <ion-icon name="person-circle-outline" class="icon"></ion-icon>
+            <div>
+              <p class="label">Name</p>
+              <p class="value">{{ vendorName }}</p>
+            </div>
+          </div>
+        </ion-card>
       </div>
-    </div>
-  </ion-card>
 
-  <!-- SECTION CARD -->
-  <!-- <ion-card class="section-card">
-    <h3>My Vehicles</h3>
-    <div class="btn-row">
-      <ion-button class="nrm-btn" fill="clear">NRM</ion-button>
-      <ion-button class="delivery-btn" fill="clear">DELIVERY</ion-button>
     </div>
-  </ion-card>
 
-  <ion-card class="section-card">
-    <h3>Your Payment</h3>
-    <div class="btn-row">
-      <ion-button class="nrm-btn" fill="clear">NRM</ion-button>
-      <ion-button class="delivery-btn" fill="clear">DELIVERY</ion-button>
+    <!-- Bottom area (same as screenshot) -->
+    <div class="bottom-area">
+      <span class="version">Version {{ version }}</span>
+
+      <ion-card class="logout-card" (click)="logout()">
+        <img  class="logout-icon" src="assets/icon/logout.png">
+        <span>Logout</span>
+      </ion-card>
     </div>
-  </ion-card>
 
-  <ion-card class="section-card">
-    <div class="header-with-icon">
-      <ion-icon name="bus-outline" class="bus-icon"></ion-icon>
-      <h3>Market Vehicle Request</h3>
-    </div>
-    <div class="btn-row">
-      <ion-button class="nrm-btn" fill="clear">NRM</ion-button>
-      <ion-button class="delivery-btn" fill="clear">DELIVERY</ion-button>
-    </div>
-  </ion-card> -->
-
-  <!-- FOOTER -->
-  <div class="footer-two">
-    <ion-card class="logout-card" (click)="logout()">
-      <ion-icon name="power-outline" class="logout-icon"></ion-icon>
-      <span>Logout</span>
-    </ion-card>
-
-    <span class="version">Version {{ version }}</span>
   </div>
 
 </ion-content>

@@ -3,7 +3,11 @@ import { AuthGuard } from './shared/services/auth.guard';
 
 export const routes: Routes = [
 
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {
+    path: '',
+    redirectTo: 'splash',
+    pathMatch: 'full'
+  },
 
   {
     path: 'splash',
@@ -15,6 +19,13 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login.page').then(m => m.LoginPage)
+  },
+
+  {
+    path: 'profile-details',
+    loadComponent: () =>
+      import('./shared/pages/profile-details/profile-details.page')
+        .then(m => m.ProfileDetailsPage)
   },
 
   {
@@ -46,14 +57,8 @@ export const routes: Routes = [
   },
 
   {
-    path: 'profile-details',
-    loadComponent: () =>
-      import('./shared/pages/profile-details/profile-details.page')
-        .then(m => m.ProfileDetailsPage)
-  },
-
-  {
     path: 'inventory-route-modal',
+    canActivate: [AuthGuard],
     loadComponent: () =>
       import('./shared/pages/inventory-route-modal/inventory-route-modal.page')
         .then(m => m.InventoryRouteModalPage)
@@ -61,8 +66,9 @@ export const routes: Routes = [
 
   {
     path: 'inventory-age-details',
+    canActivate: [AuthGuard],
     loadComponent: () =>
       import('./shared/pages/inventory-age-details/inventory-age-details.page')
         .then(m => m.InventoryAgeDetailsPage)
-  }
+  },
 ];

@@ -1,14 +1,18 @@
-import { ErrorHandler, Injectable } from '@angular/core';
+import { ErrorHandler, Injectable, NgZone } from '@angular/core';
 import { Crashlytics } from '../../shared/services/crashlytics';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
 
-  constructor(private crashlytics: Crashlytics) {}
+  constructor(
+    private crashlytics: Crashlytics,
+    private zone: NgZone
+  ) {}
 
-handleError(error: any): void {
-  console.error('Global Error:', error);
-  this.crashlytics.recordFatal(error);
-}
-
+  handleError(error: any): void {
+    this.zone.run(() => {
+      console.error('GLOBAL ANGULAR ERROR', error);
+      this.crashlytics.recordFatal(error);
+    });
+  }
 }

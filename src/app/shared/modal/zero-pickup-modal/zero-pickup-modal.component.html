@@ -1,32 +1,38 @@
-<ion-header class="modal-header">
-  <div class="drag-handle"></div>
-  <ion-toolbar>
-    <ion-title class="vehicle-title">ZERO PICKUP SFX</ion-title>
-    <ion-buttons slot="end">
+<ion-content class="ion-padding scroll-area">
+  <div class="header-container">
+    <ion-text class="title">ZERO PICKUP SFX</ion-text>
+    <ion-buttons>
       <ion-button fill="clear" class="close-btn" (click)="close()">
-        <ion-icon name="close"></ion-icon>
+        <ion-icon name="close" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+  </div>
 
-<ion-content class="zero-pickup-list-container">
-  @for(item of zeroPickupData; track $index) {
-    <div class="pickup-card">
-      <div class="pickup-top-row">
-        <div class="pickup-code">
-          <div class="pickup-label">SFX CODE</div>
-          <div class="pickup-value">{{ item.sfxCode }}</div>
+  <div class="sfx-list-container">
+
+    @for (item of zeroPickupData; track item) {
+
+    <div class="sfx-card">
+
+      <div class="first-row">
+        <div class="field">
+          <div class="label">SFX Code</div>
+          <div class="value">{{ item.sfxCode }}</div>
         </div>
-        <div class="pickup-date">
-          <div class="pickup-date-label">LAST PICKUP DATE</div>
-          <div class="pickup-date-value">{{ item.lastPickupDate | date:'dd-MMM-yyyy' }}</div>
+        <div class="field">
+          <div class="label">Last Pickup Date</div>
+          <div class="value">{{ item.lastPickupDate | date:'dd-MMM-yyyy' }}</div>
         </div>
       </div>
-      <div class="pickup-consignor-row">
-        <div class="pickup-consignor-label">Consignor</div>
+
+      <div class="second-row">
+        <div class="label">Consignor</div>
+        <div class="value">{{ item.consignorName }}</div>
       </div>
-        <div class="pickup-consignor-value">{{ item.consignorName }}</div>
     </div>
-  }
+
+    }
+
+  </div>
+
 </ion-content>

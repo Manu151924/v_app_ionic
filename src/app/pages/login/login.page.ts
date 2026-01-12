@@ -1,39 +1,44 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit,ElementRef,ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { finalize } from 'rxjs/operators';
-
 import {
   IonContent,
   IonItem,
   IonInput,
   ToastController,
-  IonIcon
-} from '@ionic/angular/standalone';
+  IonIcon,
+  ModalController, IonButton } from '@ionic/angular/standalone';
 
 import { Api } from 'src/app/shared/services/api';
 import { Auth } from 'src/app/shared/services/auth';
 import { Crashlytics } from 'src/app/shared/services/crashlytics';
 
 import { addIcons } from 'ionicons';
+import { firstValueFrom } from 'rxjs';
 import { arrowBackOutline, chevronBack } from 'ionicons/icons';
-
+import { TermsModalComponent } from 'src/app/shared/modal/terms-modal/terms-modal.component';
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonItem, IonContent, IonInput, CommonModule, FormsModule, IonIcon],
+  imports: [IonButton, IonItem, IonContent, IonInput, CommonModule, FormsModule, IonIcon],
 })
 export class LoginPage implements OnInit {
+  @ViewChild('otpInput', { static: false }) otpInput!: IonInput;
+  @ViewChild('modalHost', { read: ElementRef }) modalHost!: ElementRef;
 
-  private router = inject(Router);
-  private toastCtrl = inject(ToastController);
-  private apiService = inject(Api);
-  private authService = inject(Auth);
-  private crashlytics = inject(Crashlytics);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  private readonly router = inject(Router);
+  private  readonly toastCtrl = inject(ToastController);
+  private readonly apiService = inject(Api);
+  private readonly authService = inject(Auth);
+  private readonly crashlytics = inject(Crashlytics);
+  private  readonly modalController = inject(ModalController);
 
   version = environment.version;
 
@@ -41,6 +46,8 @@ export class LoginPage implements OnInit {
   otp: string = '';
   errorMessage: string = '';
   successMessage: string = '';
+  isResendingOtp = false;
+  isVerifyingOtp = false;
   showOtpField: boolean = false;
 
   resendCount: number = 0;
@@ -53,7 +60,6 @@ export class LoginPage implements OnInit {
   ngOnInit() {
     addIcons({ chevronBack, arrowBackOutline });
     this.restoreResendState();
-
   }
 
   ionViewWillEnter() {
@@ -90,7 +96,8 @@ export class LoginPage implements OnInit {
   /* ================= SEND OTP ================= */
 
   sendOtp() {
-    if (this.isSendingOtp || !this.isValidMobileNumber(this.mobileNumber)) return;
+    if (this.isSendingOtp || !this.isValidMobileNumber(this.mobileNumber))
+      return;
 
     this.isSendingOtp = true;
 
@@ -99,27 +106,26 @@ export class LoginPage implements OnInit {
       .pipe(finalize(() => (this.isSendingOtp = false)))
       .subscribe({
         next: (res) => this.handleOtpResponse(res, 'send'),
-        error: (err) => this.handleError(err, 'send')
+        error: (err) => this.handleError(err, 'send'),
       });
   }
 
   resendOtp() {
-    if (this.resendDisabled || !this.isValidMobileNumber(this.mobileNumber)) return;
+    if (this.resendDisabled || !this.isValidMobileNumber(this.mobileNumber))
+      return;
+    this.isResendingOtp = true;
 
     this.apiService.sendOtp(this.mobileNumber).subscribe({
       next: (res) => this.handleOtpResponse(res, 'resend'),
-      error: (err) => this.handleError(err, 'resend')
+      error: (err) => this.handleError(err, 'resend'),
     });
   }
 
   private handleOtpResponse(res: any, type: 'send' | 'resend') {
     if (res?.success === true || res?.data?.success === true) {
-
       if (type === 'send') {
         this.successMessage = 'OTP sent successfully!';
         this.showOtpField = true;
-        this.crashlytics.logBusinessEvent('OTP_SENT');
-
       } else if (type === 'resend') {
         this.resendCount++;
         if (this.resendCount > 3) this.triggerCooldown();
@@ -133,7 +139,13 @@ export class LoginPage implements OnInit {
 
   private handleError(err: any, type: 'send' | 'resend') {
     console.error(`${type} OTP Error:`, err);
-    const message = err?.error?.message || 'Something went wrong. Please try again.';
+
+    this.crashlytics.recordNonFatal(err, `OTP_${type.toUpperCase()}_FAILED`, [
+      { key: 'mobile', value: this.mobileNumber, type: 'string' },
+    ]);
+
+    const message =
+      err?.error?.message || 'Something went wrong. Please try again.';
     this.showToast(message, 'danger');
   }
 
@@ -196,53 +208,64 @@ export class LoginPage implements OnInit {
       localStorage.removeItem('otpResendState');
     }
   }
-
   async login() {
-    if (this.resendDisabled) {
-      return this.showToast(
-        'You cannot verify OTP now. Please try again after 10 minutes.'
-      );
+    if (this.isVerifyingOtp) {
+      return;
     }
 
-    if (!this.otp || !/^\d{6}$/.test(this.otp)) {
-      return this.showToast('OTP must be 6 digits.');
+    this.isVerifyingOtp = true;
+    this.cdr.detectChanges();
+
+    try {
+      const otp = (this.otp || '').trim();
+
+      if (this.resendDisabled) {
+        this.showToast(
+          'You cannot verify OTP now. Please try again after 10 minutes.'
+        );
+        return;
+      }
+
+      if (!/^\d{6}$/.test(otp)) {
+        this.showToast('OTP must be 6 digits.');
+        return;
+      }
+
+      const res = await firstValueFrom(
+      this.apiService.verifyOtp(otp, this.mobileNumber)
+    );
+
+      if (res?.success === true && res?.data?.accessToken) {
+        await this.authService.setUserData(res.data);
+        localStorage.setItem('accessToken', res.data.accessToken);
+        localStorage.setItem('refreshToken', res.data.refreshToken);
+
+        this.crashlytics.setUserContext({
+          userId: this.mobileNumber,
+          role: 'VENDOR',
+          appVersion: environment.version,
+        });
+
+        this.showToast('Login successful!', 'success');
+        await this.loadVendorBranches();
+        await this.router.navigate(['/home']);
+      } else {
+        this.showToast(res?.message || 'Invalid OTP.');
+      }
+    } catch (err) {
+      this.crashlytics.recordNonFatal(err, 'LOGIN_API_FAILED', [
+        { key: 'mobile', value: this.mobileNumber, type: 'string' },
+      ]);
+      this.showToast('Login failed. Try again.');
+    } finally {
+      this.isVerifyingOtp = false;
+      this.cdr.detectChanges();
     }
-
-    this.apiService.verifyOtp(this.otp, this.mobileNumber).subscribe({
-      next: async (res) => {
-        if (res?.success === true && res?.data?.accessToken) {
-
-          await this.authService.setUserData(res.data);
-
-          const vendors = res.data?.vendors || [];
-          const bookingVendor = vendors.find((v: any) => v.vendorType === 'BOOKING');
-          const deliveryVendor = vendors.find((v: any) => v.vendorType === 'DELIVERY');
-
-          localStorage.setItem('bookingVendorId', bookingVendor?.vendorId?.toString() || '');
-          localStorage.setItem('deliveryVendorId', deliveryVendor?.vendorId?.toString() || '');
-          localStorage.setItem('vendorType', JSON.stringify(vendors.map((v: any) => v.vendorType)));
-          localStorage.setItem('accessToken', res.data.accessToken);
-          localStorage.setItem('refreshToken', res.data.refreshToken);
-          this.crashlytics.setUserContext({
-            userId: this.mobileNumber,
-            role: 'VENDOR',
-            appVersion: environment.version
-          });
-          this.crashlytics.logBusinessEvent('LOGIN_SUCCESS');
-          this.showToast('Login successful!', 'success');
-          await this.router.navigate(['/home']);
-
-        } else {
-          this.showToast(res?.message || 'Invalid OTP.');
-        }
-      },
-      error: () => this.showToast('Login failed. Try again.')
-    });
   }
 
   filterNumberInput(event: any, type: 'mobile' | 'otp') {
     let value = event.target.value || '';
-    value = value.replace(/\D/g, '');
+    value = value.replaceAll(/\D/g, '');
 
     if (type === 'mobile') {
       this.mobileNumber = value.substring(0, 10);
@@ -251,5 +274,58 @@ export class LoginPage implements OnInit {
     }
 
     event.target.value = value;
+  }
+  private async loadVendorBranches() {
+    try {
+      const token = await this.authService.getAccessToken();
+      if (!token) {
+        console.error('No access token found');
+        return;
+      }
+
+     const res = await firstValueFrom(
+      this.apiService.getBranchDetails(token)
+    );
+      if (res?.responseStatus && res?.responseObject?.length) {
+        const booking = res.responseObject.find(
+          (x: any) => x.vedorType === 'BOOKING'
+        );
+
+        const delivery = res.responseObject.find(
+          (x: any) => x.vedorType === 'DELIVERY'
+        );
+
+        await this.authService.updateUserDetails({
+          bookingVendorId: booking?.vendorId || null,
+          deliveryVendorId: delivery?.vendorId || null,
+          bookingBranchId: booking?.branchId || null,
+          deliveryBranchId: delivery?.branchId || null,
+          vendorType: res.responseObject.map((x: any) => x.vedorType),
+        });
+
+        console.log('Vendor Context Loaded', {
+          bookingVendorId: booking?.vendorId,
+          deliveryVendorId: delivery?.vendorId,
+        });
+      }
+    } catch (e) {
+      console.error('Failed to load vendor branches', e);
+
+      this.crashlytics.recordNonFatal(e, 'LOAD_VENDOR_BRANCH_FAILED', [
+        { key: 'mobile', value: this.mobileNumber, type: 'string' },
+      ]);
+    }
+  }
+  showTerms = false;
+  async openTerms() {
+    const modal = await this.modalController.create({
+      component: TermsModalComponent,
+      cssClass: 'sfx-modal',
+      backdropDismiss: true,
+      breakpoints: [0, 0.7],
+      initialBreakpoint: 0.7,
+    });
+
+    await modal.present();
   }
 }

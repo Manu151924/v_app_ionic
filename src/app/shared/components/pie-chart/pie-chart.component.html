@@ -1,13 +1,34 @@
-<div class="pie-wrapper">
-  <ngx-charts-pie-chart
-    [results]="data"
-    [scheme]="colorScheme"
-    [doughnut]="true"
-    [arcWidth]="arcWidth"
-    [labels]="labels"
-    [legend]="false"
-    [view]="view"
-    [animations]="true"
-    [labelFormatting]="labelFormatting">
-  </ngx-charts-pie-chart>
+@if(tab=== 'delivery'){
+<div class="piePan4">
+  <div class="chart-wrapper-delivery">
+    <canvas #chartCanvas></canvas>
+
+    <div class="center-text delivery">
+      <div class="label">Total</div>
+      <div class="value">{{totalWaybill}}</div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="delivered">
+      <div class="delivery-head">Delivered</div>
+      <span class="delivery-data">WB: {{totalWaybillAndWeight.deliveredWaybills}}</span>
+      <span class="delivery-data">Wt (T): {{totalWaybillAndWeight.deliveredWeight | number:'1.2-2'}}</span>
+    </div>
+    <div class="undelivered">
+      <div class="delivery-head">Un-Delivered</div>
+      <span class="delivery-data">WB: {{totalWaybillAndWeight.undeliveredWaybills}}</span>
+      <span class="delivery-data">Wt (T): {{totalWaybillAndWeight.undeliveredWeight | number:'1.2-2'}}</span>
+    </div>
+  </div>
 </div>
+}
+@if(tab === 'booking'){
+<div class="chart-wrapper">
+  <canvas #chartCanvas></canvas>
+
+  <div class="center-text">
+    <div class="label">BOOKED</div>
+    <div class="value">{{totalWaybill}}</div>
+  </div>
+</div>
+}

@@ -1,0 +1,116 @@
+.liquid-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 75px;
+  z-index: 999;
+
+  svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 -8px 20px rgba(0, 0, 0, 0.08));
+
+    path {
+      fill: #fff;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+}
+
+.tabs {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  display: flex;
+}
+
+.tab-btn {
+  flex: 1;
+  position: relative;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+/* Floating button */
+.floating {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%) translateY(40px) scale(0.5);
+  opacity: 0;
+  transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  &.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  .circle {
+    width: 48px;
+    height: 48px;
+    background: #28a745;
+    border-radius: 50%;
+    box-shadow: 0 8px 15px rgba(40, 167, 69, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+
+    img {
+      width: 47px;
+      margin-bottom: 2px;
+    }
+
+    span {
+      font-size: 9px;
+      font-weight: 700;
+    }
+  }
+}
+
+/* Inactive icons */
+.inactive {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s ease;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+
+  &.hide {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.8);
+    pointer-events: none;
+  }
+}
+
+.icon-wrap {
+  position: relative;
+
+  .badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: #ffc107;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid white;
+  }
+  .task-label {
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #28a745; // green
+    line-height: 1;
+  }
+}

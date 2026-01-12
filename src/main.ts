@@ -28,6 +28,7 @@ bootstrapApplication(AppComponent, {
       useClass: GlobalErrorHandler
     },
     provideAnimations(),
+    provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     importProvidersFrom(NgxSpinnerModule.forRoot()),
     importProvidersFrom(IonicStorageModule.forRoot())

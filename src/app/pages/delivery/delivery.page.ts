@@ -1,242 +1,399 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit, ViewChild } from '@angular/core';
-import { IonContent, IonCard, IonItem, IonIcon , IonSelect,IonSelectOption, IonNote, IonButton, IonToolbar, IonFooter, IonButtons, IonText, IonModal, IonRow, IonCol, IonGrid, IonPopover, IonList } from "@ionic/angular/standalone";
-import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
-import { MatNativeDateModule } from '@angular/material/core'; 
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder, FormGroup, FormsModule , } from '@angular/forms';
-import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+  ViewChild,
+  ChangeDetectorRef,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { formatDisplayDate, formatMonthYearShort } from 'src/app/shared/utilities/date-utils';
-import { AbsentVehicle, Delivery, TripVehicle } from 'src/app/shared/services/delivery';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  IonButton,
+  IonCard,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonPopover,
+  IonList,
+  IonItem,
+  IonRefresher,
+  IonRefresherContent,
+} from '@ionic/angular/standalone';
+import {
+  MatDatepicker,
+  MatDatepickerModule,
+} from '@angular/material/datepicker';
+import { BehaviorSubject, finalize } from 'rxjs';
+import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
+import { ToastController } from '@ionic/angular';
+
+import { Delivery } from 'src/app/shared/services/delivery';
 import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart.component';
 import { ProgressSliderComponent } from 'src/app/shared/components/progress-slider/progress-slider.component';
+import { TripReportDeliveryComponent } from 'src/app/shared/components/trip-report-delivery/trip-report-delivery.component';
+import { InventoryCardComponent } from 'src/app/shared/components/inventory-card/inventory-card.component';
+import {
+  formatDisplayDate,
+  formatMonthYearShort,
+} from 'src/app/shared/utilities/date-utils';
+import { MatNativeDateModule } from '@angular/material/core';
 import { addIcons } from 'ionicons';
-import { NgxSpinnerService, NgxSpinnerComponent, NgxSpinnerModule } from 'ngx-spinner';
-import { calendar, carOutline, chevronDownOutline, chevronUpOutline, document, location, shieldCheckmark } from 'ionicons/icons';
-import { TripReportDeliveryComponent } from "src/app/shared/components/trip-report-delivery/trip-report-delivery.component";
-import { InventoryCardComponent } from "src/app/shared/components/inventory-card/inventory-card.component";
-
-
+import { chevronDownOutline } from 'ionicons/icons';
+import { Crashlytics } from 'src/app/shared/services/crashlytics';
 
 @Component({
   selector: 'app-delivery',
+  standalone: true,
   templateUrl: './delivery.page.html',
   styleUrls: ['./delivery.page.scss'],
-  imports: [IonList, IonPopover, IonGrid, IonCol, IonRow, IonModal,
-    IonContent,
-    IonCard,
-    IonItem,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatNativeDateModule,
-    IonIcon,
-    IonButton,
-    FormsModule,
-    NgxChartsModule,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IonButton,
+    IonCard,
+    IonGrid,
+    IonRow,
+    IonCol,
+    MatNativeDateModule,
+    MatDatepickerModule,
+    NgxSpinnerModule,
     PieChartComponent,
+    IonRefresher,
+    IonRefresherContent,
     ProgressSliderComponent,
-    IonToolbar,
-    IonFooter,
-    NgxSpinnerComponent, NgxSpinnerModule,
-    IonButtons, TripReportDeliveryComponent, InventoryCardComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    InventoryCardComponent,
+    TripReportDeliveryComponent,
+    IonPopover,
+    IonList,
+    IonItem,
+  ],
 })
-export class DeliveryPage implements OnInit {
-      @Input() vendorId!: any;
+export class DeliveryPage implements OnInit, OnChanges {
+  @Input() vendorId!: any;
+  private toastController = inject(ToastController);
+  private crashlytics = inject(Crashlytics);
+
+  deliveryVendorId!: number;
+  deliveryBranchId: number | null = null;
+
   deliveryVendorId$ = new BehaviorSubject<number | null>(null);
 
-      
+  amount = 0;
+  pending = 0;
+  usage = 0;
+  safe = 0;
+
+  totalWaybill = 0;
+  totalWaybillAndWeight = {}
+  panelFourPieData: any[] = [];
+  panelFourBars = [
+    { label: 'Vehicle Attendance', value: 0, gradient: '' },
+    { label: 'Safedrop Usage', value: 0, gradient: '' },
+    { label: 'Market Vehicle Usage', value: 0, gradient: '' },
+  ];
+
+  // Month UI
   validMonths: string[] = [];
+  selectedMonth = '';
+  selectedDate!: Date;
+
   popoverOpen = false;
   popoverEvent: any;
 
+  displayDate = formatDisplayDate(new Date());
+  COMMON_GRADIENT =
+    'linear-gradient(90deg, #DA2723 0%, #D2E241 40%, #41D844 100%)';
+  GRADIENT = 'linear-gradient(90deg,#42D844 0%, #D2E241 48.2%, #DA2D24 100%)';
 
-  form: FormGroup;
-  cities = ['Delhi', 'Mumbai', 'Hyderabad', 'Chennai'];
   @ViewChild('monthPicker') monthPicker!: MatDatepicker<Date>;
-    totalWaybill = 0;
-  waybill = 0;
-
-  today = new Date();
-  minDate!: Date;
-  maxDate!: Date;
-  availableMonths: string[] = [];
-  selectedMonth: any = new Date();
-  calendarOpen = false;
-  selectedDate: Date = new Date(); 
-  tempSelectedDate: Date = new Date();
-
-  tripVehicles$!: Observable<TripVehicle[]>;
-  absentVehicles$!: Observable<AbsentVehicle[]>;
-  barData$ = this.service.getBarData();
-  pieChartData$ = this.service.getPieChartData();
-  amount =   Math.floor(Math.random() * (99999 - 100000 + 1)) + 100000;
-  pending =   Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-  usage =   Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-  safe =   Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-
-  displayedLimit = 5;
-  isExpanded = false;
-  progressValue = 0;
-
-  colorScheme: Color = {
-    name: 'myScheme',
-    selectable: true,
-    group: ScaleType.Ordinal,
-    domain: ['#FFBC00', '#FFBC00', '#13C15B', '#13C15B', '#13C15B']
-  };
-bars = [
-  { label: 'Vehicle Attendance', value: Math.floor(Math.random() * (99 - 10 + 1)) + 10 },
-  { label: 'Safedrop Usage', value: Math.floor(Math.random() * (99 - 10 + 1)) + 10 },
-  { label: 'Market Vehicle Usage', value: Math.floor(Math.random() * (99 - 10 + 1)) + 10 }
-];
-  colorSchemeForPie: Color = {
-    name: 'pieScheme',
-    selectable: true,
-    group: ScaleType.Ordinal,
-    domain: ['#06B4A2', '#FF8A0D']
-  };
-
-  constructor(private fb: FormBuilder, private service: Delivery, private spinner: NgxSpinnerService,) {
-    this.form = this.fb.group({
-      selectedCity: [this.cities[0]],
-      selectedDate: [new Date()],
-      selectedMonth: [new Date()]
-    });
-    addIcons({location,calendar,document,carOutline,shieldCheckmark,chevronDownOutline,chevronUpOutline})
+  @Input() active = false;
+  private loaded = false;
+  async doRefresh(event: any) {
+    await Promise.all([this.loadPanelFourByDate(), this.loadPanelThreeData()]);
+    event.target.complete();
   }
 
+  constructor(
+    private service: Delivery,
+    private spinner: NgxSpinnerService,
+    private cdr: ChangeDetectorRef
+  ) {
+    addIcons({ chevronDownOutline });
+  }
 
-  ngOnInit(): void {
-    this.tripVehicles$ = this.service.getTripVehicles();
-    this.absentVehicles$ = this.service.getAbsentVehicles();
-    this.setDateRange();
-      const id = localStorage.getItem('deliveryVendorId');
+  ngOnInit() {
+    this.buildMonthList();
+  }
 
-    if (id) {
-      this.deliveryVendorId$.next(Number(id));
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['vendorId'] && this.vendorId) {
+      this.deliveryVendorId = this.vendorId;
     }
-    this.updateAverageProgress();
-    this.generateAvailableMonths();
-  }
-  formatXTicks(value: number): string {
-  return value.toString();
-}
 
-  changeCity(event: any) {
-    this.barData$ = this.service.getBarData();
-    this.amount =   Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
-    this.pending =   Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-    this.usage =   Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-    this.safe =   Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-    this.bars = [
-  { label: 'Vehicle Attendance', value: Math.floor(Math.random() * (99 - 10 + 1)) + 10 },
-  { label: 'Safedrop Usage', value: Math.floor(Math.random() * (99 - 10 + 1)) + 10 },
-  { label: 'Market Vehicle Usage', value: Math.floor(Math.random() * (99 - 10 + 1)) + 10 }
-];
-this.updateAverageProgress();
-}
-  setDateRange() {
+    if (changes['active'] && this.active && !this.loaded) {
+      console.log('📡 Delivery first load');
+      this.loaded = true;
+      this.crashlytics.logBusinessEvent('DELIVERY_PAGE_OPEN', {
+        vendor: this.deliveryVendorId,
+        branch: this.deliveryBranchId,
+      });
+      this.loadPanelThreeData();
+      this.loadPanelFourByDate(this.selectedDate);
+    }
+  }
+  async forceRefresh() {
+    console.log('🔄 Delivery refresh');
+
+    await Promise.all([
+      this.loadPanelThreeData(),
+      this.loadPanelFourByDate(this.selectedDate),
+    ]);
+  }
+
+  // ----------------------- MONTH HANDLING -----------------------
+
+  buildMonthList() {
     const today = new Date();
-    this.maxDate = today;
-    const min = new Date();
-    min.setMonth(today.getMonth() - 12);
-    this.minDate = min;
-  }
+    this.validMonths = [];
 
-  generateAvailableMonths() {
-    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const currentYear = this.today.getFullYear();
-    const currentMonth = this.today.getMonth();
-    this.availableMonths = [];
-    for (let m = 0; m <= currentMonth; m++) {
-      this.availableMonths.push(`${monthNames[m]}-${currentYear.toString().slice(-2)}`);
+    for (let i = 3; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      this.validMonths.push(this.formatMonth(d)); // Jan-25
     }
-  }
 
- displayDate: string = formatDisplayDate(new Date());
+    this.selectedMonth = this.validMonths[this.validMonths.length - 1];
+    this.selectedDate = this.convertMonthStringToDate(this.selectedMonth);
+  }
 
   formatMonth(date: Date) {
-    return formatMonthYearShort(date);
+    return formatMonthYearShort(date); // must return Jan-25
   }
 
-  toggleExpansion() {
-    this.isExpanded = !this.isExpanded;
-    this.displayedLimit = this.isExpanded ? 1000 : 5;
-  }
-  openMonthPicker() {
-    this.monthPicker.open();
+  toggleMonthPopover(ev: any) {
+    this.popoverEvent = ev;
+    this.popoverOpen = true;
   }
 
-  onProgressChange(newVal: number) {
-    this.progressValue = newVal;
-  }
-
-  trackByVeh(index: number, item: TripVehicle) { return item.vehNo; }
-  trackByAbsent(index: number, item: AbsentVehicle) { return item.vehNo; }
-  setToday() {
-    this.form.get('selectedDate')?.setValue(new Date());
-  }
-  get selectedCityControl(): FormControl {
-  return this.form.get('selectedCity') as FormControl;
-}
-openCalendar() {
-    this.tempSelectedDate = this.selectedDate;
-    console.log(this.tempSelectedDate);
-    this.calendarOpen = true;
-  }
-
-  onDateSelect(date: Date) {
-    this.tempSelectedDate = date;
-    this.displayDate = formatDisplayDate(date);
-    console.log(this.displayDate);
-  }
-
-  cancelDate() {
-    this.tempSelectedDate = this.selectedDate;
-    this.calendarOpen = false;
-  }
-  confirmDate() {
-    this.selectedDate = this.tempSelectedDate;
-    this.calendarOpen = false;
-  }
-  chosenMonthHandler(normalizedMonth: Date, datepicker: MatDatepicker<Date>) {
-    this.selectedMonth = normalizedMonth;
-    this.form.patchValue({ selectedMonth: normalizedMonth });
-    this.bars = [
-  { label: 'Vehicle Attendance', value: Math.floor(Math.random() * (99 - 10 + 1)) + 10 },
-  { label: 'Safedrop Usage', value: Math.floor(Math.random() * (99 - 10 + 1)) + 10 },
-  { label: 'Market Vehicle Usage', value: Math.floor(Math.random() * (99 - 10 + 1)) + 10 }
-];
-this.updateAverageProgress();
-    datepicker.close();
-  }
-  
-  selectMonth(month: any) {
-    this.selectedMonth = month;
+  selectMonth(monthStr: string) {
+    this.selectedMonth = monthStr;
     this.popoverOpen = false;
 
-    this.getGradient(month);
+    this.selectedDate = this.convertMonthStringToDate(monthStr);
+    this.loadPanelFourByDate(this.selectedDate);
   }
 
-getGradient(value: number): string {
-  if (value >= 0 && value <= 33) {
-    return 'linear-gradient(90deg, #DA2D24 0%, #D2E241 60%, #42D844 100%)';
-  } else if (value >= 34 && value <= 66) {
-    return 'linear-gradient(90deg, #D2E241 0%, #42D844 80%, #DA2D24 100%)';
-  } else {
-    return 'linear-gradient(90deg, #42D844 0%, #D2E241 60%, #DA2D24 100%)';
-  }
-}
+  convertMonthStringToDate(monthStr: string): Date {
+    const [mon, yr] = monthStr.split('-');
 
-updateAverageProgress() {
-  const total = this.bars.reduce((sum, bar) => sum + bar.value, 0);
-  this.progressValue = Math.round(total / this.bars.length);
-}
+    const map: any = {
+      Jan: 0,
+      Feb: 1,
+      Mar: 2,
+      Apr: 3,
+      May: 4,
+      Jun: 5,
+      Jul: 6,
+      Aug: 7,
+      Sep: 8,
+      Oct: 9,
+      Nov: 10,
+      Dec: 11,
+    };
+
+    return new Date(2000 + Number(yr), map[mon], 1);
+  }
+
+  // ----------------------- BRANCH CHANGE -----------------------
+
+  onDeliveryBranchChange(branchId: number) {
+    this.deliveryBranchId = branchId;
+    // this.crashlytics.logBusinessEvent('DELIVERY_BRANCH_CHANGED', {
+    //   vendor: this.deliveryVendorId,
+    //   branch: branchId,
+    // });
+
+    this.loadPanelThreeData();
+    this.loadPanelFourByDate(this.selectedDate);
+  }
+
+  // ----------------------- PANEL 3 -----------------------
+
+  loadPanelThreeData() {
+    if (!this.deliveryVendorId || !this.deliveryBranchId) return;
+
+    this.spinner.show();
+
+    this.service
+      .getPanelThreeDeliveryData(
+        this.deliveryBranchId,
+        this.deliveryVendorId,
+        'TOKEN'
+      )
+      .subscribe({
+        next: (res) => {
+          const d = res.responseObject || {};
+
+          this.amount = Math.round(d.toBeCollected || 0);
+          this.pending = d.pendingPods || 0;
+          this.usage = d.marketVehicleUsage || 0;
+          this.safe = Math.round(d.safeDropUsage || 0);
+
+          this.spinner.hide();
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.spinner.hide();
+
+          this.crashlytics.recordNonFatal(err, 'DELIVERY_PANEL3_FAILED', [
+            {
+              key: 'vendor',
+              value: String(this.deliveryVendorId),
+              type: 'string',
+            },
+            {
+              key: 'branch',
+              value: String(this.deliveryBranchId),
+              type: 'string',
+            },
+          ]);
+        },
+      });
+  }
+
+  // ----------------------- PANEL 4 -----------------------
+
+  loadPanelFourByDate(date?: Date) {
+    if (!date || !this.deliveryVendorId || !this.deliveryBranchId) {
+      console.warn('Panel-4 skipped – missing date/vendor/branch', {
+        date,
+        vendor: this.deliveryVendorId,
+        branch: this.deliveryBranchId,
+      });
+      return;
+    }
+
+    console.log(' Panel-4 loading for:', date);
+
+    this.spinner.show();
+
+    // this.crashlytics.logBusinessEvent('DELIVERY_PANEL4_LOAD', {
+    //   vendor: this.deliveryVendorId,
+    //   branch: this.deliveryBranchId,
+    //   month: this.selectedMonth,
+    // });
+
+    this.service
+      .getDeliveryPanelFourData(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        this.deliveryBranchId,
+        this.deliveryVendorId,
+        'TOKEN'
+      )
+      .pipe(
+        finalize(() => {
+          this.spinner.hide();
+          this.cdr.detectChanges(); // required for OnPush
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          const d = res?.responseObject || {};
+
+          this.totalWaybill = d.totalWaybills ?? 0;
+
+          this.totalWaybillAndWeight = {
+            deliveredWaybills: d.deliveredWaybills ?? 0,
+            deliveredWeight: d.deliveredWeight ?? 0,
+            undeliveredWaybills: d.undeliveredWaybills ?? 0,
+            undeliveredWeight: d.undeliveredWeight ?? 0
+          }
+
+
+          this.panelFourPieData = [
+            { name: 'Un-Delivered', value: d.undeliveredWaybills },
+            { name: 'Delivered', value: d.deliveredWaybills },
+          ];
+
+          this.panelFourBars = [
+            {
+              label: 'Vehicle Attendance',
+              value: d.vehicleAttendence ?? 0,
+              gradient: this.COMMON_GRADIENT,
+            },
+            {
+              label: 'Safedrop Usage',
+              value: Math.round(d.safedropUsage ?? 0),
+              gradient: this.COMMON_GRADIENT,
+            },
+            {
+              label: 'Market Vehicle Usage',
+              value: Math.round(d.marketVehicleCount ?? 0),
+              gradient: this.GRADIENT,
+            },
+          ];
+
+          this.calculateHappinessFromPanel4();
+        },
+        error: (err) => {
+          console.error('Panel-4 API failed', err);
+
+          this.crashlytics.recordNonFatal(err, 'DELIVERY_PANEL4_FAILED', [
+            {
+              key: 'vendor',
+              value: String(this.deliveryVendorId),
+              type: 'string',
+            },
+            {
+              key: 'branch',
+              value: String(this.deliveryBranchId),
+              type: 'string',
+            },
+            { key: 'month', value: this.selectedMonth, type: 'string' },
+          ]);
+        },
+      });
+  }
+
+  progressValue = 0; // drives slider
+  progressFace: 'ANGRY' | 'HAPPY' | 'GREAT' = 'ANGRY';
+  progressGradient = '';
+
+  calculateHappinessFromPanel4() {
+    const colors = this.panelFourBars.map((b) =>
+      this.getHeatColor(b.value, b.label)
+    );
+
+    const hasRed = colors.includes('RED');
+    const hasAmber = colors.includes('AMBER');
+    const allGreen = colors.every((c) => c === 'GREEN');
+
+    if (hasRed) {
+      this.progressFace = 'ANGRY';
+      this.progressValue = 25;
+    } else if (hasAmber) {
+      this.progressFace = 'HAPPY';
+      this.progressValue = 60;
+    } else if (allGreen) {
+      this.progressFace = 'GREAT';
+      this.progressValue = 95;
+    }
+
+    console.log('Happiness →', this.progressFace, this.progressValue, colors);
+  }
+
+  getHeatColor(value: number, label: string): 'RED' | 'AMBER' | 'GREEN' {
+    if (label === 'Market Vehicle Usage' && value === 0) {
+      return 'GREEN';
+    }
+    if (value <= 25) return 'RED';
+    if (value <= 70) return 'AMBER';
+    return 'GREEN';
+  }
 }

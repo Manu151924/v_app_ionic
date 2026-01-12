@@ -1,22 +1,40 @@
 .progress-wrapper {
   position: relative;
-  width: 90%;
-  max-width: 600px;
-  margin: 20px auto;
+  width: 100%;
+  margin: 0.7em 0;
 }
-
 .progress-bar {
-  height: 20px;
-  border-radius: 15px;
+  height: 1.1em;
+  border-radius: 1em;
   overflow: hidden;
-  background: linear-gradient(to right, red, orange, green);
-  position: relative;
+  background: linear-gradient(
+    90deg,
+    #ff0000 0%,
+    #ff8000 25%,
+    #89b72a 70.3%,
+    #2de14b 100%
+  );
+}
+.emoji-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+  z-index: 5;
 }
 
 .progress-fill {
   height: 100%;
-  background: transparent; 
+  background: transparent;
   transition: width 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
 }
 
 .progress-emoji {
@@ -31,25 +49,26 @@
   position: absolute;
   top: 35px;
   right: 0;
-  font-size: 16px;  
+  font-size: 16px;
   color: #444;
 }
+
 .bars-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  height: 100%;
+  justify-content: space-evenly;
 }
 
 .bar-item {
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 
 .bar-label {
   font-size: 12px;
-  color: #333;
-  margin-bottom: 4px;
+  color: #000000;
   white-space: nowrap;
 }
 
@@ -60,27 +79,23 @@
   background: #eaeaea;
   border-radius: 8px;
   overflow: hidden;
-}s
+}
 
-.bar-fill {
+s .bar-fill {
   height: 100%;
   border-radius: 8px;
   transition: width 0.4s ease-in-out;
 }
 
 .bar-percent {
-  position: absolute;
-  right: 8px;
-  top: 27px;
-  font-size: 12px;
   color: #fff;
-  font-weight: 700;
   font-family: Inter;
   white-space: nowrap;
-font-weight: 700;
-font-style: Bold;
-font-size: 12px;
-line-height: 100%;
-letter-spacing: 0%;
-
+  font-weight: 700;
+  font-size: 0.86em;
+  line-height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-left: 1.7em;
+  padding-right: 0.3em;
 }

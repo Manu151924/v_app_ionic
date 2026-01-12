@@ -1,43 +1,40 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title class="title">Assigned SFX</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" class="close-btn" (click)="close()">
-        <ion-icon name="close"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<!-- <ion-header> -->
+<!-- <ion-toolbar> -->
+<!-- </ion-toolbar>
+  </ion-header> -->
 
 <ion-content class="ion-padding scroll-area">
+  <div class="header-container">
+    <ion-text class="title">Assigned SFX</ion-text>
+    <ion-buttons>
+      <ion-button fill="clear" class="close-btn" (click)="close()">
+        <ion-icon name="close" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </div>
 
   <div class="sfx-list-container">
 
     @for (item of assignedSfxData; track item) {
 
-      <div class="sfx-card">
+    <div class="sfx-card">
 
-        <!-- FIRST ROW -->
-        <div class="sfx-row">
-          <div class="sfx-label">SFX Code</div>
-          <div class="pickup-label">Last Pickup Date</div>
+      <div class="first-row">
+        <div class="field">
+          <div class="label">SFX Code</div>
+          <div class="value">{{ item.sfxCode }}</div>
         </div>
-
-        <!-- VALUES -->
-        <div class="sfx-row">
-          <div class="sfx-value">{{ item.sfxCode }}</div>
-          <div class="pickup-value">{{ item.lastPickupDate | date:'dd-MMM-yyyy' }}</div>
+        <div class="field">
+          <div class="label">Last Pickup Date</div>
+          <div class="value">{{ item.lastPickupDate | date:'dd-MMM-yyyy' }}</div>
         </div>
-
-        <!-- CONSIGNOR LABEL -->
-        <div class="sfx-row consignor-row">
-          <div class="sfx-label">Consignor</div>
-        </div>
-
-        <!-- CONSIGNOR VALUE -->
-        <div class="sfx-value consignor">{{ item.consignorName }}</div>
-
       </div>
+
+      <div class="second-row">
+        <div class="label">Consignor</div>
+        <div class="value">{{ item.consignorName }}</div>
+      </div>
+    </div>
 
     }
 

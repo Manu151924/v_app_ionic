@@ -17,12 +17,25 @@ export class ShExModalComponent {
   @Input() shExDetails: any[] = [];
   @Input() vehcleNoFull: string = '';
 
-
   constructor() {
-    addIcons({close})
+    addIcons({ close });
   }
 
   close() {
     this.modalCtrl.dismiss();
   }
+
+  // 🔥 Format: HP933363 → HP 93 3363
+  get formattedVehicleNo(): string {
+    if (!this.vehcleNoFull) return '';
+
+    const value = this.vehcleNoFull.replace(/\s+/g, '');
+
+    const match = value.match(/^([A-Z]{2})(\d{2})(\d+)$/);
+
+    if (!match) return this.vehcleNoFull; // fallback if pattern doesn't match
+
+    return `${match[1]} ${match[2]} ${match[3]}`;
+  }
 }
+

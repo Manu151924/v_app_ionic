@@ -1,10 +1,7 @@
 .login-content {
   --background: #1A1B1B;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
+  height: 100%;
+
 }
 .back-icon {
     position: absolute;
@@ -29,23 +26,6 @@
   z-index: 5;
 }
 
-.product-text{
-    width: 68px;
-    height: 14px;
-    opacity: 1;
-    position: relative;
-    top: 207.69px;
-    left: 180.05px;
-    font-family: Roboto;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: 12px;
-    white-space: nowrap;
-    line-height: 100%;
-    letter-spacing: 0%;
-    opacity: 1;
-    top: 145px;
-}
 
 .login-header {
   background: #1A1B1B;
@@ -117,6 +97,24 @@ ion-input {
   background: transparent;
   border: none;
 }
+.otp-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 10px;
+  text-align: right;
+  width: 100%;
+  font-size: 13px;
+  font-weight: 500;
+  color: #11C15B;
+  cursor: pointer;
+}
+
+.otp-link:disabled {
+  color: #bbb;
+  cursor: not-allowed;
+}
+
 
 .actions, .otp-actions {
   margin-top: 22px;
@@ -125,10 +123,17 @@ ion-input {
   align-items: center;
   justify-content: center;
 }
-.send-otp-btn,
+.send-otp-btn{
+  border: none;
+  color: #11C15B;
+  padding: 10px 38px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 .submit-btn {
-  background-color: #11C15B;
-  color: #fff;
+  background-color: #39B54A;
   border: none;
   border-radius: 24px;
   padding: 10px 38px;
@@ -191,17 +196,17 @@ ion-button {
 
 .version {
   color: #000;
-  font-family: 'Roboto';
   font-size: 13px;
   font-weight: 400;
 }
 
 .tnc {
-  font-family: 'Roboto';
   font-size: 13px;
   font-weight: 400;
   color: #000;
   text-decoration: underline;
+    cursor: pointer;
+
 }
 
 @media (max-height: 720px) {
@@ -231,25 +236,21 @@ ion-button {
   .resend-otp{
         margin-left: -15rem;
   }
-  .product-text{
-    white-space: nowrap;
-    width: 68px;
-    height: 14px;
-    opacity: 1;
-    position: relative;
-    left: 150.05px;
-    font-family: Roboto;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: 12px;
-    line-height: 100%;
-    letter-spacing: 0%;
-    top: 115px;
-  }
+
 }
 
-@media(min-width:390px) and (max-width:415px){
-  .product-text{
-    left:164.05px;
-  }
+
+
+.submit-btn[disabled] {
+  pointer-events: none;
+}
+.modal-host {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.modal-host ion-modal {
+  pointer-events: auto;
 }

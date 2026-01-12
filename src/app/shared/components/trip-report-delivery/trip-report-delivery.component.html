@@ -1,75 +1,222 @@
-<div class="trip-report-card">
-  <div class="header-row">
-    <div class="header-left">
-      <img src="assets/icon/trip.png" alt="trip" class="trip-icon" />
-      <span class="title">Trip Status</span>
-      <span class="big-count green">{{ tripStatusRows.length }}</span>
+<div class="container">
+  <div class="status-bar-row">
+    <div class="status-pill">
+      OFD:{{ totalDelAndUnDel?.totalOfd }} | DELIVERED:{{
+        totalDelAndUnDel?.totalDelivered
+      }}
+      / PKG:{{ totalDelAndUnDel?.totalPackages }} / WT(T):{{
+        totalDelAndUnDel?.totalWeight
+      }}
+      <span class="undelivered-labels"
+        >UN-DELIVERED:{{ totalDelAndUnDel?.totalUndelivered }}</span
+      >
     </div>
 
-    <div class="header-right">
-      <img src="assets/icon/absent.png" alt="absent" class="absent-icon" />
-      <span class="title">Absent</span>
-      <span class="big-count red">{{ absentRows.length }}</span>
+    <div class="today-btn-container">
+      <ion-button
+        fill="clear"
+        class="today-btn"
+        (click)="toggleCalendar($event)"
+      >
+        {{ selectedDateLabel }}
+        <img src="assets/icon/fit.png" alt="arrow-down" class="arrow-down" />
+      </ion-button>
     </div>
-  </div>
-
-  <div class="tables-row">
-    <!-- Trip Status Table -->
-    <div class="table-left">
-      <table class="trip-table">
-        <thead>
-          <tr>
-            <th>VEH No.</th>
-            <th>OFD Status</th>
-            <th>Last Updated</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (ts of visibleTripStatusRows; track ts.vehicle) {
-            <tr>
-              <td class="veh-no">{{ ts.vehicle }}</td>
-              <td>
-                <span [ngClass]="getTextColorClass(ts.ofdStatus, ts.total)">
-                  {{ ts.ofdStatus }}/{{ ts.total }}
-                </span>
-              </td>
-              <td class="time">{{ ts.lastUpdated }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    @if (showCalendar) {
+    <div class="calendar-popup" (click)="$event.stopPropagation()">
+      @if(calendarKey){
+      <mat-calendar
+        [selected]="selectedDate"
+        [startAt]="selectedDate"
+        [minDate]="minDate"
+        [maxDate]="maxDate"
+        (selectedChange)="onDateChange($event)"
+      >
+      </mat-calendar>
+      }
     </div>
-
-    <!-- Absent Table -->
-    <div class="table-right">
-      <table class="absent-table">
-        <thead>
-          <tr>
-            <th>VEH No.</th>
-            <th>Last Trip Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (ab of absentRows; track ab.vehicleNo) {
-            <tr>
-              <td class="veh-no">{{ ab.vehicleNo }}</td>
-              <td class="date">{{ ab.lastTripDate }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="toggle-arrow-row">
-    @if (!showAll) {
-      <span class="arrow-btn" (click)="toggleShowAll()">
-        <img src="assets/icon/arrow-back.png" alt="arrow-back" class="arrow-icon">
-      </span>
-    } @else {
-      <span class="arrow-btn" (click)="toggleShowAll()">
-       <img src="assets/icon/uparrow.png" alt="arrow-up" class="arrow-up-icon">
-      </span>
     }
   </div>
+
+  <ngx-spinner
+    bdColor="rgba(255,255,255,0.1)"
+    color="#2ca85e"
+    size="large"
+    type="ball-clip-rotate"
+    [fullScreen]="true"
+  >
+    <p class="loader-text">Loading..</p>
+  </ngx-spinner>
+
+  <div class="trip-report-card">
+    <div class="header-row">
+      <div class="header-left">
+        <div class="trip-status-header">
+          <div class="trip-name">
+            <img src="assets/icon/trip.png" alt="trip" />
+            <span class="title">Trip Status</span>
+          </div>
+          <span class="big-count green">{{ tripStatusRows.length }}</span>
+        </div>
+        <div class="trip-status-data">
+          <div class="table-left">
+            <table class="trip-table">
+              <thead>
+                <tr>
+                  <th>VEH No.</th>
+                  <th class="mf-uld-header">OFD Status</th>
+                  <th>Last Updated</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @if (visibleTripStatusRows.length > 0) { @for (ts of
+                visibleTripStatusRows; track $index) {
+                <tr>
+                  <td
+                    class="veh-no manifest-link"
+                    (click)="showPopoverManifest($event, ts.manifestNumbers)"
+                  >
+                    {{ ts.vehicle ? ts.vehcleNoShort : "-" }}
+                    @if(ts.multipleTripStatus){
+                    <span class="checkmarkIcon">*</span>
+                    }
+                  </td>
+
+                  <td>
+                    <span class="green">
+                      {{ ts.manifestedWB ?? "-" }}
+                    </span>
+                    /
+                    <span
+                      [ngClass]="
+                        isMatch(ts.manifestedWB, ts.unloadedWB)
+                          ? 'green'
+                          : 'red'
+                      "
+                    >
+                      {{ ts.unloadedWB ?? "-" }}
+                    </span>
+                  </td>
+                  <td class="sh-ex">
+                    <div>
+                      {{ ts.lastUpdated }}
+                    </div>
+                    @if(isMatch(ts.manifestedWB, ts.unloadedWB) ? true : false){
+                    <ion-icon
+                      name="checkmark-circle"
+                      class="checkmarkIcon"
+                    ></ion-icon>
+                    }@else {
+                    <div class="emptyDiv"></div>
+                    }
+                    <div>
+                      <ion-icon
+                        name="location-sharp"
+                        class="locationIcon"
+                        (mouseenter)="showPopover($event, ts.lastLocation)"
+                        (mouseleave)="hidePopover()"
+                      ></ion-icon>
+
+                      <ion-popover
+                        [isOpen]="isPopoverOpen"
+                        [event]="popoverEvent"
+                        showBackdrop="false"
+                      >
+                        <ng-template>
+                          <ion-content class="ion-padding">
+                            {{ ts.lastLocation }}
+                          </ion-content>
+                        </ng-template>
+                      </ion-popover>
+                    </div>
+                  </td>
+                </tr>
+                } } @else {
+                <tr>
+                  <td colspan="4" class="no-data">No Trip Data Found</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="absent-vehicle-header">
+          <div class="absent-name">
+            <img src="assets/icon/absent.png" alt="absent" />
+            <span class="title">Absent</span>
+          </div>
+          <span class="count red">{{ absentRows.length }}</span>
+        </div>
+        <div class="absent-vehicle-data">
+          <div class="table-right">
+            <table class="absent-table">
+              <thead>
+                <tr class="table-row">
+                  <th>VEH No.</th>
+                  <th>Last Trip Date</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @if (visibleAbsentRows.length > 0) { @for (ab of
+                visibleAbsentRows; track $index) {
+                <tr class="table-row">
+                  <td class="veh-no">{{ ab.vehicleNo }}</td>
+                  <td class="date">{{ ab.lastPickup }}</td>
+                </tr>
+                } } @else {
+                <tr>
+                  <td colspan="2" class="no-data">No Absent Vehicles Found</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOGGLE ROW -->
+    <div class="toggle-arrow-row">
+      <span class="arrow-btn" (click)="toggleShowAll()">
+        @if (!showAll) {
+        <img
+          src="assets/icon/arrow-back.png"
+          alt="arrow-back"
+          class="arrow-icon"
+        />
+        } @else {
+        <img
+          src="assets/icon/uparrow.png"
+          alt="arrow-up"
+          class="arrow-up-icon"
+        />
+        }
+      </span>
+    </div>
+  </div>
 </div>
+<ion-popover
+  [isOpen]="isMfOpen"
+  [event]="mfEvent"
+  cssClass="mf-popover"
+  side="bottom"
+  arrow="true"
+  backdropDismiss="true"
+  (didDismiss)="hidePopoverManifest()"
+>
+  <ng-template>
+    <div class="mf-box">
+      <span class="mf-label">MF# :</span>
+
+      <div class="mf-number" *ngFor="let mf of selectedManifestNumbers">
+        {{ mf }}
+      </div>
+    </div>
+  </ng-template>
+</ion-popover>
+

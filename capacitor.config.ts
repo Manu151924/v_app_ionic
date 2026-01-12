@@ -3,7 +3,7 @@ import { KeyboardResize, KeyboardStyle } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
-  appName: 'vendor',
+  appName: 'Safexpress Associate App',
   webDir: 'www',
   ios: {
     contentInset: 'always',

@@ -5,14 +5,10 @@ import { Auth } from './auth';
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
 
-  constructor(
-    private auth: Auth,
-    private router: Router
-  ) {}
+  constructor(private auth: Auth, private router: Router) {}
 
-  canActivate(): boolean | UrlTree {
-    return this.auth.isAuthenticatedSnapshot()
-      ? true
-      : this.router.createUrlTree(['/login']);
+  async canActivate(): Promise<boolean | UrlTree> {
+    const valid = await this.auth.restoreSession();
+    return valid ? true : this.router.createUrlTree(['/login']);
   }
 }

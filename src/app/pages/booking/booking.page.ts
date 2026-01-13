@@ -137,9 +137,9 @@ export class BookingPage implements OnInit, OnChanges {
   assignedSfx = 0;
 
   statusList = [
-    { label: 'ZERO PICKUP SFX', value: 0, color: '#a30101', percent: 0 },
-    { label: 'NOT-MANIFESTED', value: 0, color: '#e53935', percent: 0 },
-    { label: 'DRAFT WAYBILLS', value: 0, color: '#ffc107', percent: 0 },
+    { label: 'ZERO PICKUP SFX', value: 0, color: '#B00020', percent: 0 },
+    { label: 'NOT-MANIFESTED', value: 0, color: '#B00020', percent: 0 },
+    { label: 'DRAFT WAYBILLS', value: 0, color: '#FFBC00', percent: 0 },
   ];
 
   interchangeWaybill = 0;
@@ -328,12 +328,12 @@ export class BookingPage implements OnInit, OnChanges {
   }
   getBarColor(value: number): string {
     if (!value || value === 0) return '#E8E8E8';
-    return '#b00020'; // Red
+    return '#B00020'; // Red
   }
 
   getDraftColor(value: number): string {
     if (!value || value === 0) return '#E8E8E8';
-    return '#ffbc00'; // Amber
+    return '#FFBC00'; // Amber
   }
   calcBarWidth(value: number): number {
     return value > 0 ? 100 : 0;

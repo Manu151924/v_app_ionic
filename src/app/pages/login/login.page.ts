@@ -1,44 +1,47 @@
-import { Component, inject, OnInit,ElementRef,ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { finalize } from 'rxjs/operators';
+import { ViewChild, ChangeDetectorRef } from '@angular/core';
 import {
   IonContent,
   IonItem,
   IonInput,
   ToastController,
   IonIcon,
-  ModalController, IonButton } from '@ionic/angular/standalone';
+  IonModal,
+} from '@ionic/angular/standalone';
 
 import { Api } from 'src/app/shared/services/api';
 import { Auth } from 'src/app/shared/services/auth';
 import { Crashlytics } from 'src/app/shared/services/crashlytics';
 
+import { ModalController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { firstValueFrom } from 'rxjs';
 import { arrowBackOutline, chevronBack } from 'ionicons/icons';
 import { TermsModalComponent } from 'src/app/shared/modal/terms-modal/terms-modal.component';
+import { ElementRef } from '@angular/core';
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonButton, IonItem, IonContent, IonInput, CommonModule, FormsModule, IonIcon],
+  imports: [IonItem, IonContent, IonInput, CommonModule, FormsModule, IonIcon],
 })
 export class LoginPage implements OnInit {
   @ViewChild('otpInput', { static: false }) otpInput!: IonInput;
   @ViewChild('modalHost', { read: ElementRef }) modalHost!: ElementRef;
 
-  private readonly cdr = inject(ChangeDetectorRef);
+  private cdr = inject(ChangeDetectorRef);
 
-  private readonly router = inject(Router);
-  private  readonly toastCtrl = inject(ToastController);
-  private readonly apiService = inject(Api);
-  private readonly authService = inject(Auth);
-  private readonly crashlytics = inject(Crashlytics);
-  private  readonly modalController = inject(ModalController);
+  private router = inject(Router);
+  private toastCtrl = inject(ToastController);
+  private apiService = inject(Api);
+  private authService = inject(Auth);
+  private crashlytics = inject(Crashlytics);
+  private modalController = inject(ModalController);
 
   version = environment.version;
 
@@ -126,8 +129,16 @@ export class LoginPage implements OnInit {
       if (type === 'send') {
         this.successMessage = 'OTP sent successfully!';
         this.showOtpField = true;
+        // this.crashlytics.logBusinessEvent('OTP_SENT', {
+        //   mobile: this.mobileNumber,
+        //   version: environment.version,
+        // });
       } else if (type === 'resend') {
         this.resendCount++;
+        // this.crashlytics.logBusinessEvent('OTP_RESENT', {
+        //   mobile: this.mobileNumber,
+        //   count: this.resendCount,
+        // });
         if (this.resendCount > 3) this.triggerCooldown();
       }
 
@@ -231,9 +242,9 @@ export class LoginPage implements OnInit {
         return;
       }
 
-      const res = await firstValueFrom(
-      this.apiService.verifyOtp(otp, this.mobileNumber)
-    );
+      const res = await this.apiService
+        .verifyOtp(otp, this.mobileNumber)
+        .toPromise();
 
       if (res?.success === true && res?.data?.accessToken) {
         await this.authService.setUserData(res.data);
@@ -258,6 +269,7 @@ export class LoginPage implements OnInit {
       ]);
       this.showToast('Login failed. Try again.');
     } finally {
+      // 🔓 always unlock
       this.isVerifyingOtp = false;
       this.cdr.detectChanges();
     }
@@ -265,7 +277,7 @@ export class LoginPage implements OnInit {
 
   filterNumberInput(event: any, type: 'mobile' | 'otp') {
     let value = event.target.value || '';
-    value = value.replaceAll(/\D/g, '');
+    value = value.replace(/\D/g, '');
 
     if (type === 'mobile') {
       this.mobileNumber = value.substring(0, 10);
@@ -283,9 +295,8 @@ export class LoginPage implements OnInit {
         return;
       }
 
-     const res = await firstValueFrom(
-      this.apiService.getBranchDetails(token)
-    );
+      const res = await this.apiService.getBranchDetails(token).toPromise();
+
       if (res?.responseStatus && res?.responseObject?.length) {
         const booking = res.responseObject.find(
           (x: any) => x.vedorType === 'BOOKING'

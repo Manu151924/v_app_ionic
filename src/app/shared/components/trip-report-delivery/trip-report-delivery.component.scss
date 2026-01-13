@@ -282,3 +282,26 @@
 .veh-no.clickable {
   cursor: pointer;
 }
+/* Hide ngx-spinner's default "Loading..." */
+::ng-deep .ngx-spinner .spinner-text {
+  display: none !important;
+}
+
+/* Center spinner container */
+::ng-deep .ngx-spinner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Your custom Loading text */
+.loader-text {
+  margin-top: 18px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #2ca85e;
+  letter-spacing: 0.4px;
+  text-align: center;
+}
+

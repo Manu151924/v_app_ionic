@@ -1,16 +1,11 @@
 <ion-content [fullscreen]="true" class="login-content">
   <div class="login-header">
     @if(showOtpField){
-    <ion-button
-      fill="clear"
+    <ion-icon
+      name="chevron-back"
       class="back-icon"
       (click)="handleBack()"
-      (keydown.enter)="handleBack()"
-      (keydown.space)="handleBack()"
-      aria-label="Go back"
-    >
-      <ion-icon name="chevron-back"></ion-icon>
-    </ion-button>
+    ></ion-icon>
     }
     <img src="assets/icon/logo2.png" alt="Safexpress Logo" class="logo" />
   </div>
@@ -43,17 +38,17 @@
         </ion-input>
       </ion-item>
 
-      } 
-@if (!showOtpField) {
-<button
-  class="otp-link"
-  type="button"
-  (click)="sendOtp()"
-  [disabled]="isSendingOtp"
->
-  {{ isSendingOtp ? 'Sending…' : 'Send OTP' }}
-</button>
-} @else {
+      } @if (!showOtpField) {
+      <div class="actions">
+        <button
+          class="send-otp-btn"
+          (click)="sendOtp()"
+          [disabled]="isSendingOtp"
+        >
+          {{ isSendingOtp ? 'Sending...' : 'Send OTP' }}
+        </button>
+      </div>
+      } @else {
       <div class="otp-actions">
         <a
           class="resend-otp"

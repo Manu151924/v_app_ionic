@@ -32,14 +32,13 @@ export class AppComponent implements OnInit, OnDestroy {
   private navSub?: Subscription;
 
   showFooter = false;
-  private isOnline = true;
 
   private noInternetOpen = false;
   private serverDownOpen = false;
   private sessionExpiredOpen = false;
 
   async ngOnInit() {
-    // Footer visibility
+    // ---------------- FOOTER ----------------
     this.updateFooter(this.router.url);
     this.navSub = this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
@@ -47,34 +46,39 @@ export class AppComponent implements OnInit, OnDestroy {
         this.updateFooter(e.urlAfterRedirects);
       });
 
-    // Fresh APK / update
+    // ---------------- APK UPDATE ----------------
     await this.install.checkFreshInstall();
 
-    // Resume handling
+    // ---------------- APP RESUME ----------------
     this.handleAppResume();
+
+    // ---------------- NETWORK ----------------
     const status = await Network.getStatus();
-    this.isOnline = status.connected;
+    if (!status.connected) this.showNoInternet();
 
     Network.addListener('networkStatusChange', (status) => {
-      this.isOnline = status.connected;
-
       if (!status.connected) {
         this.showNoInternet();
       }
     });
 
-    // UX & crash safety
+    // ---------------- UX ----------------
     this.enableKeyboardAdjustment();
     this.registerGlobalCrashHandlers();
     this.blurInputsOnNavigation();
 
-    // Session state listener
+    // ---------------- SESSION POPUPS ----------------
     this.sessionTimeout.getState().subscribe(async (state) => {
+      const url = this.router.url;
+
+      // 🔥 Never show session popups on login page
+      if (url.startsWith('/login')) return;
+
       const status = await Network.getStatus();
 
       if (!status.connected) {
         this.showNoInternet();
-        return; // BLOCK other popups
+        return;
       }
 
       if (state === 'SERVER_DOWN') this.showServerDown();
@@ -105,9 +109,13 @@ export class AppComponent implements OnInit, OnDestroy {
     App.addListener('appStateChange', async ({ isActive }) => {
       if (!isActive) return;
 
+      const url = this.router.url;
+
+      // 🔥 Do not restore session on login screen
+      if (url.startsWith('/login')) return;
+
       const valid = await this.auth.restoreSession();
       if (!valid) {
-        // No popup here — just redirect
         await this.router.navigateByUrl('/login', { replaceUrl: true });
       }
     });
@@ -152,6 +160,9 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  // ================= POPUPS =================
+
   async showNoInternet() {
     if (this.noInternetOpen) return;
     this.noInternetOpen = true;
@@ -174,20 +185,41 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async showServerDown() {
+    if (this.serverDownOpen) return;
+    this.serverDownOpen = true;
+
     const a = await this.alertCtrl.create({
       header: 'Server Under Maintenance',
       message: 'Our servers are temporarily unavailable.',
-      buttons: ['OK'],
+      buttons: [
+        {
+          text: 'OK',
+          handler: () => (this.serverDownOpen = false),
+        },
+      ],
     });
-    a.present();
+
+    await a.present();
   }
 
   async showExpired() {
+    if (this.sessionExpiredOpen) return;
+    this.sessionExpiredOpen = true;
+
     const a = await this.alertCtrl.create({
       header: 'Session Expired',
       message: 'Please login again.',
-      buttons: [{ text: 'OK', handler: () => this.auth.logout() }],
+      buttons: [
+        {
+          text: 'OK',
+          handler: async () => {
+            this.sessionExpiredOpen = false;
+            await this.auth.logout();
+          },
+        },
+      ],
     });
-    a.present();
+
+    await a.present();
   }
 }

@@ -182,17 +182,6 @@ ion-content {
   min-width: 0;
 }
 
-@media (max-width: 360px) {
-  .assigned-sfx {
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .status-row .bar {
-    font-size: 8px;
-  }
-}
-
 .summary-card {
   border-radius: 12px;
   padding: 11px 14px;
@@ -272,7 +261,7 @@ ion-content {
   box-shadow: none;
   width: 100%;
   margin: 0;
-  padding: 13px 12px 8px 12px;
+  padding: 0.5em;
 }
 
 .snapshot-header {
@@ -340,7 +329,7 @@ ion-popover {
   gap: 0;
   width: 100%;
   justify-content: flex-start;
-  height: 13em;
+  // height: 11em;
 
   .donut-section {
     display: flex;
@@ -351,6 +340,7 @@ ion-popover {
     min-width: 160px;
     width: 50%;
     height: 100%;
+    padding: 0.3em;
 
     .donut-chart-wrapper {
       position: relative;
@@ -409,8 +399,6 @@ ion-popover {
       .donut-stat-label {
         font-weight: 500;
         color: #232323;
-        width: 41 px;
-        height: 13.28729248046875px;
         opacity: 1;
         font-family: Roboto;
         font-weight: 400;
@@ -423,7 +411,7 @@ ion-popover {
       }
 
       .donut-stat-value {
-        color: #0AB3A2;
+        color: #FF8A0D;
         font-family: Roboto;
         font-weight: 700;
         font-style: Bold;
@@ -436,7 +424,7 @@ ion-popover {
 
   .divider-line {
     width: 1.6px;
-    height: 11em;
+    // height: 11em;
     background: rgba(220, 220, 220, 0.9);
     border-radius: 20px;
   }

@@ -1,21 +1,38 @@
 <div>
   <!-- Spinner -->
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="arrow-down-outline" refreshingSpinner="crescent">
+    <ion-refresher-content
+      pullingIcon="arrow-down-outline"
+      refreshingSpinner="crescent"
+    >
     </ion-refresher-content>
   </ion-refresher>
-  <ngx-spinner bdColor="rgba(255,255,255,0.1)" color="#2ca85e" size="large" type="ball-clip-rotate" [fullScreen]="true">
+  @if(isLoading && !isRefreshing){
+  <ngx-spinner
+    bdColor="rgba(255,255,255,0.1)"
+    color="#2ca85e"
+    size="large"
+    type="ball-clip-rotate"
+    [fullScreen]="true"
+  >
     <p class="loader-text">Loading..</p>
   </ngx-spinner>
+  }
 
   <!-- Inventory Card -->
   <div class="container">
     @if (deliveryVendorId) {
-    <app-inventory-card [deliveryVendorId]="deliveryVendorId" (branchChanged)="onDeliveryBranchChange($event)">
+    <app-inventory-card
+      [deliveryVendorId]="deliveryVendorId"
+      (branchChanged)="onDeliveryBranchChange($event)"
+    >
     </app-inventory-card>
 
     } @if (deliveryBranchId && deliveryVendorId) {
-    <app-trip-report-delivery [deliveryBranchId]="deliveryBranchId" [deliveryVendorId]="deliveryVendorId">
+    <app-trip-report-delivery
+      [deliveryBranchId]="deliveryBranchId"
+      [deliveryVendorId]="deliveryVendorId"
+    >
     </app-trip-report-delivery>
     }
 
@@ -60,9 +77,7 @@
                 <img src="assets/icon/usage.png" class="rupee-icon" />
               </div>
               <div class="card-info">
-                <div class="card-main green">
-                  {{ usage }}
-                </div>
+                <div class="card-main green">{{ usage }}</div>
               </div>
             </div>
             <div class="card-label">
@@ -92,7 +107,11 @@
     <!-- MONTH SNAPSHOT -->
     <div class="snapshot-header">
       <span class="snapshot-title">Month Wise Snapshot</span>
-      <ion-button fill="clear" class="today-btn" (click)="toggleMonthPopover($event)">
+      <ion-button
+        fill="clear"
+        class="today-btn"
+        (click)="toggleMonthPopover($event)"
+      >
         {{ selectedMonth }}
         <img src="assets/icon/fit.png" alt="arrow-down" class="arrow-down" />
       </ion-button>
@@ -106,8 +125,13 @@
       <div class="snapshot-content">
         <div class="donut-section">
           <div class="donut-chart-wrapper">
-            <app-pie-chart [data]="panelFourPieData" [totalWaybill]="totalWaybill"
-              [totalWaybillAndWeight]="totalWaybillAndWeight" [tab]="'delivery'" class="piechart"></app-pie-chart>
+            <app-pie-chart-delivery
+              [data]="panelFourPieData"
+              [totalWaybill]="totalWaybill"
+              [totalWaybillAndWeight]="totalWaybillAndWeight"
+              [tab]="'delivery'"
+              class="piechart"
+            ></app-pie-chart-delivery>
           </div>
         </div>
 
@@ -118,8 +142,11 @@
         </div>
       </div>
 
-
-      <ion-popover [isOpen]="popoverOpen" [event]="popoverEvent" (didDismiss)="popoverOpen = false">
+      <ion-popover
+        [isOpen]="popoverOpen"
+        [event]="popoverEvent"
+        (didDismiss)="popoverOpen = false"
+      >
         <ng-template>
           <ion-list>
             @for(m of validMonths; track m) {
@@ -131,7 +158,11 @@
     </ion-card>
 
     <div>
-      <app-progress-slider [value]="progressValue" [face]="progressFace" [gradient]="GRADIENT"></app-progress-slider>
+      <app-progress-slider
+        [value]="progressValue"
+        [face]="progressFace"
+        [gradient]="GRADIENT"
+      ></app-progress-slider>
     </div>
   </div>
 </div>

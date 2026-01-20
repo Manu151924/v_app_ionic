@@ -1,0 +1,22 @@
+<div class="piePan4">
+  <div class="chart-wrapper-delivery">
+    <canvas #chartCanvasdelivery></canvas>
+
+    <div class="center-text delivery">
+      <div class="label">Total</div>
+      <div class="value">{{totalWaybill}}</div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="delivered">
+      <div class="delivery-head">Delivered</div>
+      <span class="delivery-data">WB: {{totalWaybillAndWeight.deliveredWaybills}}</span>
+      <span class="delivery-data">Wt (T): {{totalWaybillAndWeight.deliveredWeight | number:'1.2-2'}}</span>
+    </div>
+    <div class="undelivered">
+      <div class="delivery-head">Un-Delivered</div>
+      <span class="delivery-data">WB: {{totalWaybillAndWeight.undeliveredWaybills}}</span>
+      <span class="delivery-data">Wt (T): {{totalWaybillAndWeight.undeliveredWeight | number:'1.2-2'}}</span>
+    </div>
+  </div>
+</div>

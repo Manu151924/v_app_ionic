@@ -33,25 +33,31 @@ export class Auth {
   }
 
   async setUserData(data: any) {
+      this.sessionActive = true; 
     this.hasSession = true;
     this.destroyed = false;
 
     await this.storage.setUserDetails(data);
     this.startTokenCountdown(data.accessToken, data.refreshToken);
   }
-  async forceLogout() {
-    if (this.logoutInProgress) return;
-    this.logoutInProgress = true;
+async forceLogout() {
+  if (!this.sessionActive) return;   // 🔥 Login screen safe
 
-    this.hasSession = false;
-    this.destroyed = true;
-    this.stopTokenCountdown();
-    await this.storage.clearSession();
+  this.sessionActive = false;
+  this.clearSessionRuntime();
 
-    this.sessionTimeout.set('SESSION_EXPIRED');
-    await this.router.navigateByUrl('/login', { replaceUrl: true });
-    this.logoutInProgress = false;
-  }
+  await this.storage.clearSession();
+  this.sessionTimeout.set('SESSION_EXPIRED');
+  await this.router.navigateByUrl('/login', { replaceUrl: true });
+}
+
+  private clearSessionRuntime() {
+  this.stopTokenCountdown();
+  this.sessionActive = false;
+  this.hasSession = false;
+  this.destroyed = true;
+}
+
 
   async getAccessToken(): Promise<string | null> {
     return (await this.storage.getUserDetails())?.accessToken ?? null;
@@ -88,18 +94,35 @@ export class Auth {
       return true;
     }
   }
+  private sessionActive = false;
 
-  async restoreSession(): Promise<boolean> {
-    const user = await this.storage.getUserDetails();
-    if (!user?.accessToken || !user?.refreshToken) return false;
 
-    if (this.isRefreshTokenExpired(user.refreshToken)) return false;
+async restoreSession(): Promise<boolean> {
+  const user = await this.storage.getUserDetails();
 
-    this.hasSession = true;
-    this.destroyed = false;
-    this.startTokenCountdown(user.accessToken, user.refreshToken);
-    return true;
+  // No stored session
+  if (!user?.accessToken || !user?.refreshToken) {
+    this.clearSessionRuntime();
+    return false;
   }
+
+  // Refresh expired → hard logout
+  if (this.isRefreshTokenExpired(user.refreshToken)) {
+    await this.storage.clearSession();
+    this.clearSessionRuntime();
+    return false;
+  }
+
+  // Valid session
+  this.sessionActive = true;
+  this.hasSession = true;
+  this.destroyed = false;
+
+  this.startTokenCountdown(user.accessToken, user.refreshToken);
+  return true;
+}
+
+
 
   get authState$(): Observable<boolean> {
     return this.isAuthenticated$.asObservable();
@@ -119,71 +142,59 @@ export class Auth {
     this.isLoggingOut = false;
   }
 
-  // ================= TOKEN TIMER =================
-  private startTokenCountdown(access: string, refresh: string) {
-    this.stopTokenCountdown();
+private startTokenCountdown(accessToken: string, refreshToken: string) {
+  this.stopTokenCountdown();
 
-    const accessExp = JSON.parse(atob(access.split('.')[1])).exp * 1000;
-    const refreshExp = JSON.parse(atob(refresh.split('.')[1])).exp * 1000;
+  try {
+    const accessExp =
+      JSON.parse(atob(accessToken.split('.')[1])).exp * 1000;
 
-    // ---------------- ACCESS TOKEN TIMER ----------------
-    this.accessTimer = setInterval(async () => {
-      // Do nothing if user already logged out or app destroyed
-      if (this.destroyed || !this.hasSession) return;
+    const refreshExp =
+      JSON.parse(atob(refreshToken.split('.')[1])).exp * 1000;
 
-      const diff = accessExp - Date.now();
+    // ---------------- ACCESS TOKEN WATCHER ----------------
+    this.accessTimer = setInterval(() => {
+      // Never run if session is not active
+      if (!this.sessionActive) return;
 
-      // Try to refresh 30 seconds before access token expiry
-      if (diff < 30000 && diff > 0) {
-        try {
-          const res: any = await this.api
-            .generateAccessTokenFromRefreshToken(refresh)
-            .toPromise();
+      const now = Date.now();
 
-          const newToken = res?.data?.accessToken;
-          if (newToken) {
-            await this.storage.updateUserDetails({ accessToken: newToken });
-          }
-        } catch {
-          // Refresh failed
-          if (this.offline) {
-            this.sessionTimeout.set('NO_INTERNET'); // user has no network
-            return;
-          }
-          this.sessionTimeout.set('SERVER_DOWN'); // server not reachable
-        }
-      }
-
-      // Access token actually expired
-      if (diff <= 0) {
+      // If access token already expired
+      if (accessExp <= now) {
         if (this.offline) {
-          // Never logout while offline
+          // Do NOT logout when offline
           this.sessionTimeout.set('NO_INTERNET');
           return;
         }
 
-        // Online + token expired → real session expired
-        this.forceLogout();
+        // Token expired while online → interceptor will handle refresh
+        // Do NOT force logout here
+        return;
       }
     }, 1000);
 
-    // ---------------- REFRESH TOKEN TIMER ----------------
+    // ---------------- REFRESH TOKEN WATCHER ----------------
     this.refreshTimer = setInterval(() => {
-      if (this.destroyed || !this.hasSession) return;
+      if (!this.sessionActive) return;
 
-      const diff = refreshExp - Date.now();
+      const now = Date.now();
 
-      if (diff <= 0) {
+      if (refreshExp <= now) {
         if (this.offline) {
-          this.sessionTimeout.set('NO_INTERNET'); // do not logout
+          this.sessionTimeout.set('NO_INTERNET');
           return;
         }
 
-        // Refresh token expired → real session expired
+        // Refresh token expired → real session ended
         this.forceLogout();
       }
     }, 1000);
+  } catch (e) {
+    console.error('Invalid token format', e);
+    this.forceLogout();
   }
+}
+
 
   private stopTokenCountdown() {
     clearInterval(this.accessTimer);

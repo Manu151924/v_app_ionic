@@ -1,16 +1,4 @@
-.chart-container {
-  position: relative;
-  width: 50%;
-  height: 180px;
-}
-
 .chart-wrapper {
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.chart-wrapper-delivery {
   height: 100%;
   display: flex;
   align-items: center;
@@ -24,14 +12,10 @@ canvas {
 .center-text {
   position: absolute;
   top: 50%;
-  left: 36%;
+  left: 35.5%;
   transform: translate(-50%, -50%);
   text-align: center;
   pointer-events: none;
-
-  &.delivery {
-    left: 30%;
-  }
 
   .label {
     font-size: 0.65em;
@@ -44,46 +28,10 @@ canvas {
     font-weight: bold;
     color: #02834A;
     font-weight: 700;
+    width: 2.9em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
-}
-
-.piePan4 {
-  width: 90%;
-  height: 100%;
-}
-
-.delivery-head {
-  font-weight: 500;
-  color: #000000;
-  font-size: 0.68em;
-}
-
-.delivery-data {
-  font-weight: 400;
-  font-size: 0.6em;
-  line-height: 1.5em;
-}
-
-
-.pie-wrapper {
-  width: 60%;
-}
-
-.container {
-  padding-right: 0.4em;
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  justify-content: space-around;
-}
-
-.delivered,
-.undelivered {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
 }

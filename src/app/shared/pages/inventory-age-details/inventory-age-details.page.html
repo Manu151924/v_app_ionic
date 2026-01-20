@@ -1,12 +1,5 @@
 
-  <ngx-spinner
-    bdColor="rgba(255,255,255,0.1)"
-    color="#2ca85e"
-    size="large"
-    type="ball-clip-rotate"
-    [fullScreen]="true">
-    <p class="loader-text">Loading...</p>
-  </ngx-spinner><ion-header>
+<ion-header>
   <ion-toolbar>
     <ion-button slot="start" fill="clear" (click)="goBack()">
   <ion-icon name="arrow-back"></ion-icon>
@@ -22,6 +15,15 @@
 </ion-header>
 
 <ion-content>
+    <ngx-spinner
+    bdColor="rgba(255,255,255,0.1)"
+     name="inventorySpinner"
+    color="#2ca85e"
+    size="large"
+    type="ball-clip-rotate"
+    [fullScreen]="true">
+    <p class="loader-text">Loading...</p>
+  </ngx-spinner>
 
   <!-- SUMMARY STRIP -->
   <div class="top-bar">

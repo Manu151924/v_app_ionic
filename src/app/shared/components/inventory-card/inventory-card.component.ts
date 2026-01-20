@@ -79,8 +79,8 @@ export class InventoryCardComponent implements OnInit, OnChanges {
     packages: 0,
     weight: 0,
   };
-  constructor(){
-    addIcons({location})
+  constructor() {
+    addIcons({ location });
   }
 
   ngOnInit() {}
@@ -99,16 +99,16 @@ export class InventoryCardComponent implements OnInit, OnChanges {
   /* ---------------- Load Branches ---------------- */
 
   async loadBranches() {
-    this.spinner.show();
+    // this.spinner.show();
     const token = await this.auth.getAccessToken();
 
     this.api.getDeliveryBranchDetails(this.deliveryVendorId, token!).subscribe({
       next: (res) => {
-        this.spinner.hide();
+        // this.spinner.hide();
 
         this.branches = res.responseObject.filter(
           (b: any) =>
-            b.vedorType === 'DELIVERY' && b.vendorId === this.deliveryVendorId
+            b.vedorType === 'DELIVERY' && b.vendorId === this.deliveryVendorId,
         );
 
         if (!this.branches.length) return;
@@ -121,14 +121,21 @@ export class InventoryCardComponent implements OnInit, OnChanges {
         this.loadPanelOneCard();
       },
       error: (err) => {
-        this.spinner.hide();
+        // this.spinner.hide();
         this.crashlytics.recordNonFatal(err, 'DELIVERY_BRANCH_API_FAILED');
       },
     });
   }
 
   onBranchChange(e: any) {
-    this.selectedBranchId = e.detail.value;
+    const branchId = e.detail.value;
+
+    this.selectedBranchId = branchId;
+
+    const selectedBranch = this.branches.find((b) => b.branchId === branchId);
+
+    this.selectedBranchName = selectedBranch?.branchName ?? '';
+
     this.branchChanged.emit(this.selectedBranchId);
     this.loadPanelOneCard();
   }
@@ -138,11 +145,11 @@ export class InventoryCardComponent implements OnInit, OnChanges {
   private async loadPanelOneCard(): Promise<void> {
     if (!this.deliveryVendorId || !this.selectedBranchId) return;
 
-    this.spinner.show();
+    // this.spinner.show();
     const token = await this.auth.getAccessToken();
 
     if (!token) {
-      this.spinner.hide();
+      // this.spinner.hide();
       return;
     }
 
@@ -150,11 +157,11 @@ export class InventoryCardComponent implements OnInit, OnChanges {
       .getPanelOneDeliveryCount(
         this.deliveryVendorId,
         this.selectedBranchId,
-        token
+        token,
       )
       .subscribe({
         next: (res) => {
-          this.spinner.hide();
+          // this.spinner.hide();
           if (!res?.responseStatus || !res.responseObject) return;
 
           const obj = res.responseObject;
@@ -176,11 +183,11 @@ export class InventoryCardComponent implements OnInit, OnChanges {
               let color = '#13C15B';
 
               if (count === 0) {
-                color = '#999999'; 
+                color = '#999999';
               } else if (count >= 75) {
                 color = '#B00020';
               } else if (count > 50) {
-                color = '#FFBC00'; 
+                color = '#FFBC00';
               }
 
               return {
@@ -197,13 +204,13 @@ export class InventoryCardComponent implements OnInit, OnChanges {
             })
             .sort(
               (a: { waybills: number }, b: { waybills: number }) =>
-                b.waybills - a.waybills
+                b.waybills - a.waybills,
             );
 
           this.cdr.detectChanges();
         },
         error: (err) => {
-          this.spinner.hide();
+          // this.spinner.hide();
           this.crashlytics.recordNonFatal(err, 'DELIVERY_PANEL1_FAILED');
         },
       });

@@ -135,7 +135,7 @@ export class InventoryAgeDetailsPage implements OnInit {
   private processData(apiList: any[]) {
     const filtered = apiList.filter((item) =>
       this.ageType === '<24' ? item.invAge < 24 : item.invAge >= 24
-    );
+    ) .sort((a, b) => b.invAge - a.invAge);
 
     this.waybillList = filtered.map((item) => ({
       waybillNo: item.wayblNo,

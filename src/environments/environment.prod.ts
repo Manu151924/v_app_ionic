@@ -4,7 +4,7 @@ export const environment = {
   vappApiBaseUrl:'https://dgapi-uat-nonprod.safexpress.com/vappapi/booking/api/v1/',
   vappApiDeliveryUrl:'https://dgapi-uat-nonprod.safexpress.com/vappapi/delivery/api/v1/',
   refreshTokenUrl:'https://dgapi-uat-nonprod.safexpress.com/vappcore/core/api/v1/generateAccessTokenFromRefreshToken',
-  version: '1.3',
+  version: '1.7',
   apiTimeout: 20000,
   enableDebugLogs: true,
 

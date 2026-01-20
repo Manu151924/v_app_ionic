@@ -23,6 +23,8 @@ import { addIcons } from 'ionicons';
 import { arrowBackOutline, chevronBack } from 'ionicons/icons';
 import { TermsModalComponent } from 'src/app/shared/modal/terms-modal/terms-modal.component';
 import { ElementRef } from '@angular/core';
+import { SessionTimeout } from 'src/app/shared/services/session-timeout';
+import { PrivacyAndPolicyModalComponent } from 'src/app/shared/modal/privacy-and-policy-modal/privacy-and-policy-modal.component';
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
@@ -42,7 +44,8 @@ export class LoginPage implements OnInit {
   private authService = inject(Auth);
   private crashlytics = inject(Crashlytics);
   private modalController = inject(ModalController);
-
+  private sessionTimeout = inject(SessionTimeout)
+ 
   version = environment.version;
 
   mobileNumber: string = '';
@@ -60,6 +63,8 @@ export class LoginPage implements OnInit {
 
   isSendingOtp = false;
 
+
+
   ngOnInit() {
     addIcons({ chevronBack, arrowBackOutline });
     this.restoreResendState();
@@ -67,6 +72,8 @@ export class LoginPage implements OnInit {
 
   ionViewWillEnter() {
     this.resetFormState();
+      this.sessionTimeout.clear();    
+
   }
 
   private resetFormState() {
@@ -331,10 +338,19 @@ export class LoginPage implements OnInit {
   async openTerms() {
     const modal = await this.modalController.create({
       component: TermsModalComponent,
-      cssClass: 'sfx-modal',
       backdropDismiss: true,
-      breakpoints: [0, 0.7],
-      initialBreakpoint: 0.7,
+      breakpoints: [0, 1.0],
+      initialBreakpoint: 1.0,
+    });
+
+    await modal.present();
+  }
+    async openPrivacy() {
+    const modal = await this.modalController.create({
+      component: PrivacyAndPolicyModalComponent,
+      backdropDismiss: true,
+      breakpoints: [0, 1.0],
+      initialBreakpoint: 1.0,
     });
 
     await modal.present();

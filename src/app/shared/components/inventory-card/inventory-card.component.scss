@@ -1,5 +1,5 @@
 .pan1-card {
-  border-radius: 1em;
+  border-radius: 1.2em;
   border: 0.7em solid #27ae60;
   box-shadow: none;
   width: 100%;
@@ -7,30 +7,48 @@
   position: relative;
 }
 
-.pan1-card-header {
-  background: #ffffff;
-  overflow: hidden;
-  margin: -4.2px;
-  padding: 0;
+.bar-list ion-content::part(scroll) {
+  overflow-y: auto !important;
+}
+
+.bar-list ion-content::part(scroll) {
+  overflow-y: scroll !important;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    display: block !important;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
 }
 
 .header-row {
   display: flex;
-  align-items: center;
-  box-shadow: inset 1em 1em 0.3em #27ae60;
+  width: 100%;
+  background: white;
 
   .pan1-header-left {
     width: 33%;
-    padding: 0.15em 0.6em 0.6em 0em;
+    padding: 0.15em 0.4em 0.44em 0em;
     background-color: #27ae60;
     border-bottom-right-radius: 1em;
     display: flex;
   }
 
   .pan1-header-right {
-    width: 66%;
+    width: 67%;
     display: flex;
     justify-content: flex-end;
+    box-shadow: inset 1em 0.8em 0.3em #27AE61;
   }
 
   &::before {
@@ -55,15 +73,16 @@
 
 .location-dropdown {
   background: #ffffff;
-  border-radius: 1em;
+  border-radius: 1.15em;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0em 0.5em;
+  margin: 0.15em;
+  padding: 0em 0.2em;
   cursor: pointer;
   transition: 0.2s ease;
   flex-wrap: nowrap;
-  width: 100%;
+  width: 96%;
 
   &:hover {
     background: #f7fff7;
@@ -87,49 +106,31 @@
     color: #27ae60;
     font-size: clamp(11px, 2.6vw, 13px);
     font-weight: 600;
-    min-width: 65px;
+    min-width: 0;
     --highlight-height: 0;
+    flex: 1;
   }
 
   .arrow-icon {
-    width: 12px;
-    height: 12px;
+    margin-left: 0.7em;
   }
+}
+
+.card-content {
+  background-color: #27ae60;
+  width: 100%;
+  box-shadow: inset 1em 0.8em 0.3em #27AE61;
 }
 
 .assigned-sfx {
   display: flex;
-  align-items: flex-end;
   background: #ffffff;
   width: 100%;
   padding: 0 0.2em;
-  border: -5px solid transparent;
-  height: 3.56em;
   border-top-left-radius: 1em;
   justify-content: flex-end;
-}
-
-.branch-select {
-  --background: transparent;
-  --padding-start: 0;
-  --inner-padding-end: 0;
-}
-
-ion-icon[name="location"] {
-  margin-right: 4px;
-}
-
-
-.stats-box {
-  background: #525252;
-  color: #fff;
-  font-size: 11px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  display: flex;
-  gap: 12px;
-  font-weight: 500;
-  white-space: nowrap;
+  align-items: center;
+  border-top-right-radius: 0.4em;
 }
 
 .card-content {
@@ -138,9 +139,9 @@ ion-icon[name="location"] {
 
 .card-content-data {
   background-color: white;
+  border-bottom-left-radius: 0.4em;
+  border-bottom-right-radius: 0.4em;
   border-top-left-radius: 1em;
-  padding-left: 0.5em;
-  margin-left: 0.5em;
 }
 
 .title-row {
@@ -156,27 +157,19 @@ ion-icon[name="location"] {
 }
 
 .bar-list {
-  margin: 0.5em 0 0 0.3em;
   padding-left: 0;
   position: relative;
-  height: 13vh;
-}
-
-.y-axis-label {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  position: absolute;
-  left: -10px;
-  top: 0;
-  font-size: 8px;
-  color: #888;
-  font-weight: 600;
+  height: 14vh;
+  --background: white;
+  --padding-start: 0.1em;
+  --padding-end: 0.8em;
+  --padding-bottom: 0;
 }
 
 .bar-row {
   display: flex;
   align-items: center;
-  margin: 0.2em 0;
+  margin: 0.4em 0;
   padding: 0;
 }
 
@@ -185,7 +178,7 @@ ion-icon[name="location"] {
 }
 
 .bar-container {
-  height: 20px;
+  height: 16px;
   flex: 1;
   background: #ececec;
   border-radius: 20px;
@@ -228,14 +221,6 @@ ion-icon[name="location"] {
   letter-spacing: 0%;
 }
 
-.footer-label {
-  text-align: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: #555;
-  padding-bottom: 1em;
-}
-
 .total-data {
   display: flex;
   color: #fff;
@@ -266,17 +251,6 @@ ion-icon[name="location"] {
   text-overflow: ellipsis;
 }
 
-.avlInventory {
-  padding: 0.4em;
-  width: 90%;
-  align-items: center;
-  align-content: space-between;
-  border-left: 2px solid #A5A5A5;
-  border-bottom: 2px solid #A5A5A5;
-  display: flex;
-  justify-content: space-evenly;
-}
-
 .pan1-card-content {
   display: flex;
   justify-content: space-evenly;
@@ -286,8 +260,8 @@ ion-icon[name="location"] {
 
 .route-card {
   position: relative;
-  width: 93%;
-  padding: 1em;
+  width: 97%;
+  padding: 0.7em 0 0 1em;
 }
 
 .y-axis-title {
@@ -297,7 +271,7 @@ ion-icon[name="location"] {
   transform: rotate(-90deg) translateX(-50%);
   transform-origin: left center;
   font-size: 0.6em;
-  font-weight: 600;
+  font-weight: 500;
   color: #2e7d32;
 }
 
@@ -308,30 +282,8 @@ ion-icon[name="location"] {
   padding: 0.3em;
 }
 
-.axis-chart {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.axis-chart rect.bar {
-  opacity: 0;
-}
-
-.axis-chart text {
-  display: none;
-}
-
-.axis-chart .x.axis path {
-  stroke: #2e7d32;
-  stroke-width: 1.5;
-}
-
 .bar {
-  height: 22px;
   border-radius: 12px;
-  padding-left: 10px;
   font-size: 12px;
   font-weight: 600;
   color: #fff;
@@ -350,5 +302,15 @@ ion-icon[name="location"] {
   text-align: center;
   font-size: 0.6em;
   color: #2e7d32;
-  font-weight: 600;
+  font-weight: 500;
+}
+::ng-deep ion-popover ion-list ion-item {
+  --inner-border-width: 0;
+  border-bottom: 1px solid black;
+}
+::ng-deep ion-popover ion-list ion-item:last-child {
+  border-bottom: none;
+}
+::ng-deep ion-popover ion-item:last-of-type {
+  border-bottom: none !important;
 }

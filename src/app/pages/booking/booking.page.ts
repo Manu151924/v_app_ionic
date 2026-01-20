@@ -27,7 +27,9 @@ import {
   IonCardContent,
   IonRefresher,
   IonRefresherContent,
-  IonButton, IonIcon } from '@ionic/angular/standalone';
+  IonButton,
+  IonIcon,
+} from '@ionic/angular/standalone';
 import { ToastController, ModalController } from '@ionic/angular';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { addIcons } from 'ionicons';
@@ -86,7 +88,8 @@ interface DraftWaybillsData {
   templateUrl: './booking.page.html',
   styleUrls: ['./booking.page.scss'],
   standalone: true,
-  imports: [IonIcon, 
+  imports: [
+    IonIcon,
     IonButton,
 
     CommonModule,
@@ -102,7 +105,6 @@ interface DraftWaybillsData {
     IonPopover,
     IonItem,
     IonList,
-    IonCardContent,
     NgxSpinnerComponent,
     TripReportComponent,
     PieChartComponent,
@@ -180,7 +182,7 @@ export class BookingPage implements OnInit, OnChanges {
   }
 
   constructor() {
-    addIcons({location,arrowDownOutline});
+    addIcons({ location, arrowDownOutline });
   }
   ngOnInit() {
     this.generateValidMonths();
@@ -218,12 +220,17 @@ export class BookingPage implements OnInit, OnChanges {
     });
     toast.present();
   };
+  isRefreshing = false;
+  isLoading = false;
+
   async doRefresh(event: any) {
+     this.isRefreshing = true;
     await Promise.all([
       this.fetchPanelOneCount(this.selectedBranchId),
       this.fetchPanelThreeData(this.selectedBranchId),
       this.fetchPanelFourData(this.selectedBranchId),
     ]);
+    this.isRefreshing = false;
     event.target.complete();
   }
   // -------------------------------- Branch Load -------------------------------------
@@ -237,7 +244,7 @@ export class BookingPage implements OnInit, OnChanges {
           // ONLY Booking branches of this vendor
           this.branchList = res.responseObject.filter(
             (b: any) =>
-              b.vedorType === 'BOOKING' && b.vendorId === this.vendorId
+              b.vedorType === 'BOOKING' && b.vendorId === this.vendorId,
           );
 
           if (!this.branchList.length) {
@@ -266,8 +273,10 @@ export class BookingPage implements OnInit, OnChanges {
     });
   }
   async reloadAllPanels() {
+if (!this.isRefreshing) {
+    this.isLoading = true;
     this.spinner.show();
-
+  }
     try {
       await Promise.all([
         this.fetchPanelOneCount(this.selectedBranchId),
@@ -275,8 +284,9 @@ export class BookingPage implements OnInit, OnChanges {
         this.fetchPanelFourData(this.selectedBranchId),
       ]);
     } finally {
-      this.spinner.hide();
-    }
+    this.isLoading = false;
+    this.spinner.hide();
+  }
   }
 
   // -------------------- Panel 1: Zero Pickup, Not Manifested, Draft --------------------
@@ -398,7 +408,7 @@ export class BookingPage implements OnInit, OnChanges {
             this.waybill = d.wb ?? 0;
             this.wbEditedPercent = d.wbEdited ?? 0;
             const editedCount = Math.round(
-              (this.wbEditedPercent / 100) * this.waybill
+              (this.wbEditedPercent / 100) * this.waybill,
             );
             const notEditedCount = this.waybill - editedCount;
 
@@ -483,7 +493,7 @@ export class BookingPage implements OnInit, OnChanges {
     const [mon, yr] = monthStr.split('-');
     const yearFull = 2000 + parseInt(yr, 10);
     const monthNumber = new Date(
-      Date.parse(mon + ' 1, ' + yearFull)
+      Date.parse(mon + ' 1, ' + yearFull),
     ).getMonth();
     const monthDate = new Date(yearFull, monthNumber, 1);
     return monthDate > new Date();
@@ -522,37 +532,46 @@ export class BookingPage implements OnInit, OnChanges {
   notManifestedData: NotManifestedData[] = [];
   draftWaybillsData: DraftWaybillsData[] = [];
 
+  private isModalOpen = false;
   async openModal(name: string, event?: Event) {
     event?.stopPropagation();
-    let modalComponent: any;
-    let modalProps: any = {};
-    this.crashlytics.logBusinessEvent('BOOKING_MODAL_OPEN', {
-      vendor: this.vendorId,
-      branch: this.selectedBranchId,
-      modal: name,
-    });
+    if (this.isModalOpen) return;
+    this.isModalOpen = true;
 
-    switch (name) {
-      case 'ZERO PICKUP SFX':
-        modalComponent = ZeroPickupModalComponent;
-        await this.loadZeroPickupData();
-        modalProps = { zeroPickupData: this.zeroPickupData };
-        break;
+    try {
+      let modalComponent: any;
+      let modalProps: any = {};
+      this.crashlytics.logBusinessEvent('BOOKING_MODAL_OPEN', {
+        vendor: this.vendorId,
+        branch: this.selectedBranchId,
+        modal: name,
+      });
 
-      case 'NOT-MANIFESTED':
-        modalComponent = NotManifestedModalComponent;
-        await this.loadNotManifestedData();
-        modalProps = { notManifestedData: this.notManifestedData };
-        break;
+      switch (name) {
+        case 'ZERO PICKUP SFX':
+          modalComponent = ZeroPickupModalComponent;
+          await this.loadZeroPickupData();
+          modalProps = { zeroPickupData: this.zeroPickupData };
+          break;
 
-      case 'DRAFT WAYBILLS':
-        modalComponent = DraftWaybillsModalComponent;
-        await this.loadDraftWaybillsData();
-        modalProps = { draftWaybillsData: this.draftWaybillsData };
-        break;
-    }
+        case 'NOT-MANIFESTED':
+          modalComponent = NotManifestedModalComponent;
+          await this.loadNotManifestedData();
+          modalProps = { notManifestedData: this.notManifestedData };
+          break;
 
-    if (modalComponent) {
+        case 'DRAFT WAYBILLS':
+          modalComponent = DraftWaybillsModalComponent;
+          await this.loadDraftWaybillsData();
+          modalProps = { draftWaybillsData: this.draftWaybillsData };
+          break;
+      }
+
+      if (!modalComponent) {
+        this.isModalOpen = false;
+        return;
+      }
+
       const modal = await this.modalController.create({
         component: modalComponent,
         componentProps: modalProps,
@@ -561,9 +580,18 @@ export class BookingPage implements OnInit, OnChanges {
         breakpoints: [0, 0.65, 0.95],
         initialBreakpoint: 0.65,
       });
+
+      modal.onDidDismiss().then(() => {
+        this.isModalOpen = false;
+      });
+
       await modal.present();
+    } catch (err) {
+      this.isModalOpen = false;
+      throw err;
     }
   }
+
   getBarWidth(value: number): string {
     if (!value || value === 0) return '5%';
 

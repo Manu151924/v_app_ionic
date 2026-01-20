@@ -1,12 +1,12 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 1em;
+  gap: 0.6em;
   margin: 1em 0.5em 3em 0.5em;
 }
 
 .pan1-card {
-  border-radius: 1em;
+  border-radius: 1.2em;
   border: 0.7em solid #27ae60;
   box-shadow: none;
   width: 100%;
@@ -17,18 +17,17 @@
 .pan1-card-content {
   background: #ffffff;
   overflow: hidden;
-  margin: -4.2px;
   padding: 0;
+  border-radius: 0.4em;
 }
 
 .header-row {
   display: flex;
-  align-items: center;
-  box-shadow: inset 1em 1em 0.3em #27ae60;
+  box-shadow: inset 1em 0.8em 0.3em #27AE61;
 
   .pan1-header-left {
     width: 33%;
-    padding: 0.15em 0.6em 0.6em 0em;
+    padding: 0.15em 0.4em 0.44em 0em;
     background-color: #27ae60;
     border-bottom-right-radius: 1em;
     display: flex;
@@ -38,6 +37,7 @@
     width: 67%;
     display: flex;
     justify-content: flex-end;
+    box-shadow: inset 1em 0.8em 0.3em #27AE61;
   }
 
   &::before {
@@ -62,15 +62,16 @@
 
 .location-dropdown {
   background: #ffffff;
-  border-radius: 1em;
+  border-radius: 1.15em;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0em 0.5em;
+  margin: 0.15em;
+  padding: 0em 0.2em;
   cursor: pointer;
   transition: 0.2s ease;
   flex-wrap: nowrap;
-  width: 100%;
+  width: 96%;
   overflow: hidden;
 
   &:hover {
@@ -112,6 +113,7 @@
 
 .card-content {
   background-color: #27ae60;
+  box-shadow: inset 1em 0.8em 0.3em #27AE61;
 }
 
 .assigned-sfx {
@@ -123,8 +125,6 @@
   height: 100%;
   justify-content: flex-end;
   padding: 1em;
-  border: -5px solid transparent;
-  height: 3.56em;
   border-top-left-radius: 1em;
   flex-direction: row;
 
@@ -144,13 +144,9 @@
 }
 
 .status-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   padding: 1em;
   background-color: white;
   border-top-left-radius: 1em;
-  margin-left: 0.3em;
 
   .status-row {
     display: flex;
@@ -273,7 +269,7 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 1em;
+  gap: 0.6em;
 
   ion-row {
     display: flex;
@@ -382,6 +378,9 @@
       border-radius: 20px;
       background: #eeeff2;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      height: 1.2em;
     }
 
     .bar-fill {
@@ -475,4 +474,14 @@
 
 .location-dropdown ion-select::part(container) {
   width: 100em;
+}
+::ng-deep ion-popover ion-list ion-item {
+  --inner-border-width: 0;
+  border-bottom: 1px solid black;
+}
+::ng-deep ion-popover ion-list ion-item:last-child {
+  border-bottom: none;
+}
+::ng-deep ion-popover ion-item:last-of-type {
+  border-bottom: none !important;
 }

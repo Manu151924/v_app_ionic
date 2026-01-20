@@ -1,51 +1,31 @@
 .login-content {
-  --background: #1A1B1B;
+  --background: #1a1b1b;
   height: 100%;
-
 }
 .back-icon {
-    position: absolute;
-    top: calc(42vh - 95px);
-    left: 6%;
-    transform: translateX(-50%);
-    font-size: 25px;
-    color: #ffffff;
-    z-index: 3;
-    cursor: pointer;
+  position: absolute;
+  top: calc(42vh - 95px);
+  left: 6%;
+  transform: translateX(-50%);
+  font-size: 25px;
+  color: #ffffff;
+  z-index: 3;
+  cursor: pointer;
 }
-
 
 .scroll-area {
   position: absolute;
-  top: 50vh;       
+  top: 50vh;
   left: 0;
   right: 0;
   bottom: 0;
   overflow-y: auto;
-  padding-bottom: 250px; 
+  padding-bottom: 250px;
   z-index: 5;
 }
 
-.product-text{
-    width: 68px;
-    height: 14px;
-    opacity: 1;
-    position: relative;
-    top: 207.69px;
-    left: 180.05px;
-    font-family: Roboto;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: 12px;
-    white-space: nowrap;
-    line-height: 100%;
-    letter-spacing: 0%;
-    opacity: 1;
-    top: 145px;
-}
-
 .login-header {
-  background: #1A1B1B;
+  background: #1a1b1b;
   text-align: center;
   padding-top: 5vh;
   color: #fff;
@@ -75,10 +55,13 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
+  // display: flex;
+  // flex-direction: column;
+  // min-height: 60vh;
 }
 
 .login-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -4px;
   left: 55px;
@@ -86,7 +69,7 @@
   height: 0;
   border-left: 15px solid transparent;
   border-right: 15px solid transparent;
-  border-top: 20px solid #1A1B1B;
+  border-top: 20px solid #1a1b1b;
 }
 .login-card h2 {
   font-size: 17px;
@@ -103,19 +86,20 @@
 }
 
 ion-label {
-  color: #1A1B1B;
+  color: #1a1b1b;
   font-size: 14px;
   font-weight: 500;
 }
 
 ion-input {
-  color: #1A1B1B;
+  color: #1a1b1b;
   font-size: 14px;
   background: transparent;
   border: none;
 }
 
-.actions, .otp-actions {
+.actions,
+.otp-actions {
   margin-top: 22px;
   display: flex;
   flex-direction: column;
@@ -124,7 +108,7 @@ ion-input {
 }
 .send-otp-btn,
 .submit-btn {
-  background-color: #11C15B;
+  background-color: #11c15b;
   color: #fff;
   border: none;
   border-radius: 24px;
@@ -148,7 +132,7 @@ ion-input {
   transform: scale(0.97);
 }
 .resend-otp {
-  color: #11C15B;
+  color: #11c15b;
   font-size: 13px;
   margin-left: -19rem;
   margin-bottom: 16px;
@@ -171,38 +155,6 @@ ion-button {
   letter-spacing: 0.5px;
 }
 
-.footer {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 32px 16px 32px;
-  box-sizing: border-box;
-  font-size: 14px;
-  z-index: 10;
-  background: transparent;
-}
-
-.version {
-  color: #000;
-  font-family: 'Roboto';
-  font-size: 13px;
-  font-weight: 400;
-}
-
-.tnc {
-  font-family: 'Roboto';
-  font-size: 13px;
-  font-weight: 400;
-  color: #000;
-  text-decoration: underline;
-    cursor: pointer;
-
-}
-
 @media (max-height: 720px) {
   .login-card {
     top: 38vh;
@@ -212,10 +164,9 @@ ion-button {
 
 @media (max-width: 600px) {
   .login-card {
-      padding: 64px 20px 60px;
-      top: 40vh;
-      height: 59vh;
-      overflow-y: scroll;
+    padding: 64px 20px 60px;
+    top: 40vh;
+    height: 59vh;
   }
   .footer {
     padding: 0 16px 10px;
@@ -226,32 +177,12 @@ ion-button {
     top: 17vh;
   }
 }
-@media (min-width:320px) and (max-width:390px){
-  .resend-otp{
-        margin-left: -15rem;
-  }
-  .product-text{
-    white-space: nowrap;
-    width: 68px;
-    height: 14px;
-    opacity: 1;
-    position: relative;
-    left: 150.05px;
-    font-family: Roboto;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: 12px;
-    line-height: 100%;
-    letter-spacing: 0%;
-    top: 115px;
+@media (min-width: 320px) and (max-width: 390px) {
+  .resend-otp {
+    margin-left: -15rem;
   }
 }
 
-@media(min-width:390px) and (max-width:415px){
-  .product-text{
-    left:164.05px;
-  }
-}
 .resend-otp.disabled {
   pointer-events: none;
   opacity: 0.6;
@@ -270,4 +201,40 @@ ion-button {
 
 .modal-host ion-modal {
   pointer-events: auto;
+}
+.figma-footer {
+  margin-top: auto;
+  width: 100%;
+  text-align: center;
+  padding-top: clamp(16px, 3vh, 24px);
+}
+
+.figma-terms {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(4px, 1vw, 6px);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  font-size: clamp(10px, 2.7vw, 12px);
+  line-height: 1.4;
+  color: #000;
+}
+
+.link {
+  color: #11c15b;
+  font-weight: 400;
+  font-size: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.figma-version {
+  margin-top: clamp(4px, 1.5vh, 8px);
+  font-size: clamp(11px, 2.8vw, 12px);
+  color: #000;
 }

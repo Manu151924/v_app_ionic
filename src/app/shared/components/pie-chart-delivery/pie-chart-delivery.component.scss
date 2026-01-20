@@ -1,0 +1,73 @@
+
+.chart-wrapper-delivery {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.center-text {
+  position: absolute;
+  top: 50%;
+  left: 36%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+
+  &.delivery {
+    left: 30%;
+  }
+
+  .label {
+    font-size: 0.65em;
+    color: #666;
+    font-weight: 600;
+  }
+
+  .value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #02834A;
+    font-weight: 700;
+  }
+
+}
+
+.piePan4 {
+  width: 90%;
+  height: 100%;
+}
+
+.delivery-head {
+  font-weight: 500;
+  color: #000000;
+  font-size: 0.68em;
+}
+
+.delivery-data {
+  font-weight: 400;
+  font-size: 0.6em;
+  line-height: 1.5em;
+}
+
+.container {
+  padding-right: 0.4em;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  justify-content: space-around;
+}
+
+.delivered,
+.undelivered {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}

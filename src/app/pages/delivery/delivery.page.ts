@@ -32,7 +32,6 @@ import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
 import { ToastController } from '@ionic/angular';
 
 import { Delivery } from 'src/app/shared/services/delivery';
-import { PieChartComponent } from 'src/app/shared/components/pie-chart/pie-chart.component';
 import { ProgressSliderComponent } from 'src/app/shared/components/progress-slider/progress-slider.component';
 import { TripReportDeliveryComponent } from 'src/app/shared/components/trip-report-delivery/trip-report-delivery.component';
 import { InventoryCardComponent } from 'src/app/shared/components/inventory-card/inventory-card.component';
@@ -44,6 +43,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline } from 'ionicons/icons';
 import { Crashlytics } from 'src/app/shared/services/crashlytics';
+import { PieChartDeliveryComponent } from 'src/app/shared/components/pie-chart-delivery/pie-chart-delivery.component';
 
 @Component({
   selector: 'app-delivery',
@@ -63,7 +63,7 @@ import { Crashlytics } from 'src/app/shared/services/crashlytics';
     MatNativeDateModule,
     MatDatepickerModule,
     NgxSpinnerModule,
-    PieChartComponent,
+    PieChartDeliveryComponent,
     IonRefresher,
     IonRefresherContent,
     ProgressSliderComponent,
@@ -90,7 +90,7 @@ export class DeliveryPage implements OnInit, OnChanges {
   safe = 0;
 
   totalWaybill = 0;
-  totalWaybillAndWeight = {}
+  totalWaybillAndWeight = {};
   panelFourPieData: any[] = [];
   panelFourBars = [
     { label: 'Vehicle Attendance', value: 0, gradient: '' },
@@ -114,15 +114,25 @@ export class DeliveryPage implements OnInit, OnChanges {
   @ViewChild('monthPicker') monthPicker!: MatDatepicker<Date>;
   @Input() active = false;
   private loaded = false;
+  isRefreshing = false;
+  isLoading = false;
+
   async doRefresh(event: any) {
-    await Promise.all([this.loadPanelFourByDate(), this.loadPanelThreeData()]);
+    this.isRefreshing = true;
+
+    await Promise.all([
+      this.loadPanelThreeData(),
+      this.loadPanelFourByDate(this.selectedDate),
+    ]);
+
+    this.isRefreshing = false;
     event.target.complete();
   }
 
   constructor(
     private service: Delivery,
     private spinner: NgxSpinnerService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {
     addIcons({ chevronDownOutline });
   }
@@ -226,14 +236,16 @@ export class DeliveryPage implements OnInit, OnChanges {
 
   loadPanelThreeData() {
     if (!this.deliveryVendorId || !this.deliveryBranchId) return;
-
-    this.spinner.show();
+    if (!this.isRefreshing) {
+      this.isLoading = true;
+      this.spinner.show();
+    }
 
     this.service
       .getPanelThreeDeliveryData(
         this.deliveryBranchId,
         this.deliveryVendorId,
-        'TOKEN'
+        'TOKEN',
       )
       .subscribe({
         next: (res) => {
@@ -244,11 +256,12 @@ export class DeliveryPage implements OnInit, OnChanges {
           this.usage = d.marketVehicleUsage || 0;
           this.safe = Math.round(d.safeDropUsage || 0);
 
-          this.spinner.hide();
+          this.stopLoader();
+
           this.cdr.markForCheck();
         },
         error: (err) => {
-          this.spinner.hide();
+          this.stopLoader();
 
           this.crashlytics.recordNonFatal(err, 'DELIVERY_PANEL3_FAILED', [
             {
@@ -280,7 +293,10 @@ export class DeliveryPage implements OnInit, OnChanges {
 
     console.log(' Panel-4 loading for:', date);
 
-    this.spinner.show();
+    if (!this.isRefreshing) {
+      this.isLoading = true;
+      this.spinner.show();
+    }
 
     // this.crashlytics.logBusinessEvent('DELIVERY_PANEL4_LOAD', {
     //   vendor: this.deliveryVendorId,
@@ -294,13 +310,13 @@ export class DeliveryPage implements OnInit, OnChanges {
         date.getMonth() + 1,
         this.deliveryBranchId,
         this.deliveryVendorId,
-        'TOKEN'
+        'TOKEN',
       )
       .pipe(
         finalize(() => {
-          this.spinner.hide();
-          this.cdr.detectChanges(); // required for OnPush
-        })
+          this.stopLoader();
+          this.cdr.detectChanges();
+        }),
       )
       .subscribe({
         next: (res) => {
@@ -312,14 +328,16 @@ export class DeliveryPage implements OnInit, OnChanges {
             deliveredWaybills: d.deliveredWaybills ?? 0,
             deliveredWeight: d.deliveredWeight ?? 0,
             undeliveredWaybills: d.undeliveredWaybills ?? 0,
-            undeliveredWeight: d.undeliveredWeight ?? 0
-          }
+            undeliveredWeight: d.undeliveredWeight ?? 0,
+          };
 
-
-          this.panelFourPieData = [
-            { name: 'Un-Delivered', value: d.undeliveredWaybills },
-            { name: 'Delivered', value: d.deliveredWaybills },
-          ];
+          this.panelFourPieData =
+            d.deliveredWaybills > 0 || d.undeliveredWaybills > 0
+              ? [
+                  { name: 'Un-Delivered', value: d.undeliveredWaybills },
+                  { name: 'Delivered', value: d.deliveredWaybills },
+                ]
+              : [{ name: 'no-data', value: 100 }];
 
           this.panelFourBars = [
             {
@@ -367,7 +385,7 @@ export class DeliveryPage implements OnInit, OnChanges {
 
   calculateHappinessFromPanel4() {
     const colors = this.panelFourBars.map((b) =>
-      this.getHeatColor(b.value, b.label)
+      this.getHeatColor(b.value, b.label),
     );
 
     const hasRed = colors.includes('RED');
@@ -395,5 +413,11 @@ export class DeliveryPage implements OnInit, OnChanges {
     if (value <= 25) return 'RED';
     if (value <= 70) return 'AMBER';
     return 'GREEN';
+  }
+  private stopLoader() {
+    if (this.isLoading) {
+      this.isLoading = false;
+      this.spinner.hide();
+    }
   }
 }

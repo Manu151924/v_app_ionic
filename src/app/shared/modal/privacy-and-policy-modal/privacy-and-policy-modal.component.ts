@@ -12,13 +12,13 @@ import { addIcons } from 'ionicons';
 import { close } from 'ionicons/icons'
 
 @Component({
-  selector: 'app-terms-modal',
-  standalone: true,
+  selector: 'app-privacy-and-policy-modal',
+  templateUrl: './privacy-and-policy-modal.component.html',
+  styleUrls: ['./privacy-and-policy-modal.component.scss'],
   imports: [IonButtons, IonIcon, CommonModule, IonContent, IonHeader, IonToolbar, IonTitle, IonButton],
-  templateUrl: './terms-modal.component.html',
-  styleUrls: ['./terms-modal.component.scss'],
 })
-export class TermsModalComponent {
+export class PrivacyAndPolicyModalComponent  {
+
     private modalCtrl = inject(ModalController);
     constructor(){
     addIcons({close});
@@ -27,5 +27,5 @@ export class TermsModalComponent {
    close() {
     this.modalCtrl.dismiss();
   }
-  
+
 }

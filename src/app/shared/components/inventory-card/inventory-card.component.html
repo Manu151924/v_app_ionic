@@ -1,13 +1,6 @@
 <div>
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="arrow-down-outline" refreshingSpinner="crescent">
-    </ion-refresher-content>
-  </ion-refresher>
-  <ngx-spinner bdColor="rgba(255,255,255,0.1)" color="#2ca85e" size="large" type="ball-clip-rotate" [fullScreen]="true">
-    <p class="loader-text">Loading...</p>
-  </ngx-spinner>
-  <ion-card class="pan1-card">
-    <ion-card-content class="pan1-card-header">
+  <div class="pan1-card">
+    <div class="pan1-card-content">
       <div class="header-row">
         <div class="pan1-header-left">
           <div class="location-dropdown">
@@ -89,6 +82,6 @@
         </div>
       </div>
 
-    </ion-card-content>
-  </ion-card>
+    </div>
+  </div>
 </div>

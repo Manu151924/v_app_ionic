@@ -3,6 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import {
+  NgxSpinnerService,
+  NgxSpinnerComponent,
+  NgxSpinnerModule,
+} from 'ngx-spinner';
 
 import { Api } from 'src/app/shared/services/api';
 import { Auth } from 'src/app/shared/services/auth';
@@ -13,7 +18,13 @@ import { Crashlytics } from 'src/app/shared/services/crashlytics';
   templateUrl: './inventory-route-modal.page.html',
   styleUrls: ['./inventory-route-modal.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    NgxSpinnerModule,
+    NgxSpinnerComponent,
+  ],
 })
 export class InventoryRouteModalPage implements OnInit {
   /* ---------------- Route Data ---------------- */
@@ -33,6 +44,8 @@ export class InventoryRouteModalPage implements OnInit {
   private router = inject(Router);
   private api = inject(Api);
   private auth = inject(Auth);
+  private spinner = inject(NgxSpinnerService);
+
   private cdr = inject(ChangeDetectorRef);
   private crashlytics = inject(Crashlytics);
 
@@ -65,7 +78,7 @@ export class InventoryRouteModalPage implements OnInit {
               value: String(params['vendorId']),
               type: 'string',
             },
-          ]
+          ],
         );
         return;
       }
@@ -78,44 +91,30 @@ export class InventoryRouteModalPage implements OnInit {
     //   route: this.rteCd,
     // });
   }
+  isLoading = false;
 
   /* ---------------- API ---------------- */
 
   private async loadInventoryDetails(): Promise<void> {
     const token = await this.auth.getAccessToken();
-    if (!token) {
-      this.crashlytics.recordNonFatal(
-        'No token for route inventory',
-        'ROUTE_INVENTORY_AUTH_MISSING',
-        [
-          { key: 'vendor', value: String(this.vendorId), type: 'string' },
-          { key: 'branch', value: String(this.branchId), type: 'string' },
-          { key: 'route', value: this.rteCd, type: 'string' },
-        ]
-      );
-      return;
-    }
+    if (!token) return;
 
-    this.less24 = { waybills: 0, packages: 0, weight: 0 };
-    this.above24 = { waybills: 0, packages: 0, weight: 0 };
+    this.isLoading = true;
+    this.spinner.show();
 
     this.api
       .getPanelOneInventoryDetails(
         this.vendorId,
         this.branchId,
         this.rteCd,
-        token
+        token,
       )
       .subscribe({
         next: (res) => {
-          if (!res?.responseStatus) {
-            // this.crashlytics.logBusinessEvent('ROUTE_INVENTORY_EMPTY', {
-            //   vendor: this.vendorId,
-            //   branch: this.branchId,
-            //   route: this.rteCd,
-            // });
-            return;
-          }
+          this.isLoading = false;
+          this.spinner.hide();
+
+          if (!res?.responseStatus) return;
 
           const data = res.responseObject ?? [];
 
@@ -146,13 +145,9 @@ export class InventoryRouteModalPage implements OnInit {
           this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error('Inventory API error', err);
-
-          this.crashlytics.recordNonFatal(err, 'ROUTE_INVENTORY_API_FAILED', [
-            { key: 'vendor', value: String(this.vendorId), type: 'string' },
-            { key: 'branch', value: String(this.branchId), type: 'string' },
-            { key: 'route', value: this.rteCd, type: 'string' },
-          ]);
+          this.isLoading = false;
+          this.spinner.hide();
+          this.crashlytics.recordNonFatal(err, 'ROUTE_INVENTORY_API_FAILED');
         },
       });
   }

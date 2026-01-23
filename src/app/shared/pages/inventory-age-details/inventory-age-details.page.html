@@ -1,100 +1,97 @@
-
-<ion-header>
-  <ion-toolbar>
-    <ion-button slot="start" fill="clear" (click)="goBack()">
-  <ion-icon name="arrow-back"></ion-icon>
-</ion-button>
-
-
-    <ion-title>AVL. INVENTORY</ion-title>
-
-    <ion-button slot="end" class="branch-btn">
+<div class="header">
+  <div class="header-row">
+    <ion-button slot="start" fill="clear" (click)="goBack()" class="back-icon">
+      <ion-icon name="chevron-back-outline" size="large" color="#000000"></ion-icon>
+    </ion-button>
+    <ion-title class="title">AVL. INVENTORY</ion-title>
+    <ion-button slot="end" class="branch-btn" size="small">
       {{ backBranchName }}
     </ion-button>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content>
-    <ngx-spinner
-    bdColor="rgba(255,255,255,0.1)"
-     name="inventorySpinner"
-    color="#2ca85e"
-    size="large"
-    type="ball-clip-rotate"
-    [fullScreen]="true">
-    <p class="loader-text">Loading...</p>
-  </ngx-spinner>
-
-  <!-- SUMMARY STRIP -->
-  <div class="top-bar">
-    <ion-segment-button class="seg">WB Count</ion-segment-button>
-
-    <div class="chip-group">
-      <div class="chip">WAYBILLS: {{ summary.waybills }}</div>
-      <div class="chip">PKGS: {{ summary.packages }}</div>
-      <div class="chip">WT (T): {{ summary.weight }}</div>
-    </div>
-     <span class="route-name">{{ rteCd }}</span>
   </div>
+</div>
 
-  <!-- AGE CARD -->
-  <ion-card class="age-card">
-    <div class="side-label" [ngClass]="ageType === '<24' ? 'green-bg' : 'yellow-bg'">
-      {{ ageType === '<24' ? '< 24 Hours' : '> 24 Hours' }}
-    </div>
-
-    <div class="age-content">
-      <div class="count">
-        <label>Waybill Count</label>
-        <h1>{{ summary.waybills | number:'2.0' }}</h1>
+<ion-content class="body">
+  <ngx-spinner bdColor="rgba(255,255,255,0.1)" color="#2ca85e" size="large" type="ball-clip-rotate" [fullScreen]="true">
+  <p class="loader-text">Loading...</p>
+</ngx-spinner>
+  <div class="body-container">
+    <div class="top-bar">
+      <div class="seg">WB Count</div>
+      <div class="chip-group">
+        <div class="chip">WAYBILLS: {{ summary.waybills }}</div>
+        <div class="chip">PKGS: {{ summary.packages }}</div>
+        <div class="chip">WT (T): {{ summary.weight }}</div>
       </div>
-
-      <div class="stat">
-        <label>Packages</label>
-        <p>{{ summary.packages }}</p>
-      </div>
-
-      <div class="stat">
-        <label>Weight (T)</label>
-        <p>{{ summary.weight }}</p>
+      <div class="route-name">
+        <ion-icon name="location-sharp" size="medium" class="location-icon"></ion-icon>
+        <div class="rteCd">{{ rteCd }}</div>
       </div>
     </div>
-  </ion-card>
 
-  <!-- WAYBILL LIST -->
-  <div class="list-card" *ngFor="let wb of waybillList">
-    <div class="list-header">
-      <span>Waybill No.</span>
-      <span>Package</span>
-      <span>Weight (T)</span>
-      <span>Arrived On</span>
-      <span>Inv. Age</span>
-    </div>
+    <!-- AGE CARD -->
+    <ion-card class="age-card">
+      <div class="side-label" [ngClass]="ageType === '<24' ? 'green-font-color' : 'yellow-font-color'">
+        {{ ageType === '<24' ? '< 24 Hours' : '> 24 Hours' }} </div>
+          <div class="age-content" [ngClass]="ageType === '<24' ? 'green-bg' : 'yellow-bg'">
+            <div class="count">
+              <label class="waybill-count">Waybill Count</label>
+              <h1>{{ summary.waybills | number:'2.0' }}</h1>
+            </div>
 
-    <div class="list-row">
-      <span>{{ wb.waybillNo }}</span>
-      <span>{{ wb.packages }}</span>
-      <span>{{ wb.weight }}</span>
-      <span>{{ wb.arrivedOn }}</span>
-      <span class="green-text">{{ wb.invAge }}</span>
-    </div>
+            <div class="stat">
+              <label class="stat-label">Packages</label>
+              <p>{{ summary.packages }}</p>
+            </div>
 
-    <div class="list-footer">
-      <div>
-        <label>Consignee</label>
-        <p>{{ wb.consignee }}</p>
+            <div class="stat">
+              <label class="stat-label">Weight (T)</label>
+              <p>{{ summary.weight }}</p>
+            </div>
+          </div>
+    </ion-card>
+
+    <!-- WAYBILL LIST -->
+    <div class="list-card" *ngFor="let wb of waybillList"
+      [ngClass]="ageType === '<24' ? 'green-border-color' : 'yellow-border-color'">
+      <div class="list-body">
+        <div class="field">
+          <div class="field-label">Waybill No.</div>
+          <div class="field-value">{{ wb.waybillNo }}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Package</div>
+          <div class="field-value">{{ wb.packages }}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Weight (T)</div>
+          <div class="field-value">{{wb.weight}}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Arrived On</div>
+          <div class="field-value">{{ wb.arrivedOn }}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Inv. Age</div>
+          <div class="field-value" [ngClass]="ageType === '<24' ? 'green-font-color' : 'yellow-font-color'">{{ wb.invAge }}</div>
+        </div>
       </div>
 
-      <div class="to-pay">
-        <label>To Pay</label>
-        <p class="red">{{ wb.toPay > 0 ? (wb.toPay | number) : '-' }}</p>
-      </div>
+      <div class="list-footer">
+        <div class="consignee">
+          <div class="field-label">Consignee</div>
+          <div class="consignee-value">{{ wb.consignee }}</div>
+        </div>
 
-      <div class="vas">
-        <span *ngIf="!wb.vas.length">-</span>
-        <span *ngFor="let v of wb.vas">{{ v }}</span>
+        <div class="to-pay">
+          <div class="field-label">To Pay</div>
+          <div class="field-value red">{{ wb.toPay > 0 ? (wb.toPay | number) : '-' }}</div>
+        </div>
+
+        <div class="vas">
+          <div class="field-label">Vas</div>
+          <div class="field-value">{{ wb.vas !== null ? (wb.vas) : '-' }}</div>
+        </div>
       </div>
     </div>
   </div>
-
 </ion-content>

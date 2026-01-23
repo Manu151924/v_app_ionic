@@ -16,6 +16,8 @@ let outsideLabel = {
     const dataset = chart.data.datasets[0];
     const meta = chart.getDatasetMeta(0);
 
+    if (!meta?.data?.length) return;
+
     ctx.save();
 
     meta.data.forEach((arc: any, index: number) => {
@@ -59,6 +61,25 @@ let outsideLabel = {
         y2
       );
     });
+
+    const centerArc: any = meta.data[0];
+    const centerX = centerArc.x;
+    const centerY = centerArc.y;
+
+    const totalWaybill =
+      (chart.options as any)?.plugins?.centerText?.value ?? '0';
+
+    // BOOKED
+    ctx.fillStyle = '#000000';
+    ctx.font = '600 0.56em Roboto';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('BOOKED', centerX, centerY - 10);
+
+    // VALUE
+    ctx.fillStyle = '#02834A';
+    ctx.font = '700 1.1em Roboto';
+    ctx.fillText(`${totalWaybill}`, centerX, centerY + 10);
 
     ctx.restore();
   }
@@ -104,13 +125,13 @@ export class PieChartComponent implements AfterViewInit {
 
   ngOnChanges(changes: SimpleChange) {
     if (this.chart) {
-      this.labelValues = []      
+      this.labelValues = []
       this.data.forEach((d: { name: string, value: number }) => {
         this.labelValues.push(d.value)
       });
 
       this.chart.data.datasets[0].data = this.labelValues;
-      this.chart.data.datasets[0].backgroundColor = this.data[0]?.name === 'no-data' ? ['#9f9f9f'] : ['#FF8A0D', '#06B4A2'];
+      (this.chart.options.plugins as any).centerText.value = this.totalWaybill;
       this.chart.update();
     }
   }
@@ -126,13 +147,13 @@ export class PieChartComponent implements AfterViewInit {
         }]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
+        responsive: false,
+        maintainAspectRatio: true,
 
         layout: {
           padding: {
             left: 0,
-            right: 50,
+            right: 55,
             top: 0,
             bottom: 0
           }
@@ -140,6 +161,9 @@ export class PieChartComponent implements AfterViewInit {
 
         plugins: {
           legend: { display: false },
+          centerText: {
+            value: this.totalWaybill
+          } as any
         }
       },
       plugins: [outsideLabel]

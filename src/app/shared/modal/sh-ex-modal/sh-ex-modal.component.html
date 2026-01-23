@@ -1,4 +1,4 @@
-<ion-content class="ion-padding scroll-area">
+<ion-toolbar>
   <div class="header-container">
     <ion-text class="title">{{formattedVehicleNo }}</ion-text>
     <ion-buttons>
@@ -7,8 +7,9 @@
       </ion-button>
     </ion-buttons>
   </div>
+</ion-toolbar>
+<ion-content class="ion-padding scroll-area">
 
-  <div class="sfx-list-container">
 
     @for (item of shExDetails; track item) {
 
@@ -47,6 +48,5 @@
     </div>
 
     }
-  </div>
 
 </ion-content>

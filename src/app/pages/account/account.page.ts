@@ -37,8 +37,10 @@ import { AppStorageService } from 'src/app/shared/services/app-storage';
     CommonModule,
     FormsModule,
     IonCard
-]
+  ]
 })
+
+
 export class AccountPage implements OnInit {
 
   private navCtrl = inject(NavController);
@@ -51,7 +53,7 @@ export class AccountPage implements OnInit {
   version = environment.version;
 
   constructor() {
-    addIcons({person,powerOutline,personCircleOutline,busOutline});
+    addIcons({ person, powerOutline, personCircleOutline, busOutline });
   }
 
   /* ---------------- Lifecycle ---------------- */
@@ -62,81 +64,46 @@ export class AccountPage implements OnInit {
   }
 
   /* ---------------- Profile Details ---------------- */
-
-  // async openProfileDetails() {
-  //   const user = await this.storage.getUserDetails();
-
-  //   if (!user) {
-  //     console.error('User details missing');
-  //     return;
-  //   }
-
-  //   // Decide vendor based on availability
-  //   const vendorId =
-  //     user.vendorType?.includes('BOOKING')
-  //       ? user.bookingVendorId
-  //       : user.deliveryVendorId;
-
-  //   if (!vendorId) {
-  //     console.error('VendorId not available');
-  //     return;
-  //   }
-
-  //   const token = await this.auth.getAccessToken();
-  //   if (!token) {
-  //     console.error('Access token missing');
-  //     return;
-  //   }
-
-  //   this.api.getVendorDetails(vendorId, token).subscribe({
-  //     next: async (res) => {
-  //       // Persist vendor details in Ionic Storage
-  //       await this.storage.updateUserDetails({
-  //         vendorName: res.vendorName ?? '',
-  //         vendorEmail: res.userEmail ?? '',
-  //         vendorGstin: res.gstin ?? '',
-  //         vendorPhone: res.userPhone ?? ''
-  //       });
-
-  //       this.navCtrl.navigateForward('/profile-details');
-  //     },
-  //     error: (err) => {
-  //       console.error('Vendor API Error:', err);
-  //     }
-  //   });
-  // }
-  async openProfileDetails() {
-  const vendorId = await this.storage.getActiveVendorId();
-
-  if (!vendorId) {
-    console.error('VendorId not available');
-    return;
-  }
-
-  const token = await this.auth.getAccessToken();
-  if (!token) {
-    console.error('Access token missing');
-    return;
-  }
-
-  console.log('Calling Vendor API with VendorId:', vendorId);
-
-  this.api.getVendorDetails(vendorId, token).subscribe({
-    next: async (res) => {
-      await this.storage.updateUserDetails({
-        vendorName: res.vendorName ?? '',
-        vendorEmail: res.userEmail ?? '',
-        vendorGstin: res.gstin ?? '',
-        vendorPhone: res.userPhone ?? ''
-      });
-
-      this.navCtrl.navigateForward('/profile-details');
-    },
-    error: (err) => {
-      console.error('Vendor API Error:', err);
+async openProfileDetails(): Promise<void> {
+  try {
+    const token = await this.auth.getAccessToken();
+    if (!token) {
+      console.error('Access token missing');
+      return;
     }
-  });
+
+    this.api.getVendorDetails(token).subscribe({
+      next: async (vendors: any[]) => {
+
+        if (!Array.isArray(vendors) || vendors.length === 0) {
+          console.error('Vendor list empty');
+          return;
+        }
+
+        // Pick BOOKING by default
+        const activeVendor =
+          vendors.find(v => v.vendorType === 'BOOKING') || vendors[0];
+
+        await this.storage.updateUserDetails({
+          vendorName: activeVendor.vendorName ?? '',
+          vendorEmail: activeVendor.userEmail ?? '',
+          vendorGstin: activeVendor.gstin ?? '',
+          vendorPhone: activeVendor.userPhone ?? '',
+          vendorType: activeVendor.vendorType
+        });
+
+        this.navCtrl.navigateForward('/profile-details');
+      },
+      error: (err) => {
+        console.error('Vendor API Error:', err);
+      }
+    });
+
+  } catch (error) {
+    console.error('openProfileDetails error:', error);
+  }
 }
+
 
 
   /* ---------------- Logout ---------------- */
@@ -154,7 +121,7 @@ export class AccountPage implements OnInit {
             this.navCtrl.navigateRoot('/login');
           }
         }
-      ],
+      ]
     });
 
     await alert.present();

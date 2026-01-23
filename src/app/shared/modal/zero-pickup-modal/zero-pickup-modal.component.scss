@@ -1,8 +1,21 @@
+ion-toolbar {
+  --background: #efefef !important;
+  --border: none !important;
+}
+
+ion-content{
+  --padding-bottom: 1em;
+}
+
 .header-container {
   display: flex;
   justify-content: space-between;
-  margin: 1em 0;
+  margin: 1em 1em 0.5em 1em;
   align-items: center;
+
+  ion-button::part(native){
+    padding: 0;
+  }
 }
 
 .title {

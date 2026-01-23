@@ -577,7 +577,7 @@ if (!this.isRefreshing) {
         componentProps: modalProps,
         cssClass: 'bottom-sheet-modal',
         backdropDismiss: true,
-        breakpoints: [0, 0.65, 0.95],
+        breakpoints: [0, 0.65, 1],
         initialBreakpoint: 0.65,
       });
 
@@ -609,8 +609,8 @@ if (!this.isRefreshing) {
       componentProps: { assignedSfxData },
       cssClass: 'sfx-modal',
       backdropDismiss: true,
-      breakpoints: [0, 0.7],
-      initialBreakpoint: 0.7,
+      breakpoints: [0, 0.65, 1],
+      initialBreakpoint: 0.65,
     });
 
     await modal.present();

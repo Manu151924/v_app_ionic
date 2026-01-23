@@ -5,6 +5,8 @@ import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { AlertController } from '@ionic/angular';
+import { StatusBar, Style } from '@capacitor/status-bar';
+
 import { filter, Subscription } from 'rxjs';
 
 import { Auth } from './shared/services/auth';
@@ -38,6 +40,11 @@ export class AppComponent implements OnInit, OnDestroy {
   private sessionExpiredOpen = false;
 
   async ngOnInit() {
+    if (Capacitor.isNativePlatform()) {
+    await StatusBar.setOverlaysWebView({ overlay: false });
+    await StatusBar.setBackgroundColor({ color: '#ffffff' });
+    await StatusBar.setStyle({ style: Style.Light });
+  }
     // ---------------- FOOTER ----------------
     this.updateFooter(this.router.url);
     this.navSub = this.router.events

@@ -121,10 +121,11 @@ generateAccessTokenFromRefreshToken(refreshToken: string) {
     return this.get(url, token);
   }
 
-  getVendorDetails(vendorId: number, token: string): Observable<any> {
-    const url = `${API_ENDPOINTS.VENDOR.DETAILS}/${vendorId}/details`;
-    return this.get(url, token);
-  }
+getVendorDetails(token: string): Observable<any[]> {
+  const url = API_ENDPOINTS.VENDOR.DETAILS;
+  return this.get(url, token);
+}
+
 
   /* ================= DELIVERY ================= */
 

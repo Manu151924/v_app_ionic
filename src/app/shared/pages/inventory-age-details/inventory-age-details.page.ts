@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { arrowBack, locationOutline } from 'ionicons/icons';
+import { chevronBackOutline, locationOutline, locationSharp } from 'ionicons/icons';
 import {
   NgxSpinnerService,
   NgxSpinnerComponent,
@@ -59,7 +59,7 @@ export class InventoryAgeDetailsPage implements OnInit {
   private spinner = inject(NgxSpinnerService);
 
   constructor() {
-    addIcons({ locationOutline, arrowBack });
+    addIcons({ locationOutline, chevronBackOutline, locationSharp });
   }
 
   /* ---------------- Lifecycle ---------------- */
@@ -145,7 +145,7 @@ export class InventoryAgeDetailsPage implements OnInit {
       invAge: `${item.invAge} Day${item.invAge > 1 ? 's' : ''}`,
       consignee: item.cneeName,
       toPay: item.wbDlvChgdAmtOut,
-      vas: item.vasValue ? item.vasValue.split(',') : [],
+      vas: item.vasValue,
     }));
 
     this.summary = {

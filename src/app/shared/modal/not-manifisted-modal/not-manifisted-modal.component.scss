@@ -10,11 +10,24 @@
      color: #d9534f;
    }
 
+   ion-toolbar {
+     --background: #efefef !important;
+     --border: none !important;
+   }
+
+   ion-content {
+     --padding-bottom: 1em;
+   }
+
    .header-container {
      display: flex;
      justify-content: space-between;
-     margin: 1em 0;
+     margin: 1em 1em 0.5em 1em;
      align-items: center;
+
+     ion-button::part(native) {
+       padding: 0;
+     }
    }
 
    .title {
@@ -28,13 +41,6 @@
 
    .close-btn {
      color: #26A95E;
-   }
-
-   .sfx-list-container {
-     max-height: calc(64vh - 80px);
-     overflow-y: auto;
-     padding-bottom: 10px;
-     width: 100%;
    }
 
    .sfx-card {

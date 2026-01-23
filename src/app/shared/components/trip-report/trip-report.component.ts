@@ -248,7 +248,7 @@ async fetchTripAndAbsentData(): Promise<void> {
       },
       cssClass: 'bottom-sheet-modal',
       backdropDismiss: true,
-      breakpoints: [0, 0.65, 0.95],
+      breakpoints: [0, 0.65, 1],
       initialBreakpoint: 0.65,
     });
 

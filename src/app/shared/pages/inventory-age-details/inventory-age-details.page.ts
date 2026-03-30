@@ -1,18 +1,24 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { NavController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { chevronBackOutline, locationOutline, locationSharp } from 'ionicons/icons';
+import { WaybillFormatPipe } from '../../utilities/waybill-format-pipe';
+import {
+  chevronBackOutline,
+  locationOutline,
+  locationSharp,
+} from 'ionicons/icons';
 import {
   NgxSpinnerService,
-  NgxSpinnerComponent,
   NgxSpinnerModule,
 } from 'ngx-spinner';
 
 import { Api } from 'src/app/shared/services/api';
 import { Auth } from 'src/app/shared/services/auth';
+import { FooterComponent } from "../../components/footer/footer.component";
 
 @Component({
   selector: 'app-inventory-age-details',
@@ -23,9 +29,10 @@ import { Auth } from 'src/app/shared/services/auth';
     CommonModule,
     FormsModule,
     IonicModule,
-    NgxSpinnerComponent,
     NgxSpinnerModule,
-  ],
+    WaybillFormatPipe,
+    FooterComponent
+],
 })
 export class InventoryAgeDetailsPage implements OnInit {
   /* ---------------- Route Params ---------------- */
@@ -33,11 +40,15 @@ export class InventoryAgeDetailsPage implements OnInit {
   propeliBrId!: number;
   rteCd!: string;
   vendorId!: number;
+
   backVendorId!: number;
 
   backBranchId!: number;
   backBranchName!: string;
   backRteCd!: string;
+  totalWaybills!: number;
+  totalPackages!: number;
+  totalWeight!: number;
 
   /* ---------------- UI State ---------------- */
   branch = '';
@@ -57,6 +68,7 @@ export class InventoryAgeDetailsPage implements OnInit {
   private api = inject(Api);
   private auth = inject(Auth);
   private spinner = inject(NgxSpinnerService);
+  private navCtrl = inject(NavController);
 
   constructor() {
     addIcons({ locationOutline, chevronBackOutline, locationSharp });
@@ -75,6 +87,9 @@ export class InventoryAgeDetailsPage implements OnInit {
       this.backBranchId = Number(params['backBranchId']);
       this.backBranchName = params['backBranchName'];
       this.backRteCd = params['backRteCd'];
+      this.totalWaybills = Number(params['totalWaybills']);
+      this.totalPackages = Number(params['totalPackages']);
+      this.totalWeight = Number(params['totalWeight']);
 
       if (!this.ageType || !this.propeliBrId || !this.rteCd || !this.vendorId) {
         console.error('Invalid route params', params);
@@ -84,11 +99,12 @@ export class InventoryAgeDetailsPage implements OnInit {
       this.loadInventoryDetails();
     });
   }
+  
 
   /* ---------------- Navigation ---------------- */
 
   goBack() {
-    this.router.navigate(['/inventory-route-modal'], {
+    this.navCtrl.navigateBack(['/inventory-route-modal'], {
       queryParams: {
         branchId: this.backBranchId,
         branchName: this.backBranchName,
@@ -101,7 +117,7 @@ export class InventoryAgeDetailsPage implements OnInit {
   /* ---------------- API ---------------- */
 
   private async loadInventoryDetails() {
-    this.spinner.show('inventorySpinner');
+    this.spinner.show();
 
     const token = await this.auth.getAccessToken();
     if (!token) {
@@ -114,14 +130,14 @@ export class InventoryAgeDetailsPage implements OnInit {
         this.propeliBrId,
         this.rteCd,
         this.vendorId,
-        token
+        token,
       )
       .subscribe({
         next: (res: any) => {
           if (res?.responseStatus && Array.isArray(res.responseObject)) {
             this.processData(res.responseObject);
           }
-          this.spinner.hide('inventorySpinner');
+          this.spinner.hide();
         },
         error: (err) => {
           console.error('Inventory API failed', err);
@@ -132,35 +148,89 @@ export class InventoryAgeDetailsPage implements OnInit {
 
   /* ---------------- Data Processing ---------------- */
 
-  private processData(apiList: any[]) {
-    const filtered = apiList.filter((item) =>
-      this.ageType === '<24' ? item.invAge < 24 : item.invAge >= 24
-    ) .sort((a, b) => b.invAge - a.invAge);
+private processData(apiList: any[]) {
+  if (!Array.isArray(apiList)) return;
+  const filtered = apiList
+    .filter((item) => {
+      const hours = Number(item.invAge || 0);
 
-    this.waybillList = filtered.map((item) => ({
+      return this.ageType === '<24'
+        ? hours < 24
+        : hours >= 24;
+    })
+    .sort((a, b) => Number(b.invAge) - Number(a.invAge));
+
+  this.waybillList = filtered.map((item) => {
+    const hours = Number(item.invAge || 0);
+    const days = Math.floor(hours / 24);
+
+    return {
       waybillNo: item.wayblNo,
-      packages: item.avlPkgs,
-      weight: item.actWt,
+      packages: Number(item.avlPkgs || 0),
+      weight: Number(item.actWt || 0),
       arrivedOn: this.formatDate(item.arrivedOn),
-      invAge: `${item.invAge} Day${item.invAge > 1 ? 's' : ''}`,
+      invAge: this.formatDays(days),
+
       consignee: item.cneeName,
       toPay: item.wbDlvChgdAmtOut,
       vas: item.vasValue,
-    }));
-
-    this.summary = {
-      waybills: this.waybillList.length,
-      packages: this.waybillList.reduce((s, i) => s + i.packages, 0),
-      weight: this.waybillList.reduce((s, i) => s + i.weight, 0),
     };
-  }
+  });
+  let totalPackages = 0;
+  let totalKg = 0;
 
+  filtered.forEach((item) => {
+    totalPackages += Number(item.avlPkgs || 0);
+    totalKg += Number(item.actWt || 0);
+  });
+
+  this.summary = {
+    waybills: filtered.length,
+    packages: totalPackages,
+    weight: Math.round((totalKg / 1000) * 1000) / 1000,
+  };
+
+  // ✅ DEBUG (will match exactly now)
+  const green = apiList.filter(i => Number(i.invAge) < 24).length;
+  const amber = apiList.filter(i => Number(i.invAge) >= 24).length;
+
+  console.log('GREEN (<24):', green);
+  console.log('AMBER (>=24):', amber);
+}
+  private formatDays(age: number): string {
+    return `${age} ${age === 1 ? 'Day' : 'Days'}`;
+  }
+  private calculateInvAge(arrivedOn: string): number {
+    if (!arrivedOn) return 0;
+
+    const arrived = new Date(arrivedOn).getTime();
+    const now = Date.now();
+
+    const diffMs = now - arrived;
+
+    // Prevent negative values
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    return Math.max(0, days);
+  }
   private formatDate(dateStr: string): string {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
+    if (!dateStr) return '-';
+    const [datePart] = dateStr.split('T');
+    const [year, month, day] = datePart.split('-');
+    const monthName = new Date(`${year}-${month}-01`)
+      .toLocaleString('en-GB', { month: 'short' })
+      .toUpperCase();
+    return `${day}-${monthName}-${year}`;
+  }
+  private calculateHours(arrivedOn: string): number {
+    if (!arrivedOn) return 0;
+
+    const arrived = new Date(arrivedOn).getTime();
+    const now = Date.now();
+
+    const diffMs = now - arrived;
+
+    // convert to hours
+    return diffMs / (1000 * 60 * 60);
   }
 }

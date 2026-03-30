@@ -20,17 +20,25 @@ export class AuthInterceptor implements HttpInterceptor {
   private api = inject(Api);
   private sessionTimeout = inject(SessionTimeout);
 
+  /* ===============================
+     🆕 TOKEN SHAPE CHECK (LOCAL)
+     =============================== */
+  private isJwt(token: string | null): boolean {
+    return !!token && token.split('.').length === 3;
+  }
+
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     if (req.headers.get('Authorization') === 'Bearer SKIP_AUTH') {
-      const cleanReq = req.clone({
-        headers: req.headers.delete('Authorization'),
-      });
-      return next.handle(cleanReq);
+      return next.handle(
+        req.clone({ headers: req.headers.delete('Authorization') }),
+      );
     }
 
     return from(this.auth.getAccessToken()).pipe(
       switchMap((token) => {
-        if (token && this.auth.isTokenExpired(token)) {
+        // 🔐 FUTURE-SAFE:
+        // Only JWT supports frontend expiry & refresh
+        if (token && this.isJwt(token) && this.auth.isTokenExpired(token)) {
           return this.isRefreshing
             ? this.waitForToken(req, next)
             : this.handleRefresh(req, next);
@@ -43,43 +51,46 @@ export class AuthInterceptor implements HttpInterceptor {
         return next
           .handle(request)
           .pipe(catchError((err) => this.handleError(err, request, next)));
-      })
+      }),
     );
   }
 
   private handleError(
     error: any,
     request: HttpRequest<any>,
-    next: HttpHandler
+    next: HttpHandler,
   ) {
     if (
       error instanceof HttpErrorResponse &&
       (error.status === 401 || error.status === 403)
     ) {
       return from(this.auth.getRefreshToken()).pipe(
-        switchMap((token) => {
-          if (!token || this.auth.isRefreshTokenExpired(token)) {
+        switchMap((refreshToken) => {
+          if (!this.isJwt(refreshToken)) {
             return from(this.auth.forceLogout()).pipe(
-              switchMap(() => throwError(() => error))
+              switchMap(() => throwError(() => error)),
+            );
+          }
+
+          if (!refreshToken || this.auth.isRefreshTokenExpired(refreshToken)) {
+            return from(this.auth.forceLogout()).pipe(
+              switchMap(() => throwError(() => error)),
             );
           }
 
           return this.isRefreshing
             ? this.waitForToken(request, next)
             : this.handleRefresh(request, next);
-        })
+        }),
       );
+    }
+    if (error.status === 500) {
+      this.sessionTimeout.set('SERVER_ERROR');
+      return throwError(() => error);
     }
 
     if (error.status === 0 || error.status === 503) {
-      this.auth.getRefreshToken().then((token) => {
-        if (token && !this.auth.isRefreshTokenExpired(token)) {
-          this.sessionTimeout.set('SERVER_DOWN'); // popup trigger
-        } else {
-          this.auth.forceLogout();
-        }
-      });
-
+      this.sessionTimeout.set('SERVER_DOWN');
       return throwError(() => error);
     }
 
@@ -92,9 +103,13 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return from(this.auth.getRefreshToken()).pipe(
       switchMap((token) => {
-        if (!token || this.auth.isRefreshTokenExpired(token)) {
+        if (
+          !token ||
+          !this.isJwt(token) ||
+          this.auth.isRefreshTokenExpired(token)
+        ) {
           return from(this.auth.forceLogout()).pipe(
-            switchMap(() => throwError(() => 'Refresh expired'))
+            switchMap(() => throwError(() => 'Refresh expired')),
           );
         }
 
@@ -104,7 +119,7 @@ export class AuthInterceptor implements HttpInterceptor {
         const newToken = res?.data?.accessToken;
         if (!newToken) {
           return from(this.auth.forceLogout()).pipe(
-            switchMap(() => throwError(() => 'Invalid refresh'))
+            switchMap(() => throwError(() => 'Invalid refresh')),
           );
         }
 
@@ -114,12 +129,15 @@ export class AuthInterceptor implements HttpInterceptor {
             return next.handle(
               request.clone({
                 setHeaders: { Authorization: `Bearer ${newToken}` },
-              })
+              }),
             );
-          })
+          }),
         );
       }),
-      finalize(() => (this.isRefreshing = false))
+      finalize(() => {
+        this.isRefreshing = false;
+        this.refreshToken$.next(null);
+      }),
     );
   }
 
@@ -129,9 +147,11 @@ export class AuthInterceptor implements HttpInterceptor {
       take(1),
       switchMap((token) =>
         next.handle(
-          request.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
-        )
-      )
+          request.clone({
+            setHeaders: { Authorization: `Bearer ${token}` },
+          }),
+        ),
+      ),
     );
   }
 }

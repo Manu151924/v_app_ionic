@@ -1,88 +1,99 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>AVL. INVENTORY</ion-title>
-
-<div slot="end" class="branch-label">
+<ion-header class="header">
+  <ion-toolbar class="header-row">
+    <ion-button slot="start" fill="clear" class="back-icon" (click)="goBack()" (keydown.enter)="goBack()"
+      (keydown.space)="goBack()" aria-label="Go back">
+      <ion-icon name="chevron-back-outline" size="large" color="#000000"></ion-icon>
+    </ion-button>
+    <div class="title">AVL. INVENTORY</div>
+    <ion-button slot="end" class="branch-btn" size="small">
       {{ branch }}
-    </div>
-
+    </ion-button>
   </ion-toolbar>
 </ion-header>
 
-
 <ion-content>
-  <ngx-spinner
-  bdColor="rgba(255,255,255,0.15)"
-  size="large"
-  color="#27ae60"
-  type="ball-clip-rotate"
-  [fullScreen]="true">
+  <ngx-spinner bdColor="rgba(255,255,255,0.15)" size="large" color="#27ae60" type="ball-clip-rotate"
+    [fullScreen]="true">
 
-  <p class="loader-text">Loading inventory…</p>
+    <p class="loader-text">Loading inventory…</p>
 
-</ngx-spinner>
-
-
-  <!-- TOP FILTER BAR -->
-  <div class="top-bar">
-      <ion-segment-button class="seg">WB Count</ion-segment-button>
-
-    <div class="chip-group">
-      <div class="chip">WAYBILLS: {{ totals.waybills }}</div>
-      <div class="chip">PKGS: {{ totals.packages }}</div>
-      <div class="chip">WT (T): {{ totals.weight }}</div>
+  </ngx-spinner>
+  <div class="body-container">
+    <div class="top-bar">
+      <div class="seg">WB Count</div>
+      <div class="chip-group">
+        <div class="chip">WAYBILLS: {{ totals.waybills }}</div>
+        <div class="chip">PKGS: {{ totals.packages }}</div>
+        <div class="chip">WT (T):{{ totals.weight | number:'1.3-3' }}</div>
+      </div>
+      <div class="route-name">
+        <ion-icon name="location-sharp" size="medium" class="location-icon"></ion-icon>
+        <div class="rteCd">{{ rteCd }}</div>
+      </div>
     </div>
 
-    <span class="route-name">{{ routeName }}</span>
+
+    <div class="age-card-wrapper pointer-green" aria-label="Open age details less than 24 hours"
+      (click)="openAgeDetails('<24')" (keydown.enter)="openAgeDetails('<24')" (keydown.space)="openAgeDetails('<24')">
+
+      <ion-card class="age-card">
+        <!-- Side Label -->
+        <div class="side-label green-bg">
+          < 24 Hours </div>
+
+            <!-- Content -->
+            <div class="age-content">
+              <div class="count">
+                <label class="waybill-count" for="">Waybill Count</label>
+                <h1>{{ less24.waybills | number: '2.0' }}</h1>
+              </div>
+
+              <div class="stat">
+                <label class="stat-label" for="">Packages</label>
+                <p>{{ less24.packages }}</p>
+              </div>
+
+              <div class="stat">
+                <label class="stat-label" for="">Weight (T)</label>
+                <p>{{ less24.weight | number:'1.3-3' }}</p>
+              </div>
+            </div>
+      </ion-card>
+    </div>
+
+    <div class="age-card-wrapper pointer-yellow" aria-label="Open age details greater than or equal to 24 hours"
+      (click)="openAgeDetails('>=24')" (keydown.enter)="openAgeDetails('>=24')"
+      (keydown.space)="openAgeDetails('>=24')">
+
+      <ion-card class="age-card">
+        <!-- Side Label -->
+        <div class="side-label yellow-bg">
+          > 24 Hours
+        </div>
+
+        <!-- Content -->
+        <div class="age-content">
+          <div class="count">
+            <label class="waybill-count" for="">Waybill Count</label>
+            <h1>{{ above24.waybills | number: '2.0' }}</h1>
+          </div>
+
+          <div class="stat">
+            <label class="stat-label" for="">Packages</label>
+            <p>{{ above24.packages }}</p>
+          </div>
+
+          <div class="stat">
+            <label class="stat-label" for="">Weight (T)</label>
+            <p>{{ above24.weight | number:'1.3-3' }}</p>
+          </div>
+        </div>
+      </ion-card>
+    </div>
   </div>
 
-
-  <!-- CARD #1 : < 24 -->
-  <ion-card class="detail-card" (click)="openAgeDetails('<24')">
-    <div class="badge green-bg">&lt; 24 Hours</div>
-
-    <div class="content-grid">
-      <div>
-        <label>Waybill Count</label>
-        <h1>{{ less24.waybills | number:'2.0' }}</h1>
-      </div>
-
-      <div>
-        <label>Packages</label>
-        <h3>{{ less24.packages }}</h3>
-      </div>
-
-      <div>
-        <label>Weight (T)</label>
-        <h3>{{ less24.weight }}</h3>
-      </div>
-    </div>
-  </ion-card>
-
-
-  <!-- CARD #2 : > 24 -->
-  <ion-card class="detail-card" (click)="openAgeDetails('>=24')">
-    <div class="badge yellow-bg">&gt; 24 Hours</div>
-
-    <div class="content-grid">
-      <div>
-        <label>Waybill Count</label>
-        <h1>{{ above24.waybills | number:'2.0' }}</h1>
-      </div>
-
-      <div>
-        <label>Packages</label>
-        <h3>{{ above24.packages }}</h3>
-      </div>
-
-      <div>
-        <label>Weight (T)</label>
-        <h3>{{ above24.weight }}</h3>
-      </div>
-    </div>
-  </ion-card>
-
 </ion-content>
+
+  <ion-footer>
+    <app-footer></app-footer>
+  </ion-footer>

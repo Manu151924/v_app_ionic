@@ -3,6 +3,7 @@ import { ModalController, IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
 import { close} from 'ionicons/icons';
+import { AppDatePipe } from "../../utilities/app-date-pipe";
 
 @Component({
   selector: 'app-sh-ex-modal',

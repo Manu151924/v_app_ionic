@@ -61,6 +61,10 @@ ion-content{
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &.pickupDate{
+    text-align: end;
+  }
 }
 
 .first-row {

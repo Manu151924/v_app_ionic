@@ -4,15 +4,24 @@
   gap: 0.3em;
 }
 
+.dateBtn {
+  width: 50em;
+  white-space: nowrap;
+}
+
 .trip-report-card {
   background: #fff;
   border-radius: 0.7em;
   padding: 0.4em;
   width: 100%;
+  min-height: 11em;
+  display: flex;
+  flex-direction: column;
 }
 
 ::ng-deep .arrow-down {
   margin-left: 0.7em;
+  height: 7px;
 }
 
 .today-btn-container {
@@ -29,7 +38,9 @@
     font-weight: 500;
     cursor: pointer;
     transition: background 0.2s;
+    text-transform: none !important;
     margin: 0;
+    width: 10.2em;
 
     &:hover {
       background: #16a34a;
@@ -41,6 +52,7 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
+  min-height: 11.2em;
 
   .header-left {
     width: 62%;
@@ -56,6 +68,7 @@
     display: flex;
     align-items: center;
     padding-left: 0.2em;
+    padding-right: 0.3em;
     gap: 6px;
     flex-direction: column;
 
@@ -76,11 +89,17 @@
       justify-content: space-between;
       gap: 0.3em;
       padding: 0 0.2em;
+      height: 1.6em;
     }
 
     .trip-status-data,
     .absent-vehicle-data {
       width: 100%;
+      height: 88%;
+    }
+
+    .table-left, .table-right {
+      height: 100%;
     }
 
     img {
@@ -125,9 +144,17 @@
 
 ::ng-deep .no-data {
   color: #8b8b8b !important;
+  text-align: center;
+}
+
+.absent-table,
+.trip-table {
+  height: 100%;
 }
 
 .trip-table,
+.trip-data-table,
+.absent-data-table,
 .absent-table {
   width: 100%;
   font-weight: 500;
@@ -170,6 +197,10 @@
   justify-content: flex-end;
 }
 
+.disableIcon {
+  filter: grayscale(100%) contrast(80%);
+}
+
 .arrow-btn {
   display: flex;
   align-items: end;
@@ -209,54 +240,67 @@
   display: flex;
   justify-content: space-between;
 }
-.mf-popover {
-  --background: transparent;
+
+
+.mf-popover::part(content) {
+  --background: #fff4d2;
   --box-shadow: none;
+  border: 2px solid #ffb400;
+  border-radius: 8px;
 }
 
 .mf-box {
-  background: #fff4d2;
-  border: 2px solid #ffb400;
-  border-radius: 8px;
-  padding: 6px 14px;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  white-space: nowrap;
+  padding: 0.2em 0 0.2em 0.4em;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+ion-popover {
+  --min-width: 156px;
 }
 
 .mf-label {
-  color: #1F1F1F;
-  margin-right: 6px;
-  font-family: Inter;
-font-weight: 700;
-font-style: Bold;
-font-size: 12px;
-line-height: 100%;
-letter-spacing: 0%;
+  color: #1f1f1f;
+  margin-right: 2px;
+  font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+
 
 }
 
 .mf-number {
-  color: #1F1F1F;
-  font-weight: 700;
-font-style: Bold;
-font-size: 12px;
-line-height: 100%;
-letter-spacing: 0%;
-}
+  color: #1f1f1f;
+    font-weight: 500;
+    font-size: 10px;
+  }
 
 .veh-no.clickable {
   cursor: pointer;
 }
+
 .trip-title {
   display: flex;
   align-items: baseline;
   gap: 4px;
   line-height: 1;
 }
+
 .trip-title .sub {
   font-size: 0.72em;
   font-weight: 500;
   color: #2C3A3B;
+}
+
+::ng-deep .mat-calendar-body-label {
+  visibility: hidden;
+}
+
+::ng-deep .mat-calendar-body-label {
+  color: transparent;
+}
+
+::ng-deep .mat-calendar-body-label {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  height: 0;
 }

@@ -3,7 +3,7 @@ ion-toolbar {
   --border: none !important;
 }
 
-ion-content{
+ion-content {
   --padding-bottom: 1em;
 }
 
@@ -13,7 +13,7 @@ ion-content{
   margin: 1em 1em 0.5em 1em;
   align-items: center;
 
-  ion-button::part(native){
+  ion-button::part(native) {
     padding: 0;
   }
 }
@@ -21,14 +21,14 @@ ion-content{
 .title {
   font-size: 1.07em;
   font-weight: 700;
-  color: #2C3A3B;
+  color: #2c3a3b;
   padding: 0.56em;
-  border: 1px solid #B00020;
+  border: 1px solid #b00020;
   border-radius: 0.4em;
 }
 
 .close-btn {
-  color: #26A95E;
+  color: #26a95e;
 }
 
 .sfx-list-container {
@@ -40,7 +40,7 @@ ion-content{
 .sfx-card {
   background: #fff;
   padding: 0.6em;
-  border-left: 0.5em solid #B00020;
+  border-left: 0.5em solid #b00020;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 0.6em;
   border-top-right-radius: 0.5em;
@@ -54,15 +54,23 @@ ion-content{
 .label {
   font-family: roboto;
   font-size: 0.9em;
-  color: #2C3A3B;
+  color: #2c3a3b;
   font-weight: 500;
 }
 
 .value {
   font-family: roboto;
   font-size: 0.9em;
-  color: #2C3A3B;
+  color: #2c3a3b;
   font-weight: 400;
+}
+.value-date {
+  font-family: roboto;
+  font-size: 0.9em;
+  color: #2c3a3b;
+  font-weight: 400;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .first-row {

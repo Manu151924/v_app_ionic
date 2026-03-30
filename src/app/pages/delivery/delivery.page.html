@@ -1,13 +1,4 @@
 <div>
-  <!-- Spinner -->
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content
-      pullingIcon="arrow-down-outline"
-      refreshingSpinner="crescent"
-    >
-    </ion-refresher-content>
-  </ion-refresher>
-  @if(isLoading && !isRefreshing){
   <ngx-spinner
     bdColor="rgba(255,255,255,0.1)"
     color="#2ca85e"
@@ -17,7 +8,7 @@
   >
     <p class="loader-text">Loading..</p>
   </ngx-spinner>
-  }
+
 
   <!-- Inventory Card -->
   <div class="container">
@@ -47,7 +38,11 @@
                 <img src="assets/icon/rupee.png" class="waybill-icon" />
               </div>
               <div class="card-info">
-                <div class="card-main red">{{ amount | number: '1.0-0' }}</div>
+                <div class="card-main red">
+                  {{ formattedAmount.integer }}.<span class="decimal"
+                    >{{ formattedAmount.decimal }}</span
+                  >
+                </div>
               </div>
             </div>
             <div class="card-label">To Be Collected <small>(As on)</small></div>
@@ -63,7 +58,9 @@
                 <div class="card-main green">{{ pending }}</div>
               </div>
             </div>
-            <div class="card-label">Pending POD's <small>(As on)</small></div>
+            <div class="card-label">
+              Pending POD's <small>(Last 3 Months/Current)</small>
+            </div>
           </ion-card>
         </ion-col>
       </ion-row>
@@ -81,7 +78,7 @@
               </div>
             </div>
             <div class="card-label">
-              Market Vehicle Usage<small>(Today)</small>
+              Market Vehicle Usage <small>(Last 3 Months/Current)</small>
             </div>
           </ion-card>
         </ion-col>
@@ -112,16 +109,12 @@
         class="today-btn"
         (click)="toggleMonthPopover($event)"
       >
-        {{ selectedMonth }}
+        <div class="dateBtn">{{ getMonthDisplay(selectedMonth) }}</div>
         <img src="assets/icon/fit.png" alt="arrow-down" class="arrow-down" />
       </ion-button>
     </div>
 
     <ion-card class="snapshot-card">
-      <div class="snapshot-header">
-        <span class="snapshot-title">Waybill Edited</span>
-      </div>
-
       <div class="snapshot-content">
         <div class="donut-section">
           <div class="donut-chart-wrapper">
@@ -145,6 +138,7 @@
       <ion-popover
         [isOpen]="popoverOpen"
         [event]="popoverEvent"
+        [showBackdrop]="false"
         (didDismiss)="popoverOpen = false"
       >
         <ng-template>

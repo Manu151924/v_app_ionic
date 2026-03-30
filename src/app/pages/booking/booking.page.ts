@@ -6,7 +6,14 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
+import { LOCALE_ID } from '@angular/core';
+import localeIn from '@angular/common/locales/en-IN';
+import { registerLocaleData } from '@angular/common';
+import { ViewChild } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
+import { interval, Subscription, startWith, forkJoin } from 'rxjs';
+import { OnDestroy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   NgxSpinnerService,
@@ -30,7 +37,7 @@ import {
   IonButton,
   IonIcon,
 } from '@ionic/angular/standalone';
-import { ToastController, ModalController } from '@ionic/angular';
+import { ToastController, ModalController, IonicModule } from '@ionic/angular';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { addIcons } from 'ionicons';
 
@@ -49,6 +56,12 @@ import { arrowDownOutline, location } from 'ionicons/icons';
 import { Auth } from 'src/app/shared/services/auth';
 import { AppStorageService } from 'src/app/shared/services/app-storage';
 import { Crashlytics } from 'src/app/shared/services/crashlytics';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
+registerLocaleData(localeIn);
 
 // ---------------------------------- Interfaces ----------------------------------
 interface PieData {
@@ -91,14 +104,14 @@ interface DraftWaybillsData {
   imports: [
     IonIcon,
     IonButton,
-
     CommonModule,
+      IonSelect, 
+
     ReactiveFormsModule,
     FormsModule,
     NgxChartsModule,
     IonCard,
-    IonSelect,
-    IonSelectOption,
+    MatInputModule,
     IonGrid,
     IonRow,
     IonCol,
@@ -110,11 +123,18 @@ interface DraftWaybillsData {
     PieChartComponent,
     NgxSpinnerModule,
     ProgressSliderComponent,
-  ],
+    MatSelectModule,
+    MatFormFieldModule,
+    IonSelectOption
+],
+  providers: [{ provide: LOCALE_ID, useValue: 'en-IN' }],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA], 
 })
-export class BookingPage implements OnInit, OnChanges {
+export class BookingPage implements OnInit, OnChanges, OnDestroy {
   @Input() vendorId!: any;
   @Input() active = false;
+  @ViewChild(TripReportComponent)
+  tripReportComponent!: TripReportComponent;
   private loaded = false;
 
   private api = inject(Api);
@@ -124,6 +144,8 @@ export class BookingPage implements OnInit, OnChanges {
   private storage = inject(AppStorageService);
   private auth = inject(Auth);
   private crashlytics = inject(Crashlytics);
+  private autoRefreshSub?: Subscription;
+  private readonly REFRESH_INTERVAL = 30 * 60 * 1000;
   pieChartData$: Observable<PieData[]> = of([]);
 
   selectedCityControl = new FormControl('');
@@ -139,8 +161,13 @@ export class BookingPage implements OnInit, OnChanges {
   assignedSfx = 0;
 
   statusList = [
-    { label: 'ZERO PICKUP SFX', value: 0, color: '#B00020', percent: 0 },
-    { label: 'NOT-MANIFESTED', value: 0, color: '#B00020', percent: 0 },
+    { label: 'NO PICKUP SFX(Today)', value: 0, color: '#B00020', percent: 0 },
+    {
+      label: 'BOOKED BUT NOT MANIFESTED',
+      value: 0,
+      color: '#B00020',
+      percent: 0,
+    },
     { label: 'DRAFT WAYBILLS', value: 0, color: '#FFBC00', percent: 0 },
   ];
 
@@ -155,6 +182,7 @@ export class BookingPage implements OnInit, OnChanges {
   weightVolume = 0;
   interchangePackages = 0;
   marketVehicleUsage = 0;
+  vehicleAttendance = 0;
 
   bars: any[] = [];
 
@@ -186,7 +214,9 @@ export class BookingPage implements OnInit, OnChanges {
   }
   ngOnInit() {
     this.generateValidMonths();
-    this.selectedMonth = this.formatMonthYear(new Date());
+    let month = this.formatMonthYear(new Date()).split('-');
+    this.selectedMonth =
+      month[0].charAt(0) + month[0].slice(1).toLowerCase() + '-' + month[1];
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -195,13 +225,17 @@ export class BookingPage implements OnInit, OnChanges {
       this.loadBranchDetails();
     }
 
-    if (changes['active'] && this.active && !this.loaded) {
-      console.log('Booking first load');
-      this.loaded = true;
-      // this.crashlytics.logBusinessEvent('BOOKING_PAGE_OPEN', {
-      //   vendor: this.vendorId,
-      // });
-      this.reloadAllPanels();
+    if (changes['active']) {
+      if (this.active) {
+        console.log('Booking Tab Activated');
+
+        if (this.selectedBranchId) {
+          this.startAutoRefresh();
+        }
+      } else {
+        console.log('Booking Tab Deactivated');
+        this.stopAutoRefresh();
+      }
     }
   }
 
@@ -220,19 +254,94 @@ export class BookingPage implements OnInit, OnChanges {
     });
     toast.present();
   };
+
+  // ------------------ START AUTO REFRESH ------------------
+  private startAutoRefresh() {
+    this.stopAutoRefresh();
+
+    if (!this.selectedBranchId) {
+      console.warn('AUTO REFRESH not started — Branch ID missing');
+      return;
+    }
+
+    console.log('AUTO REFRESH INITIALIZED');
+    console.log('Branch:', this.selectedBranchId);
+    console.log('Interval (ms):', this.REFRESH_INTERVAL);
+
+    this.autoRefreshSub = interval(this.REFRESH_INTERVAL)
+      .pipe(startWith(0))
+      .subscribe(() => {
+        const startTime = new Date().toLocaleString();
+        console.log(`[AUTO REFRESH] Started at: ${startTime}`);
+        console.log(`Branch ID: ${this.selectedBranchId}`);
+
+        const tokenPromise = this.getToken();
+
+        tokenPromise.then((token) => {
+          forkJoin({
+            panel1: this.api.getPanelOneCount(this.selectedBranchId, token),
+            panel3: this.api.getPanelThreeData(this.selectedBranchId, token),
+            panel4: this.api.getPanelFourData(
+              this.getFullYear(),
+              this.getMonthNumber(),
+              this.selectedBranchId,
+              token,
+            ),
+          }).subscribe({
+            next: () => {
+              const endTime = new Date().toLocaleString();
+              console.log(`[AUTO REFRESH] Completed at: ${endTime}`);
+            },
+            error: (err) => {
+              console.error('[AUTO REFRESH] Failed:', err);
+            },
+          });
+        });
+      });
+  }
+
+  // ------------------ STOP AUTO REFRESH ------------------
+  private stopAutoRefresh() {
+    if (this.autoRefreshSub) {
+      this.autoRefreshSub.unsubscribe();
+      this.autoRefreshSub = undefined;
+      console.log('AUTO REFRESH STOPPED');
+    }
+  }
+
+  private getFullYear(): number {
+    const [mon, yr] = this.selectedMonth.split('-');
+    return 2000 + Number(yr);
+  }
+
+  private getMonthNumber(): number {
+    const [mon] = this.selectedMonth.split('-');
+    return this.monthMap[mon];
+  }
+
   isRefreshing = false;
   isLoading = false;
 
-  async doRefresh(event: any) {
-     this.isRefreshing = true;
-    await Promise.all([
-      this.fetchPanelOneCount(this.selectedBranchId),
-      this.fetchPanelThreeData(this.selectedBranchId),
-      this.fetchPanelFourData(this.selectedBranchId),
-    ]);
-    this.isRefreshing = false;
-    event.target.complete();
+  async refreshData() {
+    if (!this.selectedBranchId) return;
+
+    try {
+      this.stopAutoRefresh();
+
+      await Promise.all([
+        this.fetchPanelOneCount(this.selectedBranchId),
+        this.fetchPanelThreeData(this.selectedBranchId),
+        this.fetchPanelFourData(this.selectedBranchId),
+      ]);
+
+      if (this.tripReportComponent) {
+        await this.tripReportComponent.refreshData();
+      }
+    } finally {
+      this.startAutoRefresh();
+    }
   }
+
   // -------------------------------- Branch Load -------------------------------------
 
   async loadBranchDetails() {
@@ -248,7 +357,7 @@ export class BookingPage implements OnInit, OnChanges {
           );
 
           if (!this.branchList.length) {
-            this.showToast('No Booking branches assigned');
+            // this.showToast('No Booking branches assigned');
             return;
           }
 
@@ -261,6 +370,8 @@ export class BookingPage implements OnInit, OnChanges {
 
           this.selectedCityControl.setValue(defaultBranch.branchName);
           this.selectedBranchId = defaultBranch.branchId;
+          console.log('Branch Selected:', this.selectedBranchId);
+          this.startAutoRefresh();
 
           await this.storage.updateUserDetails({
             branchId: this.selectedBranchId,
@@ -269,14 +380,14 @@ export class BookingPage implements OnInit, OnChanges {
           await this.reloadAllPanels();
         }
       },
-      error: () => this.showToast('Unable to load Booking branches'),
+      // error: () => this.showToast('Unable to load Booking branches'),
     });
   }
   async reloadAllPanels() {
-if (!this.isRefreshing) {
-    this.isLoading = true;
-    this.spinner.show();
-  }
+    if (!this.isRefreshing) {
+      this.isLoading = true;
+      this.spinner.show();
+    }
     try {
       await Promise.all([
         this.fetchPanelOneCount(this.selectedBranchId),
@@ -284,9 +395,9 @@ if (!this.isRefreshing) {
         this.fetchPanelFourData(this.selectedBranchId),
       ]);
     } finally {
-    this.isLoading = false;
-    this.spinner.hide();
-  }
+      this.isLoading = false;
+      this.spinner.hide();
+    }
   }
 
   // -------------------- Panel 1: Zero Pickup, Not Manifested, Draft --------------------
@@ -307,13 +418,13 @@ if (!this.isRefreshing) {
             (d.draftWaybillCount || 0);
           this.statusList = [
             {
-              label: 'ZERO PICKUP SFX',
+              label: 'NO PICKUP SFX(Today)',
               value: d.zeroPickupCount || 0,
               color: this.getBarColor(d.zeroPickupCount),
               percent: this.calcBarWidth(d.zeroPickupCount),
             },
             {
-              label: 'NOT-MANIFESTED',
+              label: 'BOOKED BUT NOT MANIFESTED',
               value: d.notManifestedCount || 0,
               color: this.getBarColor(d.notManifestedCount),
               percent: this.calcBarWidth(d.notManifestedCount),
@@ -332,7 +443,7 @@ if (!this.isRefreshing) {
           { key: 'vendor', value: String(this.vendorId), type: 'string' },
           { key: 'branch', value: String(branchId), type: 'string' },
         ]);
-        this.showToast('Error fetching Panel-1 data');
+        // this.showToast('Error fetching Panel-1 data');
       },
     });
   }
@@ -348,7 +459,11 @@ if (!this.isRefreshing) {
   calcBarWidth(value: number): number {
     return value > 0 ? 100 : 0;
   }
+  @ViewChild('citySelect') citySelect!: IonSelect;
 
+  openLocationDropdown() {
+    this.citySelect.open();
+  }
   // ---------------------------- Panel 3: Interchange / Outstanding --------------------
 
   async fetchPanelThreeData(branchId: number) {
@@ -370,7 +485,7 @@ if (!this.isRefreshing) {
           { key: 'vendor', value: String(this.vendorId), type: 'string' },
           { key: 'branch', value: String(branchId), type: 'string' },
         ]);
-        this.showToast('Error fetching Panel-3 data');
+        // this.showToast('Error fetching Panel-3 data');
       },
     });
   }
@@ -380,11 +495,11 @@ if (!this.isRefreshing) {
   async fetchPanelFourData(branchId: number) {
     const token = await this.getToken();
 
-    let formattedMonth = this.selectedMonth;
+    let formattedMonth = this.selectedMonth.replace('-', ' ');
 
     if (formattedMonth.includes(' ')) {
       const [m, y] = formattedMonth.split(' ');
-      formattedMonth = `${m}-${y}`;
+      formattedMonth = `${m.charAt(0).toUpperCase() + m.slice(1).toLowerCase()}-${y}`;
     }
 
     const [mon, yr] = formattedMonth.split('-');
@@ -420,21 +535,23 @@ if (!this.isRefreshing) {
             this.weightVolume = d.weightVolume ?? 0;
             this.marketVehicleUsage = d.marketVehicleUsage ?? 0;
             this.interchangePackages = d.interchangePackages ?? 0;
+            this.vehicleAttendance = d.vehicleAttendance ?? 0;
 
             this.bars = [
               {
-                label: 'Weight Volume',
-                percent: this.weightVolume,
+                label: 'Vehicle Attendance',
+                percent: Math.round(this.vehicleAttendance),
                 gradient: this.COMMON_GRADIENT,
               },
               {
-                label: 'Interchange Package`s',
-                percent: this.interchangePackages,
+                label: 'Weight Volume',
+                percent: Math.round(this.weightVolume),
                 gradient: this.COMMON_GRADIENT,
               },
+
               {
                 label: 'Market Vehicle Usage',
-                percent: this.marketVehicleUsage,
+                percent: Math.round(this.marketVehicleUsage),
                 gradient: this.GRADIENT,
               },
             ];
@@ -446,7 +563,7 @@ if (!this.isRefreshing) {
             { key: 'branch', value: String(branchId), type: 'string' },
             { key: 'month', value: this.selectedMonth, type: 'string' },
           ]);
-          this.showToast('Error fetching Panel-4 snapshot');
+          // this.showToast('Error fetching Panel-4 snapshot');
         },
       });
   }
@@ -454,7 +571,11 @@ if (!this.isRefreshing) {
   // -------------------------------- Month Selection -------------------------------------
 
   selectMonth(month: string) {
-    this.selectedMonth = month;
+    this.selectedMonth =
+      month.split('-')[0].charAt(0) +
+      month.split('-')[0].slice(1).toLowerCase() +
+      '-' +
+      month.split('-')[1];
     this.popoverOpen = false;
 
     this.fetchPanelFourData(this.selectedBranchId);
@@ -469,7 +590,7 @@ if (!this.isRefreshing) {
     const months = [];
     const today = new Date();
 
-    for (let i = 3; i >= 0; i--) {
+    for (let i = 0; i < 4; i++) {
       const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
       months.push(this.formatMonthYear(d));
     }
@@ -478,7 +599,19 @@ if (!this.isRefreshing) {
 
   formatMonthYear(date: Date): string {
     const options = { year: '2-digit', month: 'short' } as const;
-    return date.toLocaleDateString('en-US', options).replace(',', '');
+    let d = date
+      .toLocaleDateString('en-US', options)
+      .replace(',', '')
+      .split(' ');
+    return d[0].toUpperCase() + '-' + d[1];
+  }
+  getMonthDisplay(month: string): string {
+    if (!month) return '';
+
+    const [mon, yr] = month.split('-');
+    const fullYear = 2000 + Number(yr);
+
+    return `${mon.toUpperCase()}-${fullYear}`;
   }
 
   loadDataForMonth(month: string) {
@@ -507,13 +640,6 @@ if (!this.isRefreshing) {
     if (!br) return;
 
     this.selectedBranchId = br.branchId;
-
-    this.crashlytics.logBusinessEvent('BOOKING_BRANCH_CHANGED', {
-      vendor: this.vendorId,
-      branch: br.branchId,
-      city: br.branchName,
-    });
-
     this.storage.updateUserDetails({
       branchId: br.branchId,
     });
@@ -521,8 +647,6 @@ if (!this.isRefreshing) {
     this.fetchPanelOneCount(br.branchId);
     this.fetchPanelThreeData(br.branchId);
     this.fetchPanelFourData(br.branchId);
-
-    this.showToast(`Branch updated: ${city}`);
   }
 
   // ------------------------------ Modal Logic ------------------------------
@@ -548,13 +672,13 @@ if (!this.isRefreshing) {
       });
 
       switch (name) {
-        case 'ZERO PICKUP SFX':
+        case 'NO PICKUP SFX(Today)':
           modalComponent = ZeroPickupModalComponent;
           await this.loadZeroPickupData();
           modalProps = { zeroPickupData: this.zeroPickupData };
           break;
 
-        case 'NOT-MANIFESTED':
+        case 'BOOKED BUT NOT MANIFESTED':
           modalComponent = NotManifestedModalComponent;
           await this.loadNotManifestedData();
           modalProps = { notManifestedData: this.notManifestedData };
@@ -600,20 +724,35 @@ if (!this.isRefreshing) {
 
     return Math.min(percentage, 100) + '%';
   }
+  public isSfxModalOpen = false;
 
   async openSfxModal() {
-    const assignedSfxData = await this.getAssignedSfxData();
+    if (this.isSfxModalOpen) {
+      return;
+    }
 
-    const modal = await this.modalController.create({
-      component: SfxModalComponent,
-      componentProps: { assignedSfxData },
-      cssClass: 'sfx-modal',
-      backdropDismiss: true,
-      breakpoints: [0, 0.65, 1],
-      initialBreakpoint: 0.65,
-    });
+    this.isSfxModalOpen = true;
 
-    await modal.present();
+    try {
+      const assignedSfxData = await this.getAssignedSfxData();
+
+      const modal = await this.modalController.create({
+        component: SfxModalComponent,
+        componentProps: { assignedSfxData },
+        cssClass: 'sfx-modal',
+        backdropDismiss: true,
+        breakpoints: [0, 0.65, 1],
+        initialBreakpoint: 0.65,
+      });
+
+      modal.onDidDismiss().then(() => {
+        this.isSfxModalOpen = false;
+      });
+
+      await modal.present();
+    } catch (err) {
+      this.isSfxModalOpen = false;
+    }
   }
 
   async getAssignedSfxData(): Promise<any[]> {
@@ -638,7 +777,7 @@ if (!this.isRefreshing) {
     const assignedBranchId = await this.storage.getBranchId();
 
     if (!assignedBranchId) {
-      this.showToast('Branch not selected');
+      // this.showToast('Branch not selected');
       return;
     }
 
@@ -661,7 +800,7 @@ if (!this.isRefreshing) {
     const branchId = await this.storage.getBranchId();
 
     if (!branchId) {
-      this.showToast('Branch not selected');
+      // this.showToast('Branch not selected');
       return;
     }
 
@@ -680,7 +819,7 @@ if (!this.isRefreshing) {
           resolve(true);
         },
         error: (err) => {
-          this.showToast('Unable to fetch NOT-MANIFESTED data');
+          this.showToast('Unable to fetch BOOKED BUT NOT MANIFESTED data');
           reject(err);
         },
       });
@@ -691,7 +830,7 @@ if (!this.isRefreshing) {
     const branchId = await this.storage.getBranchId();
 
     if (!branchId) {
-      this.showToast('Branch not selected');
+      // this.showToast('Branch not selected');
       return;
     }
 
@@ -712,5 +851,17 @@ if (!this.isRefreshing) {
         },
       });
     });
+  }
+  get formattedOutstanding() {
+    const formatted = new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(this.paidOutstanding || 0);
+
+    const [integer, decimal] = formatted.split('.');
+    return { integer, decimal };
+  }
+  ngOnDestroy(): void {
+    this.stopAutoRefresh();
   }
 }

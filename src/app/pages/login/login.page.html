@@ -1,36 +1,37 @@
-<ion-content [fullscreen]="true" class="login-content">
+<ion-content class="login-content"  [scrollY]="true" keyboardResize="true">
+  <div></div>
   <div class="login-header">
+    <img src="assets/icon/logo2.png" alt="Safexpress Logo" class="logo" />
     @if(showOtpField){
     <ion-icon name="chevron-back" class="back-icon" (click)="handleBack()"></ion-icon>
     }
-    <img src="assets/icon/logo2.png" alt="Safexpress Logo" class="logo" />
   </div>
   <div class="main-container">
-    <div class="login-card">
-      <h2>Sign in to your account</h2>
+      <div class="constiner">
+             <h2>Login to your account</h2>
       <ion-item lines="full" class="custom-item">
-        <ion-input type="text" maxlength="10" inputmode="numeric" placeholder="Enter Mobile" [(ngModel)]="mobileNumber"
+        <ion-input type="text" maxlength="10" inputmode="numeric" placeholder="Mobile" [(ngModel)]="mobileNumber"
           (ionInput)="filterNumberInput($event, 'mobile')">
         </ion-input>
       </ion-item>
 
       @if (showOtpField) {
       <ion-item lines="full" class="custom-item">
-        <ion-input #otpInput type="password" maxlength="6" inputmode="numeric" placeholder="Enter OTP" [(ngModel)]="otp"
+        <ion-input #otpInput type="text" maxlength="6" inputmode="numeric" placeholder="OTP" [(ngModel)]="otp"
           (ionInput)="filterNumberInput($event, 'otp')">
         </ion-input>
       </ion-item>
 
       } @if (!showOtpField) {
       <div class="actions">
-        <button class="send-otp-btn" (click)="sendOtp()" [disabled]="isSendingOtp">
-          {{ isSendingOtp ? 'Sending...' : 'Send OTP' }}
-        </button>
+        <span class="send-otp-link" (click)="!isSendingOtp && sendOtp()">
+          {{ isSendingOtp ? 'Sending OTP...' : 'Send OTP' }}
+        </span>
       </div>
       } @else {
       <div class="otp-actions">
         <a class="resend-otp" (click)="resendOtp()" [class.disabled]="resendDisabled || isResendingOtp">
-          {{ isResendingOtp ? 'Resending OTP' : 'Resend OTP' }}
+          {{ isResendingOtp ? 'Resending OTP' : resendButtonText }}
         </a>
 
         <button class="submit-btn" [disabled]="isVerifyingOtp" (click)="login()">
@@ -38,6 +39,7 @@
         </button>
       </div>
       }
+      </div>
       <div class="figma-footer">
         <div class="figma-terms">
           By logging in you accept
@@ -46,11 +48,7 @@
           <span class="link" (click)="openTerms()">Terms & Conditions</span>
         </div>
 
-        <div class="figma-version">
-          Version {{ version }}
-        </div>
+        <div class="figma-version">Version {{ version }}</div>
       </div>
-    </div>
   </div>
-
 </ion-content>

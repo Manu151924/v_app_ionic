@@ -12,74 +12,29 @@ import {
 let outsideLabel = {
   id: 'outsideLabel',
   afterDraw(chart: Chart) {
-    const { ctx } = chart;
-    const dataset = chart.data.datasets[0];
+       const { ctx } = chart;
     const meta = chart.getDatasetMeta(0);
-
     if (!meta?.data?.length) return;
+
+    const arc: any = meta.data[0];
+    const centerX = arc.x;
+    const centerY = arc.y;
+
+    const totalWaybill =
+      (chart.options as any)?.plugins?.centerText?.value ?? 0;
 
     ctx.save();
 
-    meta.data.forEach((arc: any, index: number) => {
-      const value = dataset.data[index] as number;
-      if (!value) return;
-
-      const arcColor = Array.isArray(dataset.backgroundColor)
-        ? dataset.backgroundColor[index]
-        : dataset.backgroundColor;
-
-      if (arcColor === '#06B4A2') return;
-
-      const angle = (arc.startAngle + arc.endAngle) / 2;
-      const radius = arc.outerRadius;
-      const cx = arc.x;
-      const cy = arc.y;
-
-      const x1 = cx + Math.cos(angle) * radius;
-      const y1 = cy + Math.sin(angle) * radius;
-
-      const x2 = cx + Math.cos(angle) * (radius + 10);
-      const y2 = cy + Math.sin(angle) * (radius + 10);
-
-      ctx.strokeStyle = arcColor as string;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-
-      const isRight = x2 > cx;
-      const textGap = 6;
-
-      ctx.fillStyle = arcColor as string;
-      ctx.font = '500 11px sans-serif';
-      ctx.textAlign = isRight ? 'left' : 'right';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(
-        `${value}%`,
-        isRight ? x2 + textGap : x2 - textGap,
-        y2
-      );
-    });
-
-    const centerArc: any = meta.data[0];
-    const centerX = centerArc.x;
-    const centerY = centerArc.y;
-
-    const totalWaybill =
-      (chart.options as any)?.plugins?.centerText?.value ?? '0';
-
-    // BOOKED
     ctx.fillStyle = '#000000';
-    ctx.font = '600 0.56em Roboto';
+    ctx.font = '500 16px Roboto';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('BOOKED', centerX, centerY - 10);
+    ctx.fillText('Booked', centerX, centerY - 7);
 
     // VALUE
     ctx.fillStyle = '#02834A';
     ctx.font = '700 1.1em Roboto';
-    ctx.fillText(`${totalWaybill}`, centerX, centerY + 10);
+    ctx.fillText(`${totalWaybill}`, centerX, centerY + 7);
 
     ctx.restore();
   }
@@ -152,15 +107,13 @@ export class PieChartComponent implements AfterViewInit {
 
         layout: {
           padding: {
-            left: 0,
-            right: 55,
-            top: 0,
-            bottom: 0
+            right: 50
           }
         },
 
         plugins: {
           legend: { display: false },
+          tooltip: { enabled: false },
           centerText: {
             value: this.totalWaybill
           } as any

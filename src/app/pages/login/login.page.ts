@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -24,6 +24,8 @@ import { arrowBackOutline, chevronBack } from 'ionicons/icons';
 import { TermsModalComponent } from 'src/app/shared/modal/terms-modal/terms-modal.component';
 import { ElementRef } from '@angular/core';
 import { SessionTimeout } from 'src/app/shared/services/session-timeout';
+import { AppStorageService } from 'src/app/shared/services/app-storage';
+import { StatusBarService } from 'src/app/shared/services/status-bar';
 import { PrivacyAndPolicyModalComponent } from 'src/app/shared/modal/privacy-and-policy-modal/privacy-and-policy-modal.component';
 @Component({
   selector: 'app-login',
@@ -32,7 +34,7 @@ import { PrivacyAndPolicyModalComponent } from 'src/app/shared/modal/privacy-and
   standalone: true,
   imports: [IonItem, IonContent, IonInput, CommonModule, FormsModule, IonIcon],
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, OnDestroy {
   @ViewChild('otpInput', { static: false }) otpInput!: IonInput;
   @ViewChild('modalHost', { read: ElementRef }) modalHost!: ElementRef;
 
@@ -43,9 +45,11 @@ export class LoginPage implements OnInit {
   private apiService = inject(Api);
   private authService = inject(Auth);
   private crashlytics = inject(Crashlytics);
+  private appStorage = inject(AppStorageService);
   private modalController = inject(ModalController);
-  private sessionTimeout = inject(SessionTimeout)
- 
+  private sessionTimeout = inject(SessionTimeout);
+  private statusBar = inject(StatusBarService);
+
   version = environment.version;
 
   mobileNumber: string = '';
@@ -58,22 +62,24 @@ export class LoginPage implements OnInit {
 
   resendCount: number = 0;
   resendDisabled: boolean = false;
+  resendTimerSeconds = 30;
+  private resendInterval: any;
+
   resendButtonText: string = 'Resend OTP';
   private cooldownTimer: any;
 
   isSendingOtp = false;
-
-
+  isCooldownActive: boolean = false;
 
   ngOnInit() {
     addIcons({ chevronBack, arrowBackOutline });
     this.restoreResendState();
   }
 
-  ionViewWillEnter() {
+  async ionViewWillEnter() {
     this.resetFormState();
-      this.sessionTimeout.clear();    
-
+    this.sessionTimeout.clear();
+    await this.statusBar.setLight();
   }
 
   private resetFormState() {
@@ -121,14 +127,22 @@ export class LoginPage implements OnInit {
   }
 
   resendOtp() {
-    if (this.resendDisabled || !this.isValidMobileNumber(this.mobileNumber))
+    if (this.resendDisabled || !this.isValidMobileNumber(this.mobileNumber)) {
       return;
+    }
     this.isResendingOtp = true;
 
-    this.apiService.sendOtp(this.mobileNumber).subscribe({
-      next: (res) => this.handleOtpResponse(res, 'resend'),
-      error: (err) => this.handleError(err, 'resend'),
-    });
+    this.apiService
+      .sendOtp(this.mobileNumber)
+      .pipe(
+        finalize(() => {
+          this.isResendingOtp = false;
+        }),
+      )
+      .subscribe({
+        next: (res) => this.handleOtpResponse(res, 'resend'),
+        error: (err) => this.handleError(err, 'resend'),
+      });
   }
 
   private handleOtpResponse(res: any, type: 'send' | 'resend') {
@@ -136,6 +150,7 @@ export class LoginPage implements OnInit {
       if (type === 'send') {
         this.successMessage = 'OTP sent successfully!';
         this.showOtpField = true;
+        this.startResendCountdown(30);
         // this.crashlytics.logBusinessEvent('OTP_SENT', {
         //   mobile: this.mobileNumber,
         //   version: environment.version,
@@ -146,6 +161,7 @@ export class LoginPage implements OnInit {
         //   mobile: this.mobileNumber,
         //   count: this.resendCount,
         // });
+        this.startResendCountdown(30);
         if (this.resendCount > 3) this.triggerCooldown();
       }
 
@@ -177,11 +193,14 @@ export class LoginPage implements OnInit {
   }
 
   private triggerCooldown() {
+    clearInterval(this.resendInterval);
+
+    this.isCooldownActive = true;
     this.resendDisabled = true;
     this.resendButtonText = 'Wait 10 minutes...';
 
     this.showToast(
-      'You have reached the maximum resend limit (3 attempts). Try again after 10 minutes.'
+      'You have reached the maximum resend limit (3 attempts). Try again after 10 minutes.',
     );
 
     this.saveResendState(true);
@@ -192,6 +211,7 @@ export class LoginPage implements OnInit {
     clearTimeout(this.cooldownTimer);
     this.cooldownTimer = setTimeout(() => {
       this.resendCount = 0;
+      this.isCooldownActive = false;
       this.resendDisabled = false;
       this.resendButtonText = 'Resend OTP';
       localStorage.removeItem('otpResendState');
@@ -237,9 +257,9 @@ export class LoginPage implements OnInit {
     try {
       const otp = (this.otp || '').trim();
 
-      if (this.resendDisabled) {
+      if (this.isCooldownActive) {
         this.showToast(
-          'You cannot verify OTP now. Please try again after 10 minutes.'
+          'You cannot verify OTP now. Please try again after 10 minutes.',
         );
         return;
       }
@@ -254,9 +274,8 @@ export class LoginPage implements OnInit {
         .toPromise();
 
       if (res?.success === true && res?.data?.accessToken) {
+        await this.appStorage.clearUserDetails();
         await this.authService.setUserData(res.data);
-        localStorage.setItem('accessToken', res.data.accessToken);
-        localStorage.setItem('refreshToken', res.data.refreshToken);
 
         this.crashlytics.setUserContext({
           userId: this.mobileNumber,
@@ -266,6 +285,7 @@ export class LoginPage implements OnInit {
 
         this.showToast('Login successful!', 'success');
         await this.loadVendorBranches();
+        await this.loadVendorName();
         await this.router.navigate(['/home']);
       } else {
         this.showToast(res?.message || 'Invalid OTP.');
@@ -276,7 +296,6 @@ export class LoginPage implements OnInit {
       ]);
       this.showToast('Login failed. Try again.');
     } finally {
-      // 🔓 always unlock
       this.isVerifyingOtp = false;
       this.cdr.detectChanges();
     }
@@ -306,11 +325,11 @@ export class LoginPage implements OnInit {
 
       if (res?.responseStatus && res?.responseObject?.length) {
         const booking = res.responseObject.find(
-          (x: any) => x.vedorType === 'BOOKING'
+          (x: any) => x.vedorType === 'BOOKING',
         );
 
         const delivery = res.responseObject.find(
-          (x: any) => x.vedorType === 'DELIVERY'
+          (x: any) => x.vedorType === 'DELIVERY',
         );
 
         await this.authService.updateUserDetails({
@@ -318,7 +337,9 @@ export class LoginPage implements OnInit {
           deliveryVendorId: delivery?.vendorId || null,
           bookingBranchId: booking?.branchId || null,
           deliveryBranchId: delivery?.branchId || null,
-          vendorType: res.responseObject.map((x: any) => x.vedorType),
+          vendorType: (res.responseObject as any[])
+            .map((x) => x.vedorType)
+            .filter((v): v is string => typeof v === 'string'),
         });
 
         console.log('Vendor Context Loaded', {
@@ -334,6 +355,28 @@ export class LoginPage implements OnInit {
       ]);
     }
   }
+  private async loadVendorName(): Promise<void> {
+    try {
+      const token = await this.appStorage.getAccessToken();
+      if (!token) return;
+
+      const res = await this.apiService.getVendorDetails(token).toPromise();
+
+      if (res?.length) {
+        const vendorName = res[0]?.vendorName ?? null;
+
+        // ✅ Store ONLY vendorName
+        await this.appStorage.updateUserDetails({
+          vendorName: vendorName,
+        });
+
+        console.log('Vendor Name Stored:', vendorName);
+      }
+    } catch (error) {
+      console.error('Vendor name load failed', error);
+    }
+  }
+
   showTerms = false;
   async openTerms() {
     const modal = await this.modalController.create({
@@ -341,18 +384,49 @@ export class LoginPage implements OnInit {
       backdropDismiss: true,
       breakpoints: [0, 1.0],
       initialBreakpoint: 1.0,
+      handle: false,
     });
 
     await modal.present();
   }
-    async openPrivacy() {
+  async openPrivacy() {
     const modal = await this.modalController.create({
       component: PrivacyAndPolicyModalComponent,
       backdropDismiss: true,
       breakpoints: [0, 1.0],
       initialBreakpoint: 1.0,
+      handle: false,
     });
 
     await modal.present();
+  }
+  private startResendCountdown(seconds: number = 30) {
+    clearInterval(this.resendInterval);
+
+    this.resendDisabled = true;
+    this.resendTimerSeconds = seconds;
+    this.updateResendButtonText();
+
+    this.resendInterval = setInterval(() => {
+      this.resendTimerSeconds--;
+
+      if (this.resendTimerSeconds <= 0) {
+        clearInterval(this.resendInterval);
+        this.resendDisabled = false;
+        this.resendButtonText = 'Resend OTP';
+      } else {
+        this.updateResendButtonText();
+      }
+    }, 1000);
+  }
+
+  private updateResendButtonText() {
+    this.resendButtonText = `Resend OTP (${this.resendTimerSeconds}s)`;
+  }
+  ngOnDestroy() {
+    clearInterval(this.resendInterval);
+  }
+  async ionViewWillLeave() {
+    await this.statusBar.setDark();
   }
 }

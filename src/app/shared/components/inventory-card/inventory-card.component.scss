@@ -11,6 +11,130 @@
   overflow-y: auto !important;
 }
 
+/* Target only this select popover */
+.branch-popover .item-native {
+  padding-left: 1em !important;
+}
+
+/* iOS fix (your app is iOS mode) */
+.sc-ion-select-popover-ios.branch-popover .item-native {
+  padding-left: 1em !important;
+}
+.location-dropdown {
+  background: #ffffff;
+  border-radius: 0.5em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0em 0.2em;
+  cursor: pointer;
+  transition: 0.2s ease;
+  flex-wrap: nowrap;
+  width: 96%;
+  overflow: hidden;
+
+  &:hover {
+    background: #f7fff7;
+  }
+
+  .location-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: #27ae60;
+  }
+
+  .location-dropdown {
+    position: relative;
+  }
+
+  ion-select::part(icon) {
+    color: #27ae60;
+  }
+
+  .city-select {
+    --padding-start: 0;
+    --padding-end: 0;
+    --background: transparent;
+    color: #27ae60;
+    font-size: clamp(12px, 2.8vw, 13px);
+    font-weight: 600;
+    min-width: 0;
+    --highlight-height: 0;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .arrow-down {
+    margin-left: 0.7em;
+    height: 7px;
+  }
+}
+
+/* REMOVE MATERIAL FIELD LOOK */
+.custom-select {
+  font-size: 12px;
+  font-weight: 600;
+  color: #27ae60;
+  min-width: 70px;
+  max-width: 120px; /* ✅ control select width */
+  overflow: hidden;
+  text-overflow: ellipsis; /* show ... */
+  white-space: nowrap;
+}
+
+/* Remove underline & background */
+::ng-deep .mat-mdc-form-field {
+  display: none !important;
+}
+
+/* Align text like figma */
+::ng-deep .mat-mdc-select-value {
+  color: #27ae60;
+}
+
+::ng-deep .custom-dropdown-panel {
+  min-width: 9.427em !important;
+  width: auto !important;
+  margin-left: -1.4375rem !important;
+  background: #ffffff !important;
+  padding: 0px 0px 0px 0px !important;
+  white-space: nowrap;
+  border: 1px #f1f1f1 !important;
+}
+
+::ng-deep .mat-mdc-option {
+  white-space: nowrap;
+  background: #fff !important;
+  min-height: 40px !important;
+  padding: 0px 0px !important;
+  color: black !important;
+  font-family: Roboto !important;
+  line-height: 100%;
+  letter-spacing: 0%;
+  margin-left: 7px !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+::ng-deep .mat-mdc-option {
+  border-bottom: 1px solid #dcdcdc; /* light grey line */
+}
+::ng-deep .mat-pseudo-checkbox {
+  display: none !important;
+}
+::ng-deep .mat-mdc-select-arrow svg{
+  color: #27ae60;
+}
+/* Remove border from last item */
+::ng-deep .mat-mdc-option:last-child {
+  border-bottom: none;
+}
+
+/* Optional: fine tune text spacing */
+.branch-popover .item-inner {
+  margin-left: 4px;
+}
+
 .bar-list ion-content::part(scroll) {
   overflow-y: scroll !important;
 
@@ -35,10 +159,11 @@
   display: flex;
   width: 100%;
   background: white;
+  height: 2.45em;
 
   .pan1-header-left {
     width: 33%;
-    padding: 0.15em 0.4em 0.44em 0em;
+    padding: 0.15em 0.31em 0.6em 0em;
     background-color: #27ae60;
     border-bottom-right-radius: 1em;
     display: flex;
@@ -48,7 +173,7 @@
     width: 67%;
     display: flex;
     justify-content: flex-end;
-    box-shadow: inset 1em 0.8em 0.3em #27AE61;
+    box-shadow: inset 1em 0.8em 0.3em #27ae61;
   }
 
   &::before {
@@ -65,7 +190,7 @@
     z-index: 0;
   }
 
-  >* {
+  > * {
     position: relative;
     z-index: 1;
   }
@@ -73,16 +198,18 @@
 
 .location-dropdown {
   background: #ffffff;
-  border-radius: 1.15em;
+  border-radius: 0.5em;
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0.15em;
   padding: 0em 0.2em;
   cursor: pointer;
   transition: 0.2s ease;
   flex-wrap: nowrap;
   width: 96%;
+  overflow: hidden;
+  margin: 0;
+  height: 1.7em;
 
   &:hover {
     background: #f7fff7;
@@ -98,7 +225,6 @@
   ion-select::part(container) {
     width: 100em;
   }
-
   .city-select {
     --padding-start: 0;
     --padding-end: 0;
@@ -119,7 +245,7 @@
 .card-content {
   background-color: #27ae60;
   width: 100%;
-  box-shadow: inset 1em 0.8em 0.3em #27AE61;
+  box-shadow: inset 1em 0.8em 0.3em #27ae61;
 }
 
 .assigned-sfx {
@@ -129,8 +255,9 @@
   padding: 0 0.2em;
   border-top-left-radius: 1em;
   justify-content: flex-end;
-  align-items: center;
+  align-items: flex-end;
   border-top-right-radius: 0.4em;
+  height: 2.55em;
 }
 
 .card-content {
@@ -207,7 +334,6 @@
   line-height: 100%;
   letter-spacing: 0%;
   white-space: nowrap;
-
 }
 
 .count {
@@ -225,7 +351,7 @@
   display: flex;
   color: #fff;
   font-size: 0.7em;
-  height: 4em;
+  height: 2.8em;
   align-items: center;
   max-width: 33.33%;
 }
@@ -237,7 +363,7 @@
   font-weight: 500;
   overflow: hidden;
   box-sizing: border-box;
-  border-radius: 0.6em;
+  border-radius: 0.38em;
   width: 100%;
 }
 
@@ -277,8 +403,8 @@
 
 .chart-area {
   position: relative;
-  border-left: 1px solid #A5A5A5;
-  border-bottom: 1px solid #A5A5A5;
+  border-left: 1px solid #a5a5a5;
+  border-bottom: 1px solid #a5a5a5;
   padding: 0.3em;
 }
 
@@ -304,13 +430,53 @@
   color: #2e7d32;
   font-weight: 500;
 }
+
 ::ng-deep ion-popover ion-list ion-item {
   --inner-border-width: 0;
   border-bottom: 1px solid black;
 }
+
 ::ng-deep ion-popover ion-list ion-item:last-child {
   border-bottom: none;
 }
+
 ::ng-deep ion-popover ion-item:last-of-type {
   border-bottom: none !important;
+}
+.floating-tooltip {
+  position: fixed;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.773);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  z-index: 9999;
+  pointer-events: none;
+  animation: tooltipFade 120ms ease;
+}
+.floating-tooltip::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent;
+  border-top: 2px solid #1a1b1b;
+}
+
+@keyframes tooltipFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.location-dropdown > ion-popover {
+  margin-left: 1em;
 }

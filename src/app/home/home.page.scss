@@ -1,79 +1,120 @@
-.figma-pill {
+
+.header {
+  padding: 0 1em 1em 1em;
+  box-shadow: none;
+}
+
+.header-row {
   display: flex;
-  background: #f3f3f3;
-  border-radius: 999px;
-  width: 60%;
-  margin-left: 1em;
-  max-width: 340px;
-  border: 1px solid #C3C3C3;
+  border-bottom: 1px solid #bebcbc;
 }
 
-/* Each segment */
-.pill-btn {
-  flex: 1;
-  height: 30px;
+ion-header {
+  --margin: 0;
+}
+
+ion-toolbar {
+  --background: #efefef;
+}
+
+.toolbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.segment-wrapper {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0px;
+  background: #efefef;
+  border: 1px solid #d6d6d6;
   border-radius: 999px;
-  border: none;
-  background: transparent;
-  color: #C3C3C3;
-  font-weight: 600;
-  font-size: 11px;
+  left: 0em;
   position: relative;
-  z-index: 1;
 }
 
-.figma-pill.booking .delivery {
-  margin-left: -22px;
-  margin-right: -22px;
-  z-index: 1; 
+.segment-btn {
+  height: 28px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: transparent;
+  color: #5e625f;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s ease;
+
 }
 
-.figma-pill.booking .booking,
-.figma-pill.delivery .delivery,
-.figma-pill.network .network {
+.segment-btn + .segment-btn {
+  margin-left: -4px;
+}
+
+.segment-btn.active {
   background: #ffffff;
-  border: 2px solid #27ae60;
+  border: 1px solid #27ae60;
   color: #27ae60;
-  z-index: 5;
-}
-.pill-btn.active {
-  background: #ffffff;
-  border: 2px solid #27ae60;
-  color: #27ae60;
-  z-index: 5;
+   box-shadow:
+    0 2px 6px rgba(0,0,0,0.12),
+    0 1px 2px rgba(0,0,0,0.08);
 }
 
-.figma-pill.booking .delivery {
-  margin-left: -22px;
-  margin-right: -22px;
-  // border: 1px solid;
-}
-
-.figma-pill.network .delivery {
-  border: 1px solid;
-  margin-left: -22px;
-  margin-right: -22px;
-}
-ion-toolbar{
- --background: #efefef !important;
-
-}
 .bell-container {
   position: relative;
+
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+
   display: flex;
-  margin-left: auto;
+  align-items: center;
+  justify-content: center;
   margin-right: 1rem;
+  background: #ffffff;     
+  border-radius: 50%;     
+  cursor: pointer;
+}
+
+
+.notifications-outline-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 .bell-badge {
   position: absolute;
-  right: -6px;
-  top: -8px;
+  right: 3px;
+  top: 3px;
   font-size: 10px;
   padding: 2px 5px;
   border-radius: 10px;
   background: #41b883;
   color: #fff;
-}.hidden {
+  font-weight: 400;
+  font-size: 8px;
+}
+.white-bell {
+  --background: #ffffff;
+  --color: #000000;
+  --border-radius: 50% !important;
+}
+ion-toolbar.figma-toolbar {
+  --background: #efefef;
+}
+
+.hidden {
   display: none !important;
+}
+.app-footer {
+  --background: transparent;
+  background: transparent;
+
+  padding-bottom: env(safe-area-inset-bottom);
 }

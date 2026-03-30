@@ -1,85 +1,84 @@
-<ion-header class="header-shadow">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/account"></ion-back-button>
-    </ion-buttons>
-
-    <ion-button fill="clear" slot="end" class="bell-container">
-      <img
-        src="assets/icon/notifications-outline.png"
-        alt="notifications"
-        class="notifications-outline-icon"
-      />
-
-      <ion-badge
-        *ngIf="notificationsCount > 0"
-        color="danger"
-        class="bell-badge"
-      >
-        {{ notificationsCount }}
-      </ion-badge>
+<ion-header class="header">
+  <ion-toolbar class="header-row">
+    <ion-button slot="start" fill="clear" class="back-icon" (click)="goBack()" (keydown.enter)="goBack()"
+      (keydown.space)="goBack()" aria-label="Go back">
+      <ion-icon name="chevron-back-outline" size="large" color="#000000"></ion-icon>
     </ion-button>
+ <ion-buttons slot="end">
+      <div class="bell-container">
+        <img
+          src="assets/icon/notifications-outline.png"
+          alt="notifications"
+          class="notifications-outline-icon"
+        />
+
+        @if (notificationsCount > 0) {
+          <ion-badge class="bell-badge">
+            {{ notificationsCount }}
+          </ion-badge>
+        }
+      </div>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
+<ion-content>
+   @for (vendor of vendorList; track vendor.vendorType) {
 
-<ion-content class="ion-padding">
-  <!-- PROFILE CARD -->
-  <ion-card class="profile-card">
-    <!-- Card Header -->
-    <div class="profile-header">
-      <div class="profile-title">
-        <ion-icon name="person-circle-outline"></ion-icon>
-        <span>My Profile : {{ vendorName }}</span>
-      </div>
-
-      <!-- <ion-icon name="create-outline" class="edit-icon"></ion-icon> -->
+  <ion-card class="outer-card">
+    <div class="title-row">
+      <img src="assets/icon/user.png"
+          alt="user"
+          class="user-outline-icon" />
+      <span class="title">My Profile : <span class="title-name">{{ vendor.vendorName }}</span>
+    <span class="vendor-type">({{ vendor.vendorType }})</span></span>
     </div>
 
-    <div class="profile-body">
-      <div class="profile-row">
-        <span class="label">Name</span>
-        <span class="value">{{ vendorName }}</span>
+    <div class="divider"></div>
+
+    <!-- Details box -->
+    <div class="details-box">
+      <div class="row">
+        <span class="label">Name:</span>
+        <span class="value name">{{ vendor.vendorName }}</span>
       </div>
 
-      <div class="profile-row">
-        <span class="label">Email</span>
-        <span class="value">{{ vendorEmail }}</span>
+      <div class="row">
+        <span class="label">Email:</span>
+        <span class="value">{{ vendor.vendorEmail }}</span>
       </div>
 
-      <div class="profile-row gst-row">
-        <span class="label">GSTIN</span>
-        <span class="value">{{ vendorGstin }}</span>
-        <ion-icon
-          name="copy-outline"
-          class="copy-icon"
-          (click)="copyText(vendorGstin,'GSTIN')"
-        >
-        </ion-icon>
+      <div class="row gst">
+        <span class="label">GSTIN:</span>
+        <span class="value">{{ vendor.vendorGstin }}</span>
+        <ion-icon name="copy-outline"  (click)="copyText(vendor.vendorGstin, 'GSTIN')"></ion-icon>
       </div>
 
-      <div class="profile-row">
-        <span class="label">Contact</span>
+      <div class="row contact-row">
+        <span class="label">Contact:</span>
+
         <ion-chip class="phone-chip">
-          <ion-label>+91 {{ vendorPhone }}</ion-label>
+          +91 {{ vendor.vendorPhone }}
         </ion-chip>
       </div>
-    </div>
-  </ion-card>
 
-  <!-- CONTACT LIST -->
-  @for (c of contactList; track c.mobile) {
-  <ion-card class="contact-card">
-    <div class="contact-left">
-      <p class="contact-name">{{ c.empName }}</p>
-      <p class="contact-phone">{{ c.mobile }}</p>
     </div>
 
-    <div class="contact-status">
-      <p>Status</p>
-      <p class="active">{{ c.status }}</p>
-    </div>
+    <div class="middle-divider"></div>
+     @for (c of vendor.contactList; track c.mobile) {
+    <div class="contact-card" >
 
-    <!-- <ion-icon name="trash-outline" class="trash-icon"></ion-icon> -->
-  </ion-card>
+      <div class="contact-left">
+        <div class="c-name">{{ c.empName }}</div>
+        <div class="c-phone">{{ c.mobile }}</div>
+      </div>
+
+      <div class="contact-status">
+        <div class="status-name">Status</div>
+        <div class="active">{{ c.status }}</div>
+      </div>
+    </div>
   }
+
+  </ion-card>
+   }
 </ion-content>

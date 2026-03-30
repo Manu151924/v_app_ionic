@@ -1,12 +1,16 @@
 @use "@angular/material" as mat;
 
 html {
-  @include mat.theme((color: (primary: mat.$azure-palette,
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
       ),
       typography: Roboto,
       density: 0,
-    ));
+    )
+  );
 }
 
 body {
@@ -36,7 +40,6 @@ body {
 :root {
   --ion-color-primary: #27ae60;
   --ion-color-primary-contrast: #ffffff;
-  --ion-color-secondary: #0163aa;
   --ion-color-tertiary: #ffbc00;
   --ion-color-success: #2dd55b;
   --ion-color-danger: #b00021;
@@ -52,11 +55,15 @@ ion-content {
   --background: #efefef;
   --padding-start: 0.5em;
   --padding-end: 0.5em;
-  --padding-bottom: 60px;
-
-
+  --padding-bottom: 4em;
+}
+ion-footer {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
+ngx-spinner {
+  pointer-events: none;
+}
 
 @media (max-width: 375px) {
   .card-welcome {
@@ -101,6 +108,42 @@ ion-content {
   }
 }
 
+.exit-toast-native {
+  --background: transparent !important;
+  --box-shadow: none !important;
+
+  display: flex;
+  justify-content: center;
+}
+
+.exit-toast-native::part(container) {
+  background: rgba(70, 70, 70, 0.95);
+  color: white;
+
+  border-radius: 40px;
+
+  padding: 10px 20px 10px 52px;
+
+  width: max-content;
+  max-width: 92vw;
+  margin: 0 auto;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+
+  background-image: url("/assets/icon/toast.png");
+  background-repeat: no-repeat;
+  background-position: 15px center;
+  background-size: 24px;
+
+  font-size: 14px;
+  font-weight: 400;
+
+  white-space: nowrap;
+}
+
+.exit-toast-native::part(message) {
+  white-space: nowrap;
+}
 @media (min-width: 390px) and (max-width: 420px) {
   .card-welcome {
     width: 95%;
@@ -274,7 +317,7 @@ ion-content {
 
   .snapshot-title {
     font-weight: 500;
-    font-size: 1em;
+    font-size: 16px;
     color: #000000;
     position: relative;
   }
@@ -312,14 +355,32 @@ ion-content {
     }
   }
 }
+/* ONLY this dropdown */
+.location-popover {
+  --offset-x: 24px !important;
+  --offset-y: 5px !important;
+  --min-width: 3em !important;
+  --max-width: 9em !important;
+}
+
+.location-popover ion-item {
+  font-size: 13px;
+}
+.location-popover::part(content) {
+  transform: translateX(-12px) !important;
+}
 
 ion-popover {
-  --min-width: 180px;
-  --max-width: 120px;
+  --min-width: 3em;
+  --max-width: 9em;
+    --offset-y: 5px !important;
+
 
   ion-item {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
+     --min-height: 28px !important; 
+  height: 28px !important;
   }
 }
 
@@ -340,7 +401,6 @@ ion-popover {
     min-width: 160px;
     width: 50%;
     height: 100%;
-    padding: 0.3em;
 
     .donut-chart-wrapper {
       position: relative;
@@ -392,18 +452,19 @@ ion-popover {
       margin-left: 7rem;
       position: absolute;
       bottom: 2em;
-      right: 0.5em;
-      align-items: center;
+      right: 0.8em;
+      align-items: flex-end;
       justify-content: flex-end;
+      flex-direction: column;
+      width: 6em;
 
       .donut-stat-label {
-        font-weight: 500;
-        color: #232323;
+        color: #ff8a0d;
         opacity: 1;
-        font-family: Roboto;
-        font-weight: 400;
+        font-family: "Roboto", sans-serif;
+        font-weight: 600;
         font-style: Regular;
-        font-size: 11px;
+        font-size: 14px;
         line-height: 100%;
         letter-spacing: 0%;
         top: 790.08px;
@@ -411,8 +472,8 @@ ion-popover {
       }
 
       .donut-stat-value {
-        color: #FF8A0D;
-        font-family: Roboto;
+        color: #ff8a0d;
+        font-family: "Roboto", sans-serif;
         font-weight: 700;
         font-style: Bold;
         font-size: 11px;
@@ -478,7 +539,6 @@ ion-popover {
   z-index: 2000;
   background: #ffffff;
   border-radius: 14px;
-  padding: 8px 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   animation: fadeIn 0.15s ease-in-out;
 }
@@ -528,22 +588,25 @@ ion-popover {
   /* Green border */
 }
 
-/* Hover Effect */
 .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover {
   background: rgba(14, 164, 75, 0.1) !important;
   border-radius: 50%;
 }
 
-/* Bottom sheet modal shape */
 .sfx-modal .modal-wrapper {
   border-radius: 20px 20px 0 0;
   overflow: hidden;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Dim background */
+ion-modal.sfx-modal::part(content) {
+  border-radius: 16px 16px 0 0;
+}
+
 ion-modal.sfx-modal::part(backdrop) {
-  background: rgba(0, 0, 0, 0.35);
+  background: #000 !important;
+  opacity: 0.6 !important;
+  --ion-backdrop-opacity: 0.6 !important;
 }
 
 /* Prevent full expansion on scroll */
@@ -558,7 +621,9 @@ ion-modal.sfx-modal::part(backdrop) {
 }
 
 .bottom-sheet-modal::part(backdrop) {
-  background: rgba(0, 0, 0, 0.35);
+  background: #000 !important;
+  opacity: 0.6 !important;
+  --ion-backdrop-opacity: 0.6 !important;
 }
 
 .today-btn {
@@ -571,6 +636,7 @@ ion-modal.sfx-modal::part(backdrop) {
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s;
+  text-transform: none !important;
   margin: 0;
 
   &:hover {
@@ -579,5 +645,28 @@ ion-modal.sfx-modal::part(backdrop) {
 }
 
 .large-field {
-  width: 45%;
+  width: 32%;
+}
+.mat-focus-indicator:focus {
+  outline: none !important;
+}
+
+.mat-calendar-body-cell:focus .mat-calendar-body-cell-content {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.mat-calendar-body-cell:focus .mat-calendar-body-cell-content {
+  outline: none !important;
+}
+
+.mat-calendar-body-active .mat-calendar-body-cell-content {
+  box-shadow: none !important;
+}
+.mat-calendar-body-cell:focus .mat-calendar-body-cell-content {
+  box-shadow: 0 0 0 2px #0ea44b;
+}
+
+.exit-icon {
+  width: 26px;
+  height: 26px;
 }

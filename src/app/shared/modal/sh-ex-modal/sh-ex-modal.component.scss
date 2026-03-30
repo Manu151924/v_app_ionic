@@ -86,6 +86,10 @@
      overflow: hidden;
      text-overflow: ellipsis;
      white-space: nowrap;
+
+    &.pickupDate{
+    text-align: end;
+  }
    }
 
    .first-row {
@@ -124,3 +128,7 @@
        color: #FFBC00;
      }
    }
+   
+.large-field{
+  width: 45%;
+}

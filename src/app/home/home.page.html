@@ -1,46 +1,50 @@
-<ion-header>
-<ion-toolbar class="figma-toolbar">
-<div class="figma-pill" [ngClass]="segment">
-  <button class="pill-btn booking" [class.active]="segment==='booking'" (click)="segment='booking'">
-    BOOKING
-  </button>
-  <button class="pill-btn delivery" [class.active]="segment==='delivery'" (click)="segment='delivery'">
-    DELIVERY
-  </button>
- </div>
-<ion-button fill="clear" slot="end" class="bell-container">
-      <img
-        src="assets/icon/notifications-outline.png"
-        alt="notifications"
-        class="notifications-outline-icon"
-      />
 
-      <ion-badge
-        *ngIf="notificationsCount > 0"
-        color="danger"
-        class="bell-badge"
-      >
-        {{ notificationsCount }}
-      </ion-badge>
-    </ion-button>
+<ion-header class="header">
+  <ion-toolbar class="header-row">
+     <div class="toolbar-container">
+      <!-- SEGMENT -->
+      <div class="segment-wrapper">
+        <button class="segment-btn" *ngIf="!disableBooking"
+    [class.active]="segment === 'booking'" (click)="segment = 'booking'">
+          BOOKING
+        </button>
 
-</ion-toolbar>
+        <button class="segment-btn delivery"  *ngIf="!disableDelivery"
+    [class.active]="segment === 'delivery'" (click)="segment = 'delivery'">
+          DELIVERY
+        </button>
+      </div>
 
+      <!-- BELL -->
+      <div class="bell-container">
+        <img src="assets/icon/notifications-outline.png" alt="notifications" class="notifications-outline-icon"/>
+
+        @if (notificationsCount > 0) {
+        <ion-badge class="bell-badge"> {{ notificationsCount }} </ion-badge>
+        }
+      </div>
+    </div>
+
+  </ion-toolbar>
 </ion-header>
 <ion-content>
-<div [class.hidden]="segment !== 'booking'">
-  <app-booking
-    [vendorId]="bookingVendorID"
-    [active]="segment === 'booking'">
-  </app-booking>
-</div>
+   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content
+      refreshingSpinner="crescent"
+    >
+    </ion-refresher-content>
+  </ion-refresher>
+  <div >
+    <app-booking  *ngIf="segment === 'booking'" [vendorId]="bookingVendorID" [active]="segment === 'booking'">
+    </app-booking>
+  </div>
 
-<div [class.hidden]="segment !== 'delivery'">
-  <app-delivery
-    [vendorId]="deliveryVendorID"
-    [active]="segment === 'delivery'">
-  </app-delivery>
-</div>
-
+  <div >
+    <app-delivery  *ngIf="segment === 'delivery'"   [vendorId]="deliveryVendorID"    [active]="segment === 'delivery'"></app-delivery>
+  </div>
 </ion-content>
 
+<!-- FOOTER -->
+<ion-footer  class="app-footer">
+  <app-footer></app-footer>
+</ion-footer>

@@ -1,6 +1,6 @@
 <ion-toolbar>
   <div class="header-container">
-    <ion-text class="title">NOT MANIFESTED</ion-text>
+    <ion-text class="title">BOOKED BUT NOT MANIFESTED</ion-text>
     <ion-buttons>
       <ion-button fill="clear" class="close-btn" (click)="close()">
         <ion-icon name="close" size="large"></ion-icon>
@@ -17,7 +17,7 @@
       <div class="first-row">
         <div class="field">
           <div class="label">WB#</div>
-          <div class="value">{{ item.waybill }}</div>
+          <div class="value">{{ item.waybill | waybillFormat }}</div>
         </div>
         <div class="field large-field">
           <div class="label">Booked/MF/Remaining Pkgs.</div>
@@ -28,8 +28,8 @@
           </div>
         </div>
         <div class="field">
-          <div class="label">Pickup</div>
-          <div class="value">{{ item.pickupDate | date:'dd-MMM-yyyy' }}</div>
+          <div class="label" style="text-align: end;">Pickup Date</div>
+          <div class="value">{{ item.pickupDate | date:'dd-MMM-yyyy' | uppercase}}</div>
         </div>
       </div>
 

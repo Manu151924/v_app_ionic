@@ -23,9 +23,7 @@
               "browser": ""
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -35,14 +33,18 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss",   "node_modules/ngx-spinner/animations/ball-clip-rotate.css"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss",
+              "node_modules/ngx-spinner/animations/ball-clip-rotate.css"
+            ],
             "scripts": [],
             "browser": "src/main.ts",
             "allowedCommonJsDependencies": [
               "@stencil/core",
-                "localforage",
-                "@ionic/storage",
-                "@ionic/storage-angular"
+              "localforage",
+              "@ionic/storage",
+              "@ionic/storage-angular"
             ]
           },
           "configurations": {
@@ -68,13 +70,13 @@
               "outputHashing": "all"
             },
             "uat": {
-            "fileReplacements": [
-             {
-               "replace": "src/environments/environment.ts",
-                "with": "src/environments/environment.uat.ts"
-             }
-           ]
-           },
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.uat.ts"
+                }
+              ]
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
@@ -95,6 +97,9 @@
             },
             "development": {
               "buildTarget": "app:build:development"
+            },
+            "uat": {
+              "buildTarget": "app:build:uat"
             },
             "options": {
               "proxyConfig": "proxy.conf.json"
@@ -123,7 +128,11 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss",  "node_modules/ngx-spinner/animations/ball-clip-rotate.css"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss",
+              "node_modules/ngx-spinner/animations/ball-clip-rotate.css"
+            ],
             "scripts": []
           },
           "configurations": {
@@ -143,9 +152,7 @@
     }
   },
   "cli": {
-    "schematicCollections": [
-      "@ionic/angular-toolkit"
-    ],
+    "schematicCollections": ["@ionic/angular-toolkit"],
     "analytics": "a6bc257e-39eb-4fee-820e-73353c4400c7"
   },
   "schematics": {

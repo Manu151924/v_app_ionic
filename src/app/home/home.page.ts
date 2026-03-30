@@ -3,16 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonToolbar,
-  IonFooter,
-  IonButtons,
-  IonButton,
-  IonLabel,
   IonBadge,
   IonContent,
-  IonSegment,
-  IonSegmentButton,
   IonHeader,
+  IonFooter,
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/angular/standalone';
+import { IonicModule } from '@ionic/angular';
+
 import { Router, RouterModule } from '@angular/router';
 
 import { BookingPage } from '../pages/booking/booking.page';
@@ -20,6 +19,9 @@ import { DeliveryPage } from '../pages/delivery/delivery.page';
 import { AppStorageService } from '../shared/services/app-storage';
 import { Crashlytics } from '../shared/services/crashlytics';
 import { environment } from 'src/environments/environment';
+import { FooterComponent } from '../shared/components/footer/footer.component';
+import { StatusBarService } from '../shared/services/status-bar';
+import { Api } from '../shared/services/api';
 
 @Component({
   selector: 'app-home',
@@ -36,16 +38,20 @@ import { environment } from 'src/environments/environment';
     FormsModule,
     CommonModule,
     IonToolbar,
-    IonButton
+    FooterComponent,
+    IonRefresher,
+    IonRefresherContent,
+    IonFooter
 ],
 })
 export class HomePage implements OnInit {
-
   private storage = inject(AppStorageService);
   private router = inject(Router);
   private crashlytics = inject(Crashlytics);
+  private apiService = inject(Api);
+  private statusBar = inject(StatusBarService);
 
-  segment: 'booking' | 'delivery' |'network' = 'booking';
+  segment: 'booking' | 'delivery' | 'network' = 'booking';
 
   bookingVendorID: number | null = null;
   deliveryVendorID: number | null = null;
@@ -62,6 +68,7 @@ export class HomePage implements OnInit {
 
   async ngOnInit() {
     await this.loadUserContext();
+    await this.refreshVendorContext();
   }
 
   /* ================= USER + VENDOR CONTEXT ================= */
@@ -73,12 +80,21 @@ export class HomePage implements OnInit {
       console.warn('No user found in storage');
       this.crashlytics.recordNonFatal(
         'User not found in storage',
-        'HOME_CONTEXT_MISSING'
+        'HOME_CONTEXT_MISSING',
       );
       return;
     }
+    const rawVendorTypes = user.vendorType as
+      | string
+      | string[]
+      | null
+      | undefined;
 
-    const vendorTypes = user.vendorType || [];
+    const vendorTypes: string[] = Array.isArray(rawVendorTypes)
+      ? rawVendorTypes
+      : typeof rawVendorTypes === 'string'
+        ? rawVendorTypes.split(',').map((v: string) => v.trim())
+        : [];
 
     this.bookingVendorID = user.bookingVendorId || null;
     this.deliveryVendorID = user.deliveryVendorId || null;
@@ -100,17 +116,23 @@ export class HomePage implements OnInit {
       // Invalid vendor mapping – very important to log
       this.crashlytics.recordNonFatal(
         'Vendor has no BOOKING or DELIVERY mapping',
-        'INVALID_VENDOR_MAPPING'
+        'INVALID_VENDOR_MAPPING',
       );
     }
 
     // Restore last segment
-    const lastSegment = user.activeSegment as 'booking' | 'delivery' | undefined;
+    const lastSegment = user.activeSegment as
+      | 'booking'
+      | 'delivery'
+      | undefined;
 
     if (lastSegment && !this.isSegmentDisabled(lastSegment)) {
       this.segment = lastSegment;
     } else {
-      if (vendorTypes.includes('DELIVERY') && !vendorTypes.includes('BOOKING')) {
+      if (
+        vendorTypes.includes('DELIVERY') &&
+        !vendorTypes.includes('BOOKING')
+      ) {
         this.segment = 'delivery';
       } else {
         this.segment = 'booking';
@@ -121,7 +143,7 @@ export class HomePage implements OnInit {
     this.crashlytics.setUserContext({
       userId: String(this.bookingVendorID || this.deliveryVendorID || ''),
       role: vendorTypes.join(','),
-      appVersion: environment.version
+      appVersion: environment.version,
     });
 
     // this.crashlytics.logBusinessEvent('VENDOR_CONTEXT', {
@@ -133,32 +155,37 @@ export class HomePage implements OnInit {
     console.log('Active Segment:', this.segment);
   }
 
+  private async refreshVendorContext() {
+    try {
+      const token = await this.storage.getAccessToken();
+      if (!token) return;
+
+      const res = await this.apiService.getBranchDetails(token).toPromise();
+
+      if (res?.responseObject?.length) {
+        await this.storage.updateUserDetails({
+          vendorType: res.responseObject.map((x: any) => x.vedorType),
+          bookingVendorId:
+            res.responseObject.find(
+              (x: { vedorType: string }) => x.vedorType === 'BOOKING',
+            )?.vendorId || null,
+          deliveryVendorId:
+            res.responseObject.find(
+              (x: { vedorType: string }) => x.vedorType === 'DELIVERY',
+            )?.vendorId || null,
+        });
+      }
+    } catch (e) {
+      console.error('Vendor refresh failed', e);
+    }
+  }
+
   private isSegmentDisabled(seg: 'booking' | 'delivery'): boolean {
     return (
       (seg === 'booking' && this.disableBooking) ||
       (seg === 'delivery' && this.disableDelivery)
     );
   }
-
-  /* ================= PULL TO REFRESH ================= */
-
-  doRefresh(event: any) {
-    console.log('Pull to refresh');
-
-    if (this.segment === 'booking' && this.bookingCmp) {
-      this.bookingCmp.doRefresh(event);
-      return;
-    }
-
-    if (this.segment === 'delivery' && this.deliveryCmp) {
-      this.deliveryCmp.forceRefresh().then(() => event.target.complete());
-      return;
-    }
-
-    // Safety fallback
-    event.target.complete();
-  }
-
   /* ================= SEGMENT CHANGE ================= */
 
   async onSegmentChange(event: any) {
@@ -171,7 +198,7 @@ export class HomePage implements OnInit {
     this.crashlytics.logBusinessEvent('SEGMENT_CHANGED', {
       segment: this.segment,
       bookingVendor: this.bookingVendorID,
-      deliveryVendor: this.deliveryVendorID
+      deliveryVendor: this.deliveryVendorID,
     });
 
     console.log('Segment changed to:', this.segment);
@@ -179,6 +206,23 @@ export class HomePage implements OnInit {
     await this.storage.updateUserDetails({
       activeSegment: this.segment,
     });
+  }
+  async handleRefresh(event: any) {
+    setTimeout(async () => {
+      try {
+        if (this.segment === 'booking' && this.bookingCmp) {
+          await this.bookingCmp.refreshData();
+        }
+
+        if (this.segment === 'delivery' && this.deliveryCmp) {
+          await this.deliveryCmp.doRefresh();
+        }
+      } catch (err) {
+        console.error('Refresh failed', err);
+      } finally {
+        event.target.complete();
+      }
+    }, 2000); // 3 seconds delay
   }
 
   /* ================= TAB NAVIGATION ================= */

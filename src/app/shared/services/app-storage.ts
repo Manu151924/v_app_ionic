@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
+import { Preferences } from '@capacitor/preferences';
 
 export interface UserDetails {
   vendorType?: string[];
+  vendorList?: any;
 
   vendorName?: string;
   vendorEmail?: string;
@@ -110,9 +112,24 @@ export class AppStorageService {
 
     return user.bookingVendorId ?? null;
   }
+  async clearIonicStorage() {
+    await this.wait();
+    await this._storage.clear();
+  }
 
-  async clearSession() {
-    await this.remove('userDetails');
-    await this.clear();
+  async clearSession(): Promise<void> {
+    await this.clearIonicStorage();
+
+    await Preferences.clear();
+    localStorage.clear();
+    sessionStorage.clear();
+    if ('databases' in indexedDB) {
+      const dbs = await (indexedDB as any).databases();
+      dbs.forEach((db: any) => {
+        if (db.name) indexedDB.deleteDatabase(db.name);
+      });
+    }
+
+    console.log('Session fully cleared (Android & iOS)');
   }
 }

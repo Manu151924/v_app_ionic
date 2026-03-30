@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
-import { KeyboardResize, KeyboardStyle } from '@capacitor/keyboard';
+import { KeyboardResize } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'com.safexpress.associate.app',
   appName: 'Safexpress Associate App',
   webDir: 'www',
   ios: {
@@ -11,7 +11,9 @@ const config: CapacitorConfig = {
   },
   plugins: {
     StatusBar: {
-        overlaysWebView: false   
+      style: 'LIGHT',
+      backgroundColor: '#ffffff',
+      overlaysWebView: false
     },
     SplashScreen: {
       launchShowDuration: 0,
@@ -25,4 +27,5 @@ const config: CapacitorConfig = {
     },
   },
 };
+
 export default config;

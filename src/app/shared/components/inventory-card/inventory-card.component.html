@@ -4,13 +4,19 @@
       <div class="header-row">
         <div class="pan1-header-left">
           <div class="location-dropdown">
-            <ion-icon     name="location" class="location-icon"></ion-icon>
-            <ion-select interface="popover" [(ngModel)]="selectedBranchId" (ionChange)="onBranchChange($event)"
-              class="city-select">
+            <ion-icon name="location" class="location-icon"></ion-icon>
+            <ion-select
+              interface="popover"
+              [interfaceOptions]="{ cssClass: 'location-popover' }"
+              alignment="start"
+              [(ngModel)]="selectedBranchId"
+              (ionChange)="onBranchChange($event)"
+              class="city-select"
+            >
               @for (b of branches; track b.branchId) {
-              <ion-select-option [value]="b.branchId">
-                {{ b.branchName }}
-              </ion-select-option>
+                <ion-select-option [value]="b.branchId">
+                  {{ b.branchName }}
+                </ion-select-option>
               }
             </ion-select>
           </div>
@@ -19,16 +25,36 @@
           <div class="assigned-sfx">
             <div class="total">
               <div class="total-data">
-                <span class="total-label">WAYBILLS:</span>
-                <span class="total-values">{{ totals.waybills }}</span>
+                <span class="total-label">WAYBILLS:&nbsp;</span>
+                <span
+                  class="total-values"
+                  #waybillRef
+                  (click)="showTooltipIfOverflow($event, totals.waybills)"
+                >
+                  {{ totals.waybills }}
+                </span>
               </div>
               <div class="total-data">
-                <span class="total-label">PKGS:</span>
-                <span class="total-values">{{ totals.packages }}</span>
+                <span class="total-label">PKGS:&nbsp;</span>
+                <span
+                  class="total-values"
+                  #pkgRef
+                  (click)="showTooltipIfOverflow($event, totals.packages)"
+                >
+                  {{ totals.packages }}
+                </span>
               </div>
               <div class="total-data">
-                <span class="total-label">WT (T):</span>
-                <span class="total-values">{{ totals.weight.toFixed(1) }}</span>
+                <span class="total-label">WT (T):&nbsp;</span>
+                <span
+                  class="total-values"
+                  #wtRef
+                  (click)="
+                    showTooltipIfOverflow($event, totals.weight.toFixed(3))
+                  "
+                >
+                  {{ totals.weight.toFixed(3) }}
+                </span>
               </div>
             </div>
           </div>
@@ -43,45 +69,45 @@
 
           <!-- CONTENT -->
           <div class="pan1-card-content">
-
             <div class="route-card">
-
-              <div class="y-axis-title">
-                DLV. ROUTE WISE WB COUNT
-              </div>
+              <div class="y-axis-title">DLV. ROUTE WISE WB COUNT</div>
 
               <div class="chart-area">
                 <!-- CUSTOM BAR LIST -->
                 <div class="bar-list">
                   <ion-content class="bar-list">
-
                     @for (r of routesData; track r.route) {
-                    <div class="bar-row" (click)="handleRouteClick(r)">
-                      <div class="bar-container">
-                        <div class="bar" style="width:100%" [style.background]="r.color">
-                          <span class="route-name">{{ r.route }}</span>
+                      <div class="bar-row" (click)="handleRouteClick(r)">
+                        <div class="bar-container">
+                          <div
+                            class="bar"
+                            style="width: 100%"
+                            [style.background]="r.color"
+                          >
+                            <span class="route-name">{{ r.route }}</span>
+                          </div>
                         </div>
+                        <span class="count" [style.color]="r.color">
+                          {{ r.waybills }}
+                        </span>
                       </div>
-                      <span class="count" [style.color]="r.color">
-                        {{ r.waybills }}
-                      </span>
-                    </div>
                     }
-
                   </ion-content>
                 </div>
-
               </div>
 
               <div class="footer">
                 {{ selectedBranchName }}
               </div>
-
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
+@if (tooltipVisible) {
+  <div class="floating-tooltip" [ngStyle]="tooltipStyle">
+    {{ tooltipText }}
+  </div>
+}

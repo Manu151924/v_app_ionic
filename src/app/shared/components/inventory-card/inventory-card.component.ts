@@ -14,12 +14,16 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { ToastController } from '@ionic/angular';
 import { BarChartModule } from '@swimlane/ngx-charts';
 
 import { Api } from '../../services/api';
 import { Auth } from '../../services/auth';
 import { addIcons } from 'ionicons';
 import { Crashlytics } from '../../services/crashlytics';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatFormFieldModule} from '@angular/material/form-field';
 import { location, locationOutline } from 'ionicons/icons';
 
 /* ---------------- Interfaces ---------------- */
@@ -52,6 +56,9 @@ interface RouteData {
     FormsModule,
     NgxSpinnerModule,
     BarChartModule,
+        MatSelectModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   templateUrl: './inventory-card.component.html',
   styleUrls: ['./inventory-card.component.scss'],
@@ -63,8 +70,8 @@ export class InventoryCardComponent implements OnInit, OnChanges {
   private api = inject(Api);
   private auth = inject(Auth);
   private router = inject(Router);
-  private spinner = inject(NgxSpinnerService);
   private cdr = inject(ChangeDetectorRef);
+  private toastCtrl = inject(ToastController);
   private crashlytics = inject(Crashlytics);
 
   branches: Branch[] = [];
@@ -94,6 +101,9 @@ export class InventoryCardComponent implements OnInit, OnChanges {
   async doRefresh(event: any) {
     await this.loadPanelOneCard();
     event.target.complete();
+  }
+    public async refreshData(): Promise<void> {
+    await this.loadPanelOneCard(); 
   }
 
   /* ---------------- Load Branches ---------------- */
@@ -215,6 +225,9 @@ export class InventoryCardComponent implements OnInit, OnChanges {
         },
       });
   }
+  isOverflow(element: HTMLElement): boolean {
+    return element.scrollWidth > element.clientWidth;
+  }
 
   /* ---------------- Click ---------------- */
 
@@ -227,5 +240,23 @@ export class InventoryCardComponent implements OnInit, OnChanges {
         vendorId: this.deliveryVendorId,
       },
     });
+  }
+  tooltipVisible = false;
+  tooltipText = '';
+  tooltipStyle: any = {};
+  showTooltipIfOverflow(event: Event, value: any) {
+    const target = event.target as HTMLElement;
+    const rect = target.getBoundingClientRect();
+
+    this.tooltipText = value.toString();
+
+    this.tooltipStyle = {
+      top: rect.top + target.offsetHeight + 'px',
+      left: rect.left + rect.width / 2 + 'px',
+    };
+
+    this.tooltipVisible = true;
+
+    setTimeout(() => (this.tooltipVisible = false), 2000);
   }
 }

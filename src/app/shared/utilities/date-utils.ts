@@ -15,5 +15,5 @@ export function formatDisplayDate(date?: Date): string {
 
 export function formatMonthYearShort(date: Date): string {
   const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  return `${monthNames[date.getMonth()]}-${date.getFullYear().toString().slice(-2)}`;
+  return `${monthNames[date.getMonth()].toUpperCase()}-${date.getFullYear().toString().slice(-2)}`;
 }

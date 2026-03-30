@@ -1,116 +1,168 @@
-.liquid-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 75px;
-  z-index: 999;
-
-  svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    filter: drop-shadow(0 -8px 20px rgba(0, 0, 0, 0.08));
-
-    path {
-      fill: #fff;
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-  }
+.footer-toolbar-padding {
+  background: transparent !important;
 }
+ion-content {
+  --background: #efefef;
+  // --padding-bottom: 90px;
+}
+
+/* FOOTER CONTAINER */
+
+.liquid-footer {
+    position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 68.9px;
+  padding-bottom: env(safe-area-inset-bottom);
+
+  touch-action: pan-y;
+
+
+  background: transparent !important;
+  z-index: 999;
+  box-shadow: none;
+  pointer-events: auto;
+}
+ion-footer {
+  --background: transparent !important;
+  background: transparent !important;
+}
+
+/* SVG CURVE */
+
+svg {
+
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  path {
+    fill: #ffffff;
+    transition: all .45s cubic-bezier(.4,0,.2,1);
+  }
+
+}
+
+/* TABS CONTAINER */
 
 .tabs {
+
   position: relative;
   z-index: 10;
-  height: 100%;
+
   display: flex;
+  height: 64px;
+
 }
+
+/* TAB BUTTON */
 
 .tab-btn {
+
   flex: 1;
-  position: relative;
   border: none;
-  background: none;
-  outline: none;
+  background: transparent;
+  position: relative;
+  padding: 0;
+
 }
 
-/* Floating button */
+/* ACTIVE FLOATING ICON */
+
 .floating {
+
   position: absolute;
-  top: -22px;
+  top: -24px;
   left: 50%;
-  transform: translateX(-50%) translateY(40px) scale(0.5);
+
+  transform: translateX(-50%) translateY(32px) scale(.5);
   opacity: 0;
-  transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-  &.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
-  }
+  transition: .45s cubic-bezier(.175,.885,.32,1.275);
 
-  .circle {
-    width: 48px;
-    height: 48px;
-    background: #28a745;
-    border-radius: 50%;
-    box-shadow: 0 8px 15px rgba(40, 167, 69, 0.3);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
+  background: transparent;
 
-    img {
-      width: 47px;
-      margin-bottom: 2px;
-    }
-
-    span {
-      font-size: 9px;
-      font-weight: 700;
-    }
-  }
 }
 
-/* Inactive icons */
+.floating.show {
+
+  opacity: 1;
+
+  transform: translateX(-50%) translateY(0) scale(1);
+
+}
+
+.floating img {
+
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+
+  background: transparent;
+    background: #fff;
+
+  border-radius: 50%;
+
+  display: block;
+
+}
+
+/* INACTIVE STATE */
+
 .inactive {
+
   height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: .3s ease;
+
+}
+
+.inactive.hide {
+
+  opacity: 0;
+
+  transform: translateY(-12px) scale(.85);
+
+  pointer-events: none;
+
+}
+
+/* ICON + LABEL */
+
+.icon-wrap {
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: 0.3s ease;
-  opacity: 1;
-  transform: translateY(0) scale(1);
 
-  &.hide {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.8);
-    pointer-events: none;
-  }
+  gap: 3px;
+
+  transform: translateY(6px);
+
 }
 
-.icon-wrap {
-  position: relative;
+.icon-wrap img {
 
-  .badge {
-    position: absolute;
-    top: -6px;
-    right: -10px;
-    background: #ffc107;
-    color: white;
-    font-size: 9px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 10px;
-    border: 2px solid white;
-  }
-  .task-label {
-    margin-top: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #28a745; // green
-    line-height: 1;
-  }
+  width: 22px;
+  height: auto;
+
+}
+
+/* LABEL */
+
+.label {
+
+  font-size: 11px;
+  font-weight: 500;
+
+  color: #28a745;
+
+  line-height: 1;
+
 }

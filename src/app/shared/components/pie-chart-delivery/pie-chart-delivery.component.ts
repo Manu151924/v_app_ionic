@@ -22,14 +22,14 @@ const middleText = {
     ctx.save();
 
     ctx.fillStyle = '#000000';
-    ctx.font = '600 0.56em Roboto';
+    ctx.font = '500 0.64em Roboto';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('Total', centerX, centerY - 12);
+    ctx.fillText('Total', centerX, centerY - 7);
 
     ctx.fillStyle = '#02834A';
     ctx.font = '700 1em Roboto';
-    ctx.fillText(`${totalWaybill}`, centerX, centerY + 10);
+    ctx.fillText(`${totalWaybill}`, centerX, centerY + 7);
 
     ctx.restore();
   }

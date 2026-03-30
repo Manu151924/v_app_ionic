@@ -1,78 +1,130 @@
-<div class="header">
-  <div class="header-row">
-    <ion-button slot="start" fill="clear" (click)="goBack()" class="back-icon">
-      <ion-icon name="chevron-back-outline" size="large" color="#000000"></ion-icon>
+<ion-header class="header">
+  <ion-toolbar class="header-row">
+    <ion-button
+      slot="start"
+      fill="clear"
+      class="back-icon"
+      (click)="goBack()"
+      (keydown.enter)="goBack()"
+      (keydown.space)="goBack()"
+      aria-label="Go back"
+    >
+      <ion-icon
+        name="chevron-back-outline"
+        size="large"
+        color="#000000"
+      ></ion-icon>
     </ion-button>
-    <ion-title class="title">AVL. INVENTORY</ion-title>
+    <div class="title">AVL. INVENTORY</div>
     <ion-button slot="end" class="branch-btn" size="small">
       {{ backBranchName }}
     </ion-button>
-  </div>
-</div>
+  </ion-toolbar>
+</ion-header>
 
-<ion-content class="body">
-  <ngx-spinner bdColor="rgba(255,255,255,0.1)" color="#2ca85e" size="large" type="ball-clip-rotate" [fullScreen]="true">
-  <p class="loader-text">Loading...</p>
-</ngx-spinner>
+<ion-content [scrollY]="false" class="body">
+  <ngx-spinner
+    bdColor="rgba(255,255,255,0.15)"
+    size="large"
+    color="#27ae60"
+    type="ball-clip-rotate"
+    [fullScreen]="true"
+  >
+    <p class="loader-text">Loading inventory…</p>
+  </ngx-spinner>
   <div class="body-container">
-    <div class="top-bar">
-      <div class="seg">WB Count</div>
-      <div class="chip-group">
-        <div class="chip">WAYBILLS: {{ summary.waybills }}</div>
-        <div class="chip">PKGS: {{ summary.packages }}</div>
-        <div class="chip">WT (T): {{ summary.weight }}</div>
+    <div class="fixed-section">
+      <div class="top-bar">
+        <div class="seg">WB Count</div>
+        <div class="chip-group">
+          <div class="chip">WAYBILLS: {{ totalWaybills }}</div>
+          <div class="chip">PKGS: {{ totalPackages }}</div>
+          <div class="chip">WT (T): {{ totalWeight | number:'1.3-3' }}</div>
+        </div>
+        <div class="route-name">
+          <ion-icon
+            name="location-sharp"
+            size="medium"
+            class="location-icon"
+          ></ion-icon>
+          <div class="rteCd">{{ rteCd }}</div>
+        </div>
       </div>
-      <div class="route-name">
-        <ion-icon name="location-sharp" size="medium" class="location-icon"></ion-icon>
-        <div class="rteCd">{{ rteCd }}</div>
-      </div>
-    </div>
 
-    <!-- AGE CARD -->
-    <ion-card class="age-card">
-      <div class="side-label" [ngClass]="ageType === '<24' ? 'green-font-color' : 'yellow-font-color'">
-        {{ ageType === '<24' ? '< 24 Hours' : '> 24 Hours' }} </div>
-          <div class="age-content" [ngClass]="ageType === '<24' ? 'green-bg' : 'yellow-bg'">
+      <!-- AGE CARD -->
+      <div
+        class="age-card-wrapper"
+        [ngClass]="ageType === '<24' ? 'pointer-green' : 'pointer-yellow'"
+      >
+        <ion-card class="age-card">
+          <!-- Side Label -->
+          <div
+            class="side-label"
+            [ngClass]="ageType === '<24' ? 'green-font-color' : 'yellow-font-color'"
+          >
+            {{ ageType === '<24' ? '< 24 Hours' : '> 24 Hours' }}
+          </div>
+
+          <!-- Content -->
+          <div
+            class="age-content"
+            [ngClass]="ageType === '<24' ? 'green-bg' : 'yellow-bg'"
+          >
             <div class="count">
-              <label class="waybill-count">Waybill Count</label>
-              <h1>{{ summary.waybills | number:'2.0' }}</h1>
+              <label class="waybill-count" for="">Waybill Count</label>
+              <h1>{{ summary.waybills | number: '2.0' }}</h1>
             </div>
 
             <div class="stat">
-              <label class="stat-label">Packages</label>
+              <label class="stat-label" for="">Packages</label>
               <p>{{ summary.packages }}</p>
             </div>
 
             <div class="stat">
-              <label class="stat-label">Weight (T)</label>
-              <p>{{ summary.weight }}</p>
+              <label class="stat-label" for="">Weight (T)</label>
+              <p>{{ summary.weight | number:'1.3-3' }}</p>
             </div>
           </div>
-    </ion-card>
+        </ion-card>
+      </div>
+    </div>
 
     <!-- WAYBILL LIST -->
-    <div class="list-card" *ngFor="let wb of waybillList"
-      [ngClass]="ageType === '<24' ? 'green-border-color' : 'yellow-border-color'">
+     <div class="scrollable-list">
+    @for (wb of waybillList; track wb.waybillNo) {
+    <div
+      class="list-card"
+      [ngClass]="ageType === '<24' ? 'green-border-color' : 'yellow-border-color'"
+    >
       <div class="list-body">
         <div class="field">
           <div class="field-label">Waybill No.</div>
-          <div class="field-value">{{ wb.waybillNo }}</div>
+          <div class="field-value">{{ wb.waybillNo | waybillFormat }}</div>
         </div>
+
         <div class="field">
           <div class="field-label">Package</div>
           <div class="field-value">{{ wb.packages }}</div>
         </div>
+
         <div class="field">
-          <div class="field-label">Weight (T)</div>
-          <div class="field-value">{{wb.weight}}</div>
+          <div class="field-label">Weight (kg)</div>
+          <div class="field-value">{{ wb.weight }}</div>
         </div>
+
         <div class="field">
-          <div class="field-label">Arrived On</div>
+          <div class="field-label arrvied">Arrived On</div>
           <div class="field-value">{{ wb.arrivedOn }}</div>
         </div>
+
         <div class="field">
           <div class="field-label">Inv. Age</div>
-          <div class="field-value" [ngClass]="ageType === '<24' ? 'green-font-color' : 'yellow-font-color'">{{ wb.invAge }}</div>
+          <div
+            class="field-value"
+            [ngClass]="ageType === '<24' ? 'green-font-color' : 'yellow-font-color'"
+          >
+            {{ wb.invAge }}
+          </div>
         </div>
       </div>
 
@@ -84,14 +136,20 @@
 
         <div class="to-pay">
           <div class="field-label">To Pay</div>
-          <div class="field-value red">{{ wb.toPay > 0 ? (wb.toPay | number) : '-' }}</div>
+          <div class="field-value red">
+            {{ wb.toPay > 0 ? (wb.toPay | number:'1.2-2') : '-' }}
+          </div>
         </div>
 
         <div class="vas">
           <div class="field-label">Vas</div>
-          <div class="field-value">{{ wb.vas !== null ? (wb.vas) : '-' }}</div>
+          <div class="field-value">{{ wb.vas !== null ? wb.vas : '-' }}</div>
         </div>
       </div>
     </div>
+    }
+     </div>
+
   </div>
 </ion-content>
+<app-footer></app-footer>

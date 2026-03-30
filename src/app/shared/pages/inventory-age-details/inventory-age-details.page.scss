@@ -1,15 +1,27 @@
 .header {
-  margin: 0.4em 0;
-  padding-bottom: 0.7em;
+  padding: 0;
+  box-shadow: none;
 }
 
 .header-row {
-  display: flex;
-  border-bottom: 1px solid #D9D9D9;
-  margin: 0 0.7em;
-  padding-bottom: 0.5em;
+  padding: 0 1em;
+
+  border-bottom: 1px solid #989898;
 }
 
+ion-header {
+  box-shadow: none;
+}
+
+ion-toolbar {
+  --background: #efefef;
+  --padding-top: var(--ion-safe-area-top);
+  --padding-start: 1em;
+  --padding-end: 1em;
+}
+ion-content::part(scroll) {
+  padding-top: 12px;
+}
 .back-icon::part(native) {
   padding: 0;
   padding-right: 0.3em;
@@ -22,6 +34,11 @@
 
 .title {
   padding: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 12px;
 }
 
 .branch-btn {
@@ -36,12 +53,33 @@
   --padding-end: 0;
   --padding-bottom: 0;
 }
+.fixed-section {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff; 
+}
+.fixed-section {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.scrollable-list {
+  flex: 1;            
+  overflow-y: auto;
+  padding-bottom: 55px; 
+}
+.scrollable-list {
+  height: calc(100vh - 250px); 
+  overflow-y: auto;
+}
 
 .body-container {
   margin: 0 0.7em !important;
+  padding: 0 0.7em;
   background: #ffffff;
-  padding: 0.5em;
   border-radius: 1em;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 /* AGE CARD */
@@ -56,11 +94,10 @@
 .side-label {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  color: #11C15B;
   font-weight: 700;
   font-size: 1.15em;
+  background: #efefef;
   padding: 8px;
-  background-color: #EFEFEF;
 }
 
 .green-bg {
@@ -117,7 +154,7 @@
 
 /* LIST */
 .list-card {
-  background: #EFEFEF;
+  background: #efefef;
   padding: 10px;
   margin-bottom: 1em;
 
@@ -128,6 +165,42 @@
   &.yellow-border-color {
     border-left: 0.5em solid #f4b400;
   }
+}
+
+/* =========================
+   AGE CARD TRIANGLE POINTER
+   ========================= */
+
+.age-card-wrapper {
+  position: relative;
+  margin-bottom: 1.5em;
+}
+
+.age-card-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 90%;
+  transform: translateX(-90%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 12px solid;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pointer-green::after {
+  border-top-color: #1cc15a;
+}
+
+.pointer-yellow::after {
+  border-top-color: #f4b400;
+}
+
+.list-card:first-of-type {
+  margin-top: 0.8em;
 }
 
 .list-body {
@@ -146,16 +219,23 @@
 .field-label {
   font-size: 0.86em;
   font-weight: 500;
-  color: #2C3A3B;
+  color: #2c3a3b;
+}
+.arrvied {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
 }
 
 .field-value {
   font-size: 0.86em;
   font-weight: 400;
-  color: #2C3A3B;
+  color: #2c3a3b;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: center;
 }
 
 .consignee-value {
@@ -176,14 +256,20 @@
 
 .to-pay {
   width: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .vas {
   width: 16%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .red {
-  color: #FA2A66;
+  color: #fa2a66;
 }
 
 .vas span {
@@ -198,14 +284,13 @@
   gap: 8px;
   background: #fff;
   padding-bottom: 0.5em;
-  border-bottom: 1px solid #D9D9D9;
-  height: 8%;
+  border-bottom: 1px solid #d9d9d9;
   justify-content: space-between;
 }
 
 .seg {
   color: #000000;
-  font-family: Roboto;
+  font-family: "Roboto", sans-serif;
   font-weight: 500;
   font-size: 0.84em;
   line-height: 100%;
@@ -213,7 +298,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
 }
 
 .chip-group {
@@ -222,14 +306,14 @@
   gap: 6px;
   height: 32px;
   padding: 2px 10px;
-  border: 1px solid #46B5FF;
+  border: 1px solid #000000;
   border-radius: 20px;
 }
 
 .chip {
   white-space: nowrap;
-  color: #46B5FF;
-  font-family: Roboto;
+  color: #000000;
+  font-family: "Roboto", sans-serif;
   font-weight: 500;
   font-size: 0.64em;
   line-height: 100%;
@@ -237,8 +321,8 @@
 }
 
 .route-name {
-  color: #2C3A3B;
-  font-family: Roboto;
+  color: #2c3a3b;
+  font-family: "Roboto", sans-serif;
   font-weight: 700;
   display: flex;
   align-items: center;

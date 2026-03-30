@@ -1,6 +1,6 @@
 <ion-toolbar>
   <div class="header-container">
-    <ion-text class="title">ZERO PICKUP SFX</ion-text>
+    <ion-text class="title">NO PICKUP SFX(Today)</ion-text>
     <ion-buttons>
       <ion-button fill="clear" class="close-btn" (click)="close()">
         <ion-icon name="close" size="large"></ion-icon>
@@ -20,8 +20,8 @@
           <div class="value">{{ item.sfxCode }}</div>
         </div>
         <div class="field">
-          <div class="label">Last Pickup Date</div>
-          <div class="value">{{ item.lastPickupDate | date:'dd-MMM-yyyy' }}</div>
+          <div class="label" style="text-align: end;">Last Pickup Date</div>
+          <div class="value-date">{{ item.lastPickupDate | date:'dd-MMM-yyyy' | uppercase}}</div>
         </div>
       </div>
 

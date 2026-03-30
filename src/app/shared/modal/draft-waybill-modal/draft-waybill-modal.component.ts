@@ -3,13 +3,15 @@ import { ModalController, IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
 import { close} from 'ionicons/icons';
+import { WaybillFormatPipe } from "../../utilities/waybill-format-pipe";
+import { AppDatePipe } from "../../utilities/app-date-pipe";
 
 @Component({
   selector: 'app-draft-waybills-modal',
   templateUrl: './draft-waybill-modal.component.html',
   styleUrls:['./draft-waybill-modal.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, WaybillFormatPipe],
 })
 export class DraftWaybillsModalComponent {
   private modalCtrl = inject(ModalController);

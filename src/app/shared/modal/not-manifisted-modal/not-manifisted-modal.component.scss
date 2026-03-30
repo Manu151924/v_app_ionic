@@ -1,89 +1,97 @@
-   span.green {
-     color: #1cb14f;
-   }
+span.green {
+  color: #1cb14f;
+}
 
-   span.amber {
-     color: #f0ad4e;
-   }
+span.amber {
+  color: #f0ad4e;
+}
 
-   span.red {
-     color: #d9534f;
-   }
+span.red {
+  color: #d9534f;
+}
 
-   ion-toolbar {
-     --background: #efefef !important;
-     --border: none !important;
-   }
+ion-toolbar {
+  --background: #efefef !important;
+  --border: none !important;
+}
 
-   ion-content {
-     --padding-bottom: 1em;
-   }
+ion-content {
+  --padding-bottom: 1em;
+}
 
-   .header-container {
-     display: flex;
-     justify-content: space-between;
-     margin: 1em 1em 0.5em 1em;
-     align-items: center;
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 1em 1em 0.5em 1em;
+  align-items: center;
 
-     ion-button::part(native) {
-       padding: 0;
-     }
-   }
+  ion-button::part(native) {
+    padding: 0;
+  }
+}
 
-   .title {
-     font-size: 1.07em;
-     font-weight: 700;
-     color: #2C3A3B;
-     padding: 0.56em;
-     border: 1px solid #B00020;
-     border-radius: 0.4em;
-   }
+.title {
+  font-size: 1.07em;
+  font-weight: 700;
+  color: #2c3a3b;
+  padding: 0.56em;
+  border: 1px solid #b00020;
+  border-radius: 0.4em;
+}
 
-   .close-btn {
-     color: #26A95E;
-   }
+.close-btn {
+  color: #26a95e;
+}
 
-   .sfx-card {
-     background: #fff;
-     padding: 0.6em;
-     border-left: 0.5em solid #B00020;
-     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-     margin-bottom: 0.6em;
-     border-top-right-radius: 0.5em;
-     border-bottom-right-radius: 0.5em;
-     display: flex;
-     justify-content: space-between;
-     flex-direction: column;
-     gap: 1.2em;
-     overflow: hidden;
-     width: 100%;
-   }
+.sfx-card {
+  background: #fff;
+  padding: 0.6em;
+  border-left: 0.5em solid #b00020;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0.6em;
+  border-top-right-radius: 0.5em;
+  border-bottom-right-radius: 0.5em;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 1.2em;
+  overflow: hidden;
+  width: 100%;
+}
 
-   .label {
-     font-family: roboto;
-     font-size: 0.9em;
-     color: #2C3A3B;
-     font-weight: 500;
-     width: 100%;
-     overflow: hidden;
-     text-overflow: ellipsis;
-     white-space: nowrap;
-   }
+.label {
+  font-family: roboto;
+  font-size: 0.9em;
+  color: #2c3a3b;
+  font-weight: 500;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-   .value {
-     font-family: roboto;
-     font-size: 0.9em;
-     color: #2C3A3B;
-     font-weight: 400;
-     width: 100%;
-     overflow: hidden;
-     text-overflow: ellipsis;
-     white-space: nowrap;
-   }
+.value {
+  font-family: roboto;
+  font-size: 0.9em;
+  color: #2c3a3b;
+  font-weight: 400;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-   .first-row {
-     display: flex;
-     justify-content: space-between;
-     width: 100%;
-     gap: 0.2em;
-   }
+.first-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.2em;
+}
+.large-field {
+  width: 50%;
+}
+@media (min-width: 360px) and (max-width: 375px){
+  .large-field {
+  width: 35%;
+}
+}

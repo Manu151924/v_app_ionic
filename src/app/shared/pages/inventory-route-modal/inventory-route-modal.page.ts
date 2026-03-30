@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { NavController } from '@ionic/angular';
 import {
   NgxSpinnerService,
   NgxSpinnerComponent,
@@ -12,6 +13,9 @@ import {
 import { Api } from 'src/app/shared/services/api';
 import { Auth } from 'src/app/shared/services/auth';
 import { Crashlytics } from 'src/app/shared/services/crashlytics';
+import { addIcons } from 'ionicons';
+import { chevronBackOutline } from 'ionicons/icons';
+import { FooterComponent } from '../../components/footer/footer.component';
 
 @Component({
   selector: 'app-inventory-route-modal',
@@ -24,6 +28,7 @@ import { Crashlytics } from 'src/app/shared/services/crashlytics';
     FormsModule,
     NgxSpinnerModule,
     NgxSpinnerComponent,
+    FooterComponent,
   ],
 })
 export class InventoryRouteModalPage implements OnInit {
@@ -42,6 +47,7 @@ export class InventoryRouteModalPage implements OnInit {
   /* ---------------- Injected ---------------- */
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private navCtrl = inject(NavController);
   private api = inject(Api);
   private auth = inject(Auth);
   private spinner = inject(NgxSpinnerService);
@@ -50,6 +56,9 @@ export class InventoryRouteModalPage implements OnInit {
   private crashlytics = inject(Crashlytics);
 
   /* ---------------- Lifecycle ---------------- */
+  constructor() {
+    addIcons({ chevronBackOutline });
+  }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
@@ -119,7 +128,7 @@ export class InventoryRouteModalPage implements OnInit {
           const data = res.responseObject ?? [];
 
           data.forEach((item: any) => {
-            if (item.invAgeCategory === '<24') {
+            if (item.invAgeCategory === '<24 Hours') {
               this.less24 = {
                 waybills: item.waybillCount ?? 0,
                 packages: item.totalAvlPkgs ?? 0,
@@ -127,7 +136,7 @@ export class InventoryRouteModalPage implements OnInit {
               };
             }
 
-            if (item.invAgeCategory === '>=24') {
+            if (item.invAgeCategory === '>=24 Hours') {
               this.above24 = {
                 waybills: item.waybillCount ?? 0,
                 packages: item.totalAvlPkgs ?? 0,
@@ -139,7 +148,9 @@ export class InventoryRouteModalPage implements OnInit {
           this.totals = {
             waybills: this.less24.waybills + this.above24.waybills,
             packages: this.less24.packages + this.above24.packages,
-            weight: this.less24.weight + this.above24.weight,
+            weight:
+              Math.round((this.less24.weight + this.above24.weight) * 1000) /
+              1000,
           };
 
           this.cdr.detectChanges();
@@ -171,7 +182,14 @@ export class InventoryRouteModalPage implements OnInit {
         backBranchId: this.branchId,
         backBranchName: this.branch,
         backRteCd: this.rteCd,
+        totalWaybills: this.totals.waybills,
+        totalPackages: this.totals.packages,
+        totalWeight: this.totals.weight,
       },
     });
+  }
+
+  goBack() {
+    this.navCtrl.navigateBack(['./home']);
   }
 }

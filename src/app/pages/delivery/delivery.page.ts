@@ -8,6 +8,7 @@ import {
   ViewChild,
   ChangeDetectorRef,
   inject,
+  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -64,18 +65,21 @@ import { PieChartDeliveryComponent } from 'src/app/shared/components/pie-chart-d
     MatDatepickerModule,
     NgxSpinnerModule,
     PieChartDeliveryComponent,
-    IonRefresher,
-    IonRefresherContent,
     ProgressSliderComponent,
     InventoryCardComponent,
     TripReportDeliveryComponent,
     IonPopover,
     IonList,
     IonItem,
-  ],
+],
 })
 export class DeliveryPage implements OnInit, OnChanges {
   @Input() vendorId!: any;
+  @ViewChild(TripReportDeliveryComponent)
+  tripReportDelivery!: TripReportDeliveryComponent;
+  @ViewChild(InventoryCardComponent)
+  inventoryCard!: InventoryCardComponent;
+
   private toastController = inject(ToastController);
   private crashlytics = inject(Crashlytics);
 
@@ -85,18 +89,13 @@ export class DeliveryPage implements OnInit, OnChanges {
   deliveryVendorId$ = new BehaviorSubject<number | null>(null);
 
   amount = 0;
-  pending = 0;
-  usage = 0;
+  pending = '';
+  usage = '';
   safe = 0;
 
   totalWaybill = 0;
   totalWaybillAndWeight = {};
   panelFourPieData: any[] = [];
-  panelFourBars = [
-    { label: 'Vehicle Attendance', value: 0, gradient: '' },
-    { label: 'Safedrop Usage', value: 0, gradient: '' },
-    { label: 'Market Vehicle Usage', value: 0, gradient: '' },
-  ];
 
   // Month UI
   validMonths: string[] = [];
@@ -110,24 +109,17 @@ export class DeliveryPage implements OnInit, OnChanges {
   COMMON_GRADIENT =
     'linear-gradient(90deg, #DA2723 0%, #D2E241 40%, #41D844 100%)';
   GRADIENT = 'linear-gradient(90deg,#42D844 0%, #D2E241 48.2%, #DA2D24 100%)';
+  panelFourBars = [
+    { label: 'Vehicle Attendance', value: 0, gradient: this.COMMON_GRADIENT },
+    { label: 'Safedrop Usage', value: 0, gradient: this.COMMON_GRADIENT },
+    { label: 'Market Vehicle Usage', value: 0, gradient: this.GRADIENT },
+  ];
 
   @ViewChild('monthPicker') monthPicker!: MatDatepicker<Date>;
   @Input() active = false;
   private loaded = false;
   isRefreshing = false;
   isLoading = false;
-
-  async doRefresh(event: any) {
-    this.isRefreshing = true;
-
-    await Promise.all([
-      this.loadPanelThreeData(),
-      this.loadPanelFourByDate(this.selectedDate),
-    ]);
-
-    this.isRefreshing = false;
-    event.target.complete();
-  }
 
   constructor(
     private service: Delivery,
@@ -153,8 +145,8 @@ export class DeliveryPage implements OnInit, OnChanges {
         vendor: this.deliveryVendorId,
         branch: this.deliveryBranchId,
       });
-      this.loadPanelThreeData();
-      this.loadPanelFourByDate(this.selectedDate);
+      // this.loadPanelThreeData();
+      // this.loadPanelFourByDate(this.selectedDate);
     }
   }
   async forceRefresh() {
@@ -168,18 +160,20 @@ export class DeliveryPage implements OnInit, OnChanges {
 
   // ----------------------- MONTH HANDLING -----------------------
 
-  buildMonthList() {
-    const today = new Date();
-    this.validMonths = [];
+buildMonthList() {
+  const today = new Date();
+  this.validMonths = [];
 
-    for (let i = 3; i >= 0; i--) {
-      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-      this.validMonths.push(this.formatMonth(d)); // Jan-25
-    }
-
-    this.selectedMonth = this.validMonths[this.validMonths.length - 1];
-    this.selectedDate = this.convertMonthStringToDate(this.selectedMonth);
+  // Latest first (0 = current month)
+  for (let i = 0; i < 4; i++) {
+    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    this.validMonths.push(this.formatMonth(d)); // Mar-26, Feb-26...
   }
+
+  // Default = latest (first item)
+  this.selectedMonth = this.validMonths[0];
+  this.selectedDate = this.convertMonthStringToDate(this.selectedMonth);
+}
 
   formatMonth(date: Date) {
     return formatMonthYearShort(date); // must return Jan-25
@@ -191,7 +185,8 @@ export class DeliveryPage implements OnInit, OnChanges {
   }
 
   selectMonth(monthStr: string) {
-    this.selectedMonth = monthStr;
+    this.selectedMonth =
+      monthStr.charAt(0).toUpperCase() + monthStr.slice(1).toLowerCase();
     this.popoverOpen = false;
 
     this.selectedDate = this.convertMonthStringToDate(monthStr);
@@ -199,21 +194,21 @@ export class DeliveryPage implements OnInit, OnChanges {
   }
 
   convertMonthStringToDate(monthStr: string): Date {
-    const [mon, yr] = monthStr.split('-');
+    const [mon, yr] = monthStr.toLowerCase().split('-');
 
     const map: any = {
-      Jan: 0,
-      Feb: 1,
-      Mar: 2,
-      Apr: 3,
-      May: 4,
-      Jun: 5,
-      Jul: 6,
-      Aug: 7,
-      Sep: 8,
-      Oct: 9,
-      Nov: 10,
-      Dec: 11,
+      jan: 0,
+      feb: 1,
+      mar: 2,
+      apr: 3,
+      may: 4,
+      jun: 5,
+      jul: 6,
+      aug: 7,
+      sep: 8,
+      oct: 9,
+      nov: 10,
+      dec: 11,
     };
 
     return new Date(2000 + Number(yr), map[mon], 1);
@@ -231,6 +226,26 @@ export class DeliveryPage implements OnInit, OnChanges {
     this.loadPanelThreeData();
     this.loadPanelFourByDate(this.selectedDate);
   }
+  async doRefresh() {
+    try {
+      this.isRefreshing = true;
+
+      await Promise.all([
+        this.loadPanelThreeData(),
+        this.loadPanelFourByDate(this.selectedDate),
+      ]);
+      if (this.tripReportDelivery) {
+        await this.tripReportDelivery.refreshData();
+      }
+      if (this.inventoryCard) {
+        await this.inventoryCard.refreshData();
+      }
+    } catch (err) {
+      console.error('Delivery refresh failed', err);
+    } finally {
+      this.isRefreshing = false;
+    }
+  }
 
   // ----------------------- PANEL 3 -----------------------
 
@@ -238,7 +253,7 @@ export class DeliveryPage implements OnInit, OnChanges {
     if (!this.deliveryVendorId || !this.deliveryBranchId) return;
     if (!this.isRefreshing) {
       this.isLoading = true;
-      this.spinner.show();
+      // this.spinner.show();
     }
 
     this.service
@@ -250,19 +265,19 @@ export class DeliveryPage implements OnInit, OnChanges {
       .subscribe({
         next: (res) => {
           const d = res.responseObject || {};
-
-          this.amount = Math.round(d.toBeCollected || 0);
-          this.pending = d.pendingPods || 0;
-          this.usage = d.marketVehicleUsage || 0;
-          this.safe = Math.round(d.safeDropUsage || 0);
-
+          this.amount = (d.toBeCollected || 0);
+          const prev = d.previous3MonthsPendingPods ?? 0;
+          const curr = d.currentMonthPendingPods ?? 0;
+          this.pending = `${prev}/${curr}`;
+          const prevusage = d.previous3MonthsMarketVechicleUsage ?? 0;
+          const currUsage = d.currentMonthMarketVechicleUsage ?? 0;
+          this.usage = `${prevusage}/${currUsage}`;
+          this.safe = (d.safeDropUsage || 0);
           this.stopLoader();
-
           this.cdr.markForCheck();
         },
         error: (err) => {
           this.stopLoader();
-
           this.crashlytics.recordNonFatal(err, 'DELIVERY_PANEL3_FAILED', [
             {
               key: 'vendor',
@@ -295,7 +310,7 @@ export class DeliveryPage implements OnInit, OnChanges {
 
     if (!this.isRefreshing) {
       this.isLoading = true;
-      this.spinner.show();
+      // this.spinner.show();
     }
 
     // this.crashlytics.logBusinessEvent('DELIVERY_PANEL4_LOAD', {
@@ -342,7 +357,7 @@ export class DeliveryPage implements OnInit, OnChanges {
           this.panelFourBars = [
             {
               label: 'Vehicle Attendance',
-              value: d.vehicleAttendence ?? 0,
+              value: Math.round(d.vehicleAttendence ?? 0),
               gradient: this.COMMON_GRADIENT,
             },
             {
@@ -402,22 +417,42 @@ export class DeliveryPage implements OnInit, OnChanges {
       this.progressFace = 'GREAT';
       this.progressValue = 95;
     }
-
-    console.log('Happiness →', this.progressFace, this.progressValue, colors);
   }
 
   getHeatColor(value: number, label: string): 'RED' | 'AMBER' | 'GREEN' {
-    if (label === 'Market Vehicle Usage' && value === 0) {
+    if (label === 'Market Vehicle Usage') {
       return 'GREEN';
     }
     if (value <= 25) return 'RED';
     if (value <= 70) return 'AMBER';
     return 'GREEN';
   }
+  getMonthDisplay(month: string): string {
+    if (!month) return '';
+
+    const [mon, yr] = month.split('-');
+    const fullYear = 2000 + Number(yr);
+
+    return `${mon.toUpperCase()}-${fullYear}`;
+  }
+
   private stopLoader() {
     if (this.isLoading) {
       this.isLoading = false;
       this.spinner.hide();
     }
   }
+get formattedAmount() {
+  const rawValue = Number(this.amount ?? 0);
+
+  // Fix floating precision
+  const fixed = rawValue.toFixed(2); // ALWAYS 2 decimals
+
+  const parts = fixed.split('.');
+
+  const integer = new Intl.NumberFormat('en-IN').format(Number(parts[0]));
+  const decimal = parts[1];
+
+  return { integer, decimal };
+}
 }

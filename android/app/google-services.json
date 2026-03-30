@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:349517249916:android:ee2324fef9a7d2ab0cf8f9",
+        "mobilesdk_app_id": "1:349517249916:android:50b3820b7550b5d40cf8f9",
         "android_client_info": {
-          "package_name": "io.ionic.starter"
+          "package_name": "com.safexpress.associate.app"
         }
       },
       "oauth_client": [],

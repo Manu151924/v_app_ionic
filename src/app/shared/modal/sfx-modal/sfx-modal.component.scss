@@ -57,6 +57,10 @@ ion-content {
   font-size: 0.9em;
   color: #2C3A3B;
   font-weight: 400;
+
+  &.pickupDate{
+    text-align: end;
+  }
 }
 
 .first-row {

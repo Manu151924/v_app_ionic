@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({ providedIn: 'root' })
 export class Api {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
   private getHeaders(token?: string): HttpHeaders {
     let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     if (token) {
@@ -55,18 +55,18 @@ export class Api {
     return this.post(API_ENDPOINTS.LOGIN.VERIFYOTP, { otp, mobileNo });
   }
 
-generateAccessTokenFromRefreshToken(refreshToken: string) {
-  return this.post(
-    environment.refreshTokenUrl,
-    { token: refreshToken },
-    'SKIP_AUTH'
-  );
-}
+  generateAccessTokenFromRefreshToken(refreshToken: string) {
+    return this.post(
+      environment.refreshTokenUrl,
+      { token: refreshToken },
+      'SKIP_AUTH'
+    );
+  }
 
 
 
 
-  getBranchDetails( token: string): Observable<any> {
+  getBranchDetails(token: string): Observable<any> {
     const url = `${API_ENDPOINTS.BOOKING.LOCATIONDROPDOWN}`;
     return this.get(url, token);
   }
@@ -121,10 +121,10 @@ generateAccessTokenFromRefreshToken(refreshToken: string) {
     return this.get(url, token);
   }
 
-getVendorDetails(token: string): Observable<any[]> {
-  const url = API_ENDPOINTS.VENDOR.DETAILS;
-  return this.get(url, token);
-}
+  getVendorDetails(token: string): Observable<any[]> {
+    const url = API_ENDPOINTS.VENDOR.DETAILS;
+    return this.get(url, token);
+  }
 
 
   /* ================= DELIVERY ================= */
@@ -143,22 +143,22 @@ getVendorDetails(token: string): Observable<any[]> {
     return this.get(url, token);
   }
 
-getPanelOneInventoryDetails(
-  vendorId: number,
-  propeliBrId: number,
-  rteCd: string,
-  token: string
-): Observable<any> {
-  const safeRteCd = encodeURIComponent(rteCd.trim());
+  getPanelOneInventoryDetails(
+    vendorId: number,
+    propeliBrId: number,
+    rteCd: string,
+    token: string
+  ): Observable<any> {
+    const safeRteCd = encodeURIComponent(rteCd.trim());
 
-  const url =
-    `${API_ENDPOINTS.DELIVERY.PANNELONEOVERLAY}` +
-    `?propeliBrId=${propeliBrId}` +
-    `&vendorId=${vendorId}` +
-    `&rteCd=${safeRteCd}`;
+    const url =
+      `${API_ENDPOINTS.DELIVERY.PANNELONEOVERLAY}` +
+      `?propeliBrId=${propeliBrId}` +
+      `&vendorId=${vendorId}` +
+      `&rteCd=${safeRteCd}`;
 
-  return this.get(url, token);
-}
+    return this.get(url, token);
+  }
 
 
   getPanelOneIntrenalDetails(
@@ -170,8 +170,13 @@ getPanelOneInventoryDetails(
     const url = `${API_ENDPOINTS.DELIVERY.PANNELONESECONDOVERLAY}?propeliBrId=${propeliBrId}&rteCd=${rteCd}&vendorId=${vendorId}`;
     return this.get(url, token);
   }
-   getPanelDelivryTwoTable(propeliId: number, date: string, token: string,    vendorId: number,): Observable<any> {
+  getPanelDelivryTwoTable(propeliId: number, date: string, token: string, vendorId: number,): Observable<any> {
     const url = `${API_ENDPOINTS.DELIVERY.PANNELDELIVERYTWOTABLE}?propeliId=${propeliId}&date=${date}&vendorId=${vendorId}`;
+    return this.get(url, token);
+  }
+
+  getTripStatusLocation(token: string, lat: number, lng: number): Observable<any> {
+    let url = `${API_ENDPOINTS.DELIVERY.TRIPSTATUSLOCATION}?lat= ${lat}&lng=${lng}`;
     return this.get(url, token);
   }
 

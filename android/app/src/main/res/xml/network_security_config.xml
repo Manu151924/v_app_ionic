@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-  <!-- Allow HTTP or test HTTPS for your UAT domain -->
-  <domain-config cleartextTrafficPermitted="true">
-    <domain includeSubdomains="true">dgapi-uat-nonprod.safexpress.com</domain>
-  </domain-config>
+
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">dgapi-uat-nonprod.safexpress.com</domain>
+    </domain-config>
+
 </network-security-config>

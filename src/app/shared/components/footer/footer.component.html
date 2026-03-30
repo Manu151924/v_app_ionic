@@ -1,27 +1,41 @@
-<ion-footer class="liquid-footer">
+<div class="liquid-footer" #footerRef>
+
+  <!-- SVG LIQUID CURVE -->
   <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
     <path [attr.d]="path"></path>
   </svg>
+
+  <!-- TABS -->
   <div class="tabs">
-    <button
-      *ngFor="let tab of tabs; let i = index"
-      (click)="go(tab.id, i)"
-      class="tab-btn"
-    >
-      <div class="floating" [class.show]="activeIndex === i">
-        <div class="circle">
+
+    @for (tab of tabs; track tab.id; let i = $index) {
+
+      <button class="tab-btn" (click)="go(tab.id, i)">
+
+        <!-- ACTIVE FLOATING ICON -->
+        <div class="floating" [class.show]="activeIndex === i">
           <img [src]="tab.activeIcon" />
         </div>
-      </div>
 
-      <div class="inactive" [class.hide]="activeIndex === i">
-        <div class="icon-wrap">
-          <img [src]="tab.inactiveIcon" />
-          <p *ngIf="tab.id === 'task' && activeIndex !== i" class="task-label">
-            {{ tab.label }}
-          </p>
+        <!-- INACTIVE ICON + LABEL -->
+        <div class="inactive" [class.hide]="activeIndex === i">
+
+          <div class="icon-wrap">
+
+            <img [src]="tab.inactiveIcon" />
+
+            <div class="label">
+              {{tab.label}}
+            </div>
+
+          </div>
+
         </div>
-      </div>
-    </button>
+
+      </button>
+
+    }
+
   </div>
-</ion-footer>
+
+</div>

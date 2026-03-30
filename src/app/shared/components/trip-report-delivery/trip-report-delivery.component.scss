@@ -6,6 +6,11 @@
   gap: 0.2em;
 }
 
+.dateBtn {
+  width: 50em;
+  white-space: nowrap;
+}
+
 .status-pill {
   background: #656565;
   color: #fff;
@@ -17,7 +22,7 @@
   flex-wrap: wrap;
   justify-content: space-between;
   font-weight: 500;
-  width: 67%;
+  width: 63%;
 }
 
 .undelivered-labels {
@@ -35,16 +40,18 @@
   border-radius: 0.7em;
   padding: 0.4em;
   width: 100%;
+  min-height: 11em;
 }
 
 ::ng-deep .arrow-down {
   margin-left: 0.7em;
+  height: 7px;
 }
 
 .today-btn-container {
   display: flex;
   justify-content: flex-end;
-  width: 33%;
+  width: 37%;
 
   .today-btn {
     background: #11c15b;
@@ -52,11 +59,13 @@
     border: none;
     border-radius: 0.7em;
     font-family: Roboto, Arial, sans-serif;
+    text-transform: none !important;
     font-size: 0.858em;
     font-weight: 500;
     cursor: pointer;
     transition: background 0.2s;
     margin: 0;
+    width: 10.2em;
 
     &:hover {
       background: #16a34a;
@@ -68,15 +77,16 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
+  min-height: 11.2em;
 
   .header-left {
-    width: 50%;
+    width: 65%;
     border-right: 1px solid #cdcdcd;
     padding-right: 0.8em;
   }
 
   .header-right {
-    width: 49%;
+    width: 34%;
   }
 
   .header-left,
@@ -103,11 +113,17 @@
       justify-content: space-between;
       gap: 0.3em;
       padding: 0 0.2em;
+      height: 1.6em;
     }
 
     .trip-status-data,
     .absent-vehicle-data {
       width: 100%;
+      height: 88%;
+    }
+
+    .table-left, .table-right {
+      height: 100%;
     }
 
     img {
@@ -141,6 +157,10 @@
   }
 }
 
+.disableIcon {
+  filter: grayscale(100%) contrast(80%);
+}
+
 .tables-row {
   display: flex;
   flex-direction: row;
@@ -155,7 +175,14 @@
   text-align: center !important;
 }
 
+.absent-table,
+.trip-table {
+  height: 100%;
+}
+
 .trip-table,
+.trip-data-table,
+.absent-data-table,
 .absent-table {
   width: 100%;
   font-weight: 500;
@@ -221,11 +248,15 @@
   }
 }
 
-.table-row {
-  display: flex;
-  justify-content: space-between;
+.last{
+      position: relative;
+    left: 4em;
 }
+.lasts{
+        position: relative;
+    left: 2em;
 
+}
 .checkmarkIcon {
   color: #11c15b;
 }
@@ -244,45 +275,41 @@
   width: 1em;
 }
 
-.mf-popover {
-  --background: transparent;
+.mf-popover::part(content) {
+  --background: #fff4d2;
   --box-shadow: none;
+  border: 2px solid #ffb400;
+  border-radius: 8px;
 }
 
 .mf-box {
-  background: #fff4d2;
-  border: 2px solid #ffb400;
-  border-radius: 8px;
-  padding: 6px 14px;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  white-space: nowrap;
+  padding: 0.2em 0 0.2em 0.4em;
+  font-size: 12px;
+  font-weight: 600;
+
+}
+
+ion-popover {
+  --min-width: 156px;
 }
 
 .mf-label {
   color: #1f1f1f;
-  margin-right: 6px;
-  font-family: Inter;
-  font-weight: 700;
-  font-style: Bold;
-  font-size: 12px;
-  line-height: 100%;
-  letter-spacing: 0%;
+  margin-right: 2px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+
 }
 
 .mf-number {
   color: #1f1f1f;
-  font-weight: 700;
-  font-style: Bold;
-  font-size: 12px;
-  line-height: 100%;
-  letter-spacing: 0%;
-}
+    font-weight: 500;
+    font-size: 10px;}
 
 .veh-no.clickable {
   cursor: pointer;
 }
+
 /* Hide ngx-spinner's default "Loading..." */
 ::ng-deep .ngx-spinner .spinner-text {
   display: none !important;
@@ -304,4 +331,141 @@
   color: #2ca85e;
   letter-spacing: 0.4px;
   text-align: center;
+}
+
+.location-wrapper {
+  position: relative;
+}
+
+.location-float {
+  position: absolute;
+  top: 20px;
+  right: -14.8em;
+  z-index: 20;
+  width: 32em;
+  background: #656565;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  padding: 6px;
+  font-weight: 200;
+  font-size: 0.75em;
+  font-family: 'Roboto';
+  line-height: 1.4;
+  word-break: break-word;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  color: #fff;
+}
+
+::ng-deep .mat-calendar-body-label {
+  visibility: hidden;
+}
+
+::ng-deep .mat-calendar-body-label {
+  color: transparent;
+}
+
+::ng-deep .mat-calendar-body-label {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  height: 0;
+}
+
+.location-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.locationIcon {
+  color: #d8d8d8;
+  font-size: 1.1em;
+}
+
+.locationIcon.active {
+  color: #11c15b;
+  cursor: pointer;
+}
+
+.location-float {
+  position: absolute;
+  top: 22px;
+  right: -14.8em;
+  z-index: 20;
+  width: 32em;
+ background: #fff4d2;
+  border: 1px solid #ffb400;
+    border-radius: 6px;
+  padding: 6px;
+    font-size: 0.75em;
+  font-family: 'Roboto', sans-serif;
+  color: #1f1f1f;
+  line-height: 1.4;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.location-float.with-arrow::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 14.75em;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #656565;
+}
+@media (min-width: 344px) and (max-width: 361px){
+  .status-pill{
+        width: 60%;
+  }
+  .last{
+      position: relative;
+    left: 2em;
+}
+.lasts{
+     position: relative;
+    left: 0.8em;
+
+}
+
+}
+.inline-popup {
+  position: absolute;
+  top: 22px;
+  right: -10em;
+  z-index: 20;
+
+  background: #fff4d2;
+  border: 1px solid #ffb400;
+  border-radius: 8px;
+
+  padding: 6px 10px;
+
+  font-size: 12px;
+  font-family: 'Roboto', sans-serif;
+  color: #1f1f1f;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  white-space: nowrap;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* LABEL */
+.inline-popup .label {
+  font-weight: 700;
+}
+
+/* VALUE */
+.inline-popup .value {
+  font-weight: 600;
+}
+.label {
+  font-weight: 700;
+}
+.value{
+      font-weight: 500;
+    font-size: 10px;
 }

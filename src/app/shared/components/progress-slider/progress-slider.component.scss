@@ -67,9 +67,10 @@
 }
 
 .bar-label {
-  font-size: 12px;
+  font-size: 14px;
   color: #000000;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .prog-bar {
@@ -89,13 +90,14 @@ s .bar-fill {
 
 .bar-percent {
   color: #fff;
-  font-family: Inter;
+  font-family: 'Roboto', sans-serif;
   white-space: nowrap;
   font-weight: 700;
-  font-size: 0.86em;
+  font-size: 14px;
   line-height: 100%;
   display: flex;
   justify-content: flex-end;
   margin-left: 1.7em;
   padding-right: 0.3em;
+  text-align: center;
 }

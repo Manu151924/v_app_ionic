@@ -7,11 +7,10 @@
     @if (faceIcon.type === 'emoji') {
     {{ faceIcon.value }}
     } @else {
-    <img [src]="faceIcon.value" class="emoji-img" />
+    <img [src]="faceIcon.value" class="emoji-img" alt=""/>
     }
   </div>
 
-  <!-- <div class="progress-text">{{ value | number : "1.0-0" }}%</div> -->
 </div>
 } @if(booking.length){
 <div class="bars-container">

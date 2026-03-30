@@ -23,11 +23,12 @@
 
 .header-row {
   display: flex;
-  box-shadow: inset 1em 0.8em 0.3em #27AE61;
+  box-shadow: inset 1em 0.8em 0.3em #27ae61;
+  height: 2.45em;
 
   .pan1-header-left {
     width: 33%;
-    padding: 0.15em 0.4em 0.44em 0em;
+    padding: 0.15em 0.31em 0.6em 0em;
     background-color: #27ae60;
     border-bottom-right-radius: 1em;
     display: flex;
@@ -37,7 +38,7 @@
     width: 67%;
     display: flex;
     justify-content: flex-end;
-    box-shadow: inset 1em 0.8em 0.3em #27AE61;
+    box-shadow: inset 1em 0.8em 0.3em #27ae61;
   }
 
   &::before {
@@ -54,7 +55,7 @@
     z-index: 0;
   }
 
-  >* {
+  > * {
     position: relative;
     z-index: 1;
   }
@@ -62,11 +63,10 @@
 
 .location-dropdown {
   background: #ffffff;
-  border-radius: 1.15em;
+  border-radius: 0.5em;
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0.15em;
   padding: 0em 0.2em;
   cursor: pointer;
   transition: 0.2s ease;
@@ -89,7 +89,6 @@
     position: relative;
   }
 
-
   ion-select::part(icon) {
     color: #27ae60;
   }
@@ -99,21 +98,80 @@
     --padding-end: 0;
     --background: transparent;
     color: #27ae60;
-    font-size: clamp(11px, 2.6vw, 13px);
+    font-size: clamp(12px, 2.8vw, 13px);
     font-weight: 600;
     min-width: 0;
     --highlight-height: 0;
     flex: 1;
+    min-height: 0;
   }
 
   .arrow-down {
     margin-left: 0.7em;
+    height: 7px;
   }
+}
+
+.custom-select {
+  font-size: 12px;
+  font-weight: 600;
+  color: #27ae60;
+  min-width: 70px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+::ng-deep .mat-mdc-form-field {
+  display: none !important;
+}
+
+::ng-deep .mat-mdc-select-value {
+  color: #27ae60;
+}
+
+::ng-deep .custom-dropdown-panel {
+  min-width: 9.427em !important;
+  width: auto !important;
+  margin-left: -1.4375rem !important;
+  background: #ffffff !important;
+  padding: 0px 0px 0px 0px !important;
+  white-space: nowrap;
+  border: 1px #f1f1f1 !important;
+}
+::ng-deep .mat-mdc-select-arrow svg{
+  color: #27ae60;
+}
+
+::ng-deep .mat-mdc-option {
+  white-space: nowrap;
+  background: #fff !important;
+  min-height: 40px !important;
+  padding: 0px 0px !important;
+  color: #1a1a1a !important;
+  line-height: 100%;
+  letter-spacing: 0%;
+  margin-left: 7px !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+::ng-deep .mat-mdc-option {
+  border-bottom: 1px solid black;
+}
+::ng-deep .mat-pseudo-checkbox {
+  display: none !important;
+}
+::ng-deep .mat-mdc-option:last-child {
+  border-bottom: none;
+}
+
+.datebtn {
+  width: 50em;
 }
 
 .card-content {
   background-color: #27ae60;
-  box-shadow: inset 1em 0.8em 0.3em #27AE61;
+  box-shadow: inset 1em 0.8em 0.3em #27ae61;
 }
 
 .assigned-sfx {
@@ -129,18 +187,23 @@
   flex-direction: row;
 
   .label {
-    font-size: clamp(10px, 2.8vw, 12px);
+    font-size: clamp(12px, 2.8vw, 12px);
     font-weight: 700;
     color: #2c3a3b;
     white-space: nowrap;
   }
 
   .value {
-    font-size: clamp(18px, 5vw, 24px);
+    font-size: clamp(22px, 5vw, 24px);
     font-weight: 700;
     color: #13c15b;
     line-height: 1;
   }
+}
+
+.today-btn {
+  text-transform: capitalize;
+  width: 10.2em;
 }
 
 .status-list {
@@ -284,6 +347,11 @@
     max-width: calc(50% - 4px);
     min-width: calc(50% - 4px);
     padding: 0 !important;
+
+    &.strech {
+      flex: 0 0 calc(100%);
+      max-width: calc(100%);
+    }
   }
 
   .summary-card {
@@ -291,7 +359,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.4em;
-    height: 5em;
+    // height: 5em;
     background: #fff;
     box-shadow: 0 2px 10px #eeeff2;
     margin: 0;
@@ -322,11 +390,11 @@
   }
 
   .card-main {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 500;
 
     &.red {
-      color: #B00020;
+      color: #b00020;
       width: 7.6em;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -343,14 +411,17 @@
   }
 
   .card-label {
-    font-size: 0.7em;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 400;
     color: #1a1a1a;
-    white-space: nowrap;
-    opacity: 0.7;
-
+    white-space: normal;
+    display: flex;
+    flex-direction: column;
     small {
-      font-size: 0.7em;
+      font-size: 0.67em;
+      color: #1a1a1a;
+      display: block;
+      margin-top: -5px;
     }
   }
 }
@@ -432,7 +503,7 @@
 
 .snapshot-header {
   .snapshot-title {
-    font-size: 1em;
+    font-size: 16px;
     font-weight: 500;
   }
 
@@ -466,22 +537,40 @@
   align-items: center;
   color: #ff8a0d;
 }
+/* Remove dot when value = 0 */
+.status-row.is-zero .bar-fill {
+  padding-left: 0 0 3 0 !important;
+  border: none !important;
+  width: 0 !important;
+}
 
 .piechart {
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.location-dropdown ion-select::part(container) {
-  width: 100em;
-}
 ::ng-deep ion-popover ion-list ion-item {
   --inner-border-width: 0;
   border-bottom: 1px solid black;
 }
+
 ::ng-deep ion-popover ion-list ion-item:last-child {
   border-bottom: none;
 }
+
 ::ng-deep ion-popover ion-item:last-of-type {
   border-bottom: none !important;
+}
+
+.status-row.is-zero .bar-fill {
+  width: 0 !important;
+  border: none !important;
+  padding: 10px !important;
+  background: transparent !important;
+}
+.arrow-down {
+  height: 7px;
 }

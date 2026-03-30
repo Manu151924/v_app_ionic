@@ -6,6 +6,7 @@ export type SessionState =
   | 'REFRESHING'
   | 'NO_INTERNET'
   | 'SERVER_DOWN'
+  | 'SERVER_ERROR'
   | 'SESSION_EXPIRED';
 
 @Injectable({ providedIn: 'root' })

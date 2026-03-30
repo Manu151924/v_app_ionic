@@ -1,37 +1,80 @@
-<ion-content class="account-content" [scrollY]="false">
 
-  <!-- Header (unchanged) -->
-  <ion-header>
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-back-button defaultHref="/home"></ion-back-button>
-      </ion-buttons>
-      <ion-title>My Account</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-header class="header">
+  <ion-toolbar class="header-row">
+    <ion-button slot="start" fill="clear" class="back-icon" (click)="goBack()" (keydown.enter)="goBack()"
+      (keydown.space)="goBack()" aria-label="Go back">
+      <ion-icon name="chevron-back-outline" size="large" color="#000000"></ion-icon>
+    </ion-button>
 
-  <!-- Outer container that matches screenshot padding -->
+  </ion-toolbar>
+</ion-header>
+<ion-content class="account-content">
+
+
   <div class="account-shell">
 
-    <!-- White background panel -->
     <div class="account-panel">
 
-      <!-- Green Name Card -->
-      <div class="profile-wrapper">
-        <ion-card class="profile-card" (click)="openProfileDetails()">
-          <div class="profile-row">
-            <ion-icon name="person-circle-outline" class="icon"></ion-icon>
-            <div>
-              <p class="label">Name</p>
-              <p class="value">{{ vendorName }}</p>
-            </div>
-          </div>
-        </ion-card>
+<div class="account-title">
+  <img src="assets/icon/account-user.png" class="user-outline-icon" />
+  <span>My Account</span>
+</div>
+
+<div class="divider"></div>
+
+<!-- Profile Card -->
+<div class="profile-wrapper">
+  <div class="profile-card" (click)="openProfileDetails()">
+    <div class="profile-row">
+      <ion-icon name="person-circle-outline" class="icon"></ion-icon>
+      <div>
+        <p class="label">Name</p>
+        <p class="value">{{ vendorName }}</p>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section Card -->
+<!-- <div class="section-card">
+  <div class="section-header">
+    <ion-icon name="car-outline"></ion-icon>
+    <span>My Vehicles</span>
+  </div>
+
+  <div class="pill-row">
+    <div class="pill">NRM</div>
+    <div class="pill">DELIVERY</div>
+  </div>
+</div>
+
+<div class="section-card">
+  <div class="section-header">
+    <ion-icon name="cash-outline"></ion-icon>
+    <span>Your Payment</span>
+  </div>
+
+  <div class="pill-row">
+    <div class="pill">NRM</div>
+    <div class="pill">DELIVERY</div>
+  </div>
+</div>
+
+<div class="section-card">
+  <div class="section-header">
+    <ion-icon name="business-outline"></ion-icon>
+    <span>Market Vehicle Request</span>
+  </div>
+
+  <div class="pill-row">
+    <div class="pill">NRM</div>
+    <div class="pill">DELIVERY</div>
+  </div>
+</div> -->
+
 
     </div>
 
-    <!-- Bottom area (same as screenshot) -->
     <div class="bottom-area">
       <span class="version">Version {{ version }}</span>
 
@@ -44,3 +87,7 @@
   </div>
 
 </ion-content>
+
+  <ion-footer slot="fixed">
+    <app-footer></app-footer>
+  </ion-footer>

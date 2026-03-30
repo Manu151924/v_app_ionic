@@ -2,6 +2,7 @@
   "/vappcore/core/api/v1": {
     "target": "https://dgapi-uat-nonprod.safexpress.com",
     "secure": false,
-    "changeOrigin": true
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
 }

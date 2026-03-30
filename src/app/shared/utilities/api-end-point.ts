@@ -32,5 +32,6 @@ export const API_ENDPOINTS = {
     PANNELDELIVERYTWOTABLE: `${VAPP_DELIVERY_URL}getPanelTwoTripAndAbsentDetails`,
     PANNELTHREE: `${VAPP_DELIVERY_URL}getPanelThreeCount`,
     PANEELFOUR: `${VAPP_DELIVERY_URL}getPanelFourDetails`,
+    TRIPSTATUSLOCATION: `${VAPP_DELIVERY_URL}getLocation`,
   },
 };
